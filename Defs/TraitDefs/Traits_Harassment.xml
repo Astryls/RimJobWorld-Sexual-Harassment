@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Gained through prolonged collar conditioning (see HediffComp_CollarConditioning). Never generated
+       on pawns naturally (commonality 0). Represents a captive bonding with their captor. -->
+  <TraitDef>
+    <defName>RJWSH_StockholmSyndrome</defName>
+    <commonality>0.0</commonality>
+    <degreeDatas>
+      <li>
+        <label>stockholm syndrome</label>
+        <description>This pawn has come to identify with their captors. They feel a confused loyalty and affection toward those who control them, and rarely resist.</description>
+        <degree>0</degree>
+        <statOffsets>
+          <SlaveSuppressionOffset MayRequire="Ludeon.RimWorld.Ideology">0.5</SlaveSuppressionOffset>
+        </statOffsets>
+        <socialFightChanceFactor>0.2</socialFightChanceFactor>
+      </li>
+    </degreeDatas>
+  </TraitDef>
+
+  <!-- Sadist: takes pleasure in others' pain. Used by the controller-behavior system (a sadist controller
+       beats their slave). Detection also falls back to any external "Sadist" trait if one is loaded. -->
+  <TraitDef>
+    <defName>RJWSH_Sadist</defName>
+    <commonality>1.0</commonality>
+    <degreeDatas>
+      <li>
+        <label>sadist</label>
+        <description>This pawn takes pleasure in the pain, fear, and humiliation of others.</description>
+        <degree>0</degree>
+        <socialFightChanceFactor>1.4</socialFightChanceFactor>
+      </li>
+    </degreeDatas>
+  </TraitDef>
+
+</Defs>

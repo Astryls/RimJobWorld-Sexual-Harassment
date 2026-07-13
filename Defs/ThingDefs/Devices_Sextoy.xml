@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Sextoy Decoration "free to use" textures turned into lockable RJW bondage gear. Inheriting
+       BondageGearBase gives each the HoloCrypto lock comp + Bondage category, so LockableGear() auto-enrolls
+       them into the devious-device pool and BdsmGearCount counts them toward vulnerability. No wornGraphicPath:
+       the source art is a single item icon (no directional pawn sprites), so the device is invisible when worn
+       but still locks, gives the bound moodlet, and raises vulnerability. Worn art is a future task. -->
+
+  <rjw.bondage_gear_def Name="RJWSH_DeviceBase" ParentName="BondageGearBase" Abstract="True">
+    <soul_type>rjw.bondage_gear_soul</soul_type>
+    <gives_bound_moodlet>true</gives_bound_moodlet>
+    <techLevel>Industrial</techLevel>
+    <statBases>
+      <MaxHitPoints>60</MaxHitPoints>
+      <Flammability>0.4</Flammability>
+      <DeteriorationRate>1.0</DeteriorationRate>
+      <Beauty>-4</Beauty>
+      <MarketValue>90</MarketValue>
+      <Mass>0.2</Mass>
+    </statBases>
+  </rjw.bondage_gear_def>
+
+  <!-- Slot bases: distinct body parts / layers so the devices mostly stack (crotch toys are mutually exclusive). -->
+  <rjw.bondage_gear_def Name="RJWSH_GagBase" ParentName="RJWSH_DeviceBase" Abstract="True">
+    <apparel>
+      <bodyPartGroups><li>Teeth</li></bodyPartGroups>
+      <layers><li>Overhead</li></layers>
+      <wornGraphicPath>Pawn/Humanlike/Apparel/RJWSH_GagWorn/RJWSH_GagWorn</wornGraphicPath>
+    </apparel>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def Name="RJWSH_BlindfoldBase" ParentName="RJWSH_DeviceBase" Abstract="True">
+    <apparel>
+      <bodyPartGroups><li>Eyes</li></bodyPartGroups>
+      <layers><li>Overhead</li></layers>
+      <wornGraphicPath>Pawn/Humanlike/Apparel/RJWSH_BlindfoldWorn/RJWSH_BlindfoldWorn</wornGraphicPath>
+    </apparel>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def Name="RJWSH_TorsoDeviceBase" ParentName="RJWSH_DeviceBase" Abstract="True">
+    <apparel><bodyPartGroups><li>Torso</li></bodyPartGroups><layers><li>OnSkin</li></layers></apparel>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def Name="RJWSH_CuffsBase" ParentName="RJWSH_DeviceBase" Abstract="True">
+    <apparel><bodyPartGroups><li>Hands</li></bodyPartGroups><layers><li>Middle</li></layers></apparel>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def Name="RJWSH_CrotchDeviceBase" ParentName="RJWSH_DeviceBase" Abstract="True">
+    <apparel><bodyPartGroups><li>Waist</li></bodyPartGroups><layers><li>Belt</li></layers></apparel>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def Name="RJWSH_RopeBase" ParentName="RJWSH_DeviceBase" Abstract="True">
+    <apparel><bodyPartGroups><li>Torso</li><li>Legs</li></bodyPartGroups><layers><li>Shell</li></layers></apparel>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def Name="RJWSH_NeckDeviceBase" ParentName="RJWSH_DeviceBase" Abstract="True">
+    <apparel><bodyPartGroups><li>Neck</li></bodyPartGroups><layers><li>Middle</li></layers></apparel>
+  </rjw.bondage_gear_def>
+
+  <!-- ===== Gags ===== -->
+  <rjw.bondage_gear_def ParentName="RJWSH_GagBase">
+    <defName>RJWSH_BallGag</defName>
+    <label>ball gag</label>
+    <description>A locked rubber ball gag. Muffles the wearer and marks them as someone's plaything.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/ballgag</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_GagBase">
+    <defName>RJWSH_BallGagWide</defName>
+    <label>wide ball gag</label>
+    <description>An oversized locked ball gag that forces the jaw wide open.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/ballgag_wide</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_GagBase">
+    <defName>RJWSH_BallGagMed</defName>
+    <label>open ball gag</label>
+    <description>A locked open-mouth ball gag.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/ballgag_med</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_GagBase">
+    <defName>RJWSH_BallGagTwisty</defName>
+    <label>ring gag</label>
+    <description>A locked ring gag with an adjustable arm.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/ballgag_twisty</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+
+  <!-- ===== Blindfolds ===== -->
+  <rjw.bondage_gear_def ParentName="RJWSH_BlindfoldBase">
+    <defName>RJWSH_Blindfold</defName>
+    <label>blindfold</label>
+    <description>A locked leather blindfold. The wearer is kept in the dark, literally.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/blindfold1</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_BlindfoldBase">
+    <defName>RJWSH_BlindfoldPadded</defName>
+    <label>padded blindfold</label>
+    <description>A thick padded locked blindfold.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/blindfold2</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_BlindfoldBase">
+    <defName>RJWSH_BlindfoldOpen</defName>
+    <label>open blindfold</label>
+    <description>A locked blindfold pushed up, teasing the wearer with glimpses.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/blindfold_open</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+
+  <!-- ===== Clamps ===== -->
+  <rjw.bondage_gear_def ParentName="RJWSH_TorsoDeviceBase">
+    <defName>RJWSH_NippleClamps</defName>
+    <label>nipple clamps</label>
+    <description>A locked pair of nipple clamps joined by a fine chain.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/nippleclamps</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+
+  <!-- ===== Cuffs ===== -->
+  <rjw.bondage_gear_def ParentName="RJWSH_CuffsBase">
+    <defName>RJWSH_Cuffs</defName>
+    <label>cuffs</label>
+    <description>Locked wrist cuffs that bind the hands together.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/cuffs</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_CuffsBase">
+    <defName>RJWSH_CuffsSpread</defName>
+    <label>spreader cuffs</label>
+    <description>Locked cuffs on a rigid bar that hold the wrists apart.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/cuffs_spread</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+
+  <!-- ===== Crotch toys (mutually exclusive) ===== -->
+  <rjw.bondage_gear_def ParentName="RJWSH_CrotchDeviceBase">
+    <defName>RJWSH_Dildo</defName>
+    <label>locked dildo</label>
+    <description>A dildo held in by a locked harness.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/dildo</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_CrotchDeviceBase">
+    <defName>RJWSH_DildoDragon</defName>
+    <label>dragon dildo harness</label>
+    <description>An exotic ribbed dildo held in by a locked harness.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/dildo_dragon</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_CrotchDeviceBase">
+    <defName>RJWSH_DildoPink</defName>
+    <label>pink dildo harness</label>
+    <description>A pink dildo held in by a locked harness.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/dildo_pink</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_CrotchDeviceBase">
+    <defName>RJWSH_DildoThicc</defName>
+    <label>thick dildo harness</label>
+    <description>An intimidatingly thick dildo held in by a locked harness.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/dildo_thicc</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_CrotchDeviceBase">
+    <defName>RJWSH_Plug</defName>
+    <label>locked plug</label>
+    <description>A plug held in by a locked harness.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/plug</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_CrotchDeviceBase">
+    <defName>RJWSH_PlugInflatable</defName>
+    <label>inflatable plug</label>
+    <description>An inflatable plug held in by a locked harness.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/plug_inflatable</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_CrotchDeviceBase">
+    <defName>RJWSH_Vibrator</defName>
+    <label>locked vibrator</label>
+    <description>A vibrator strapped on with a locked harness, kept running to keep the wearer on edge.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/vibrator</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_CrotchDeviceBase">
+    <defName>RJWSH_VibratorFancy</defName>
+    <label>deluxe vibrator</label>
+    <description>A deluxe vibrator strapped on with a locked harness.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/vibrator_fancy</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+
+  <!-- ===== Rope (full body) ===== -->
+  <rjw.bondage_gear_def ParentName="RJWSH_RopeBase">
+    <defName>RJWSH_Rope</defName>
+    <label>shibari rope</label>
+    <description>An elaborate locked rope harness binding the whole body.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/rope1</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_RopeBase">
+    <defName>RJWSH_RopeTight</defName>
+    <label>tight shibari rope</label>
+    <description>A tighter locked rope harness biting into the skin.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/rope2</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+
+  <!-- ===== Leash ===== -->
+  <rjw.bondage_gear_def ParentName="RJWSH_NeckDeviceBase">
+    <defName>RJWSH_Leash</defName>
+    <label>leash</label>
+    <description>A locked leash that clips to a collar. A clear sign of who is in charge.</description>
+    <graphicData><texPath>Things/RJWSH_Devices/leash</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+  </rjw.bondage_gear_def>
+
+</Defs>

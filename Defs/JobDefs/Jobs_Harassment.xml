@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <JobDef>
+    <defName>RJWSH_Harass</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_Harass</driverClass>
+    <reportString>harassing TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <playerInterruptible>true</playerInterruptible>
+  </JobDef>
+
+  <!-- Harasser's timed, layer-by-layer forced strip job. -->
+  <JobDef>
+    <defName>RJWSH_StripVictim</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_HarassStrip</driverClass>
+    <reportString>stripping TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <playerInterruptible>true</playerInterruptible>
+  </JobDef>
+
+  <!-- Forced-follow job for collared/key-locked pawns. -->
+  <JobDef>
+    <defName>RJWSH_Follow</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_HarassFollow</driverClass>
+    <reportString>following their owner.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <playerInterruptible>true</playerInterruptible>
+  </JobDef>
+
+  <JobDef>
+    <defName>RJWSH_DisciplinePet</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_OwnerInteract</driverClass>
+    <reportString>disciplining TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <playerInterruptible>true</playerInterruptible>
+  </JobDef>
+
+  <JobDef>
+    <defName>RJWSH_RewardPet</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_OwnerInteract</driverClass>
+    <reportString>rewarding TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <playerInterruptible>true</playerInterruptible>
+  </JobDef>
+
+  <JobDef>
+    <defName>RJWSH_DressPet</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_OwnerInteract</driverClass>
+    <reportString>dressing up TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <playerInterruptible>true</playerInterruptible>
+  </JobDef>
+
+  <!-- Conditioning session: owner walks over and runs a session to try to reshape a pet's psychological stats. -->
+  <JobDef>
+    <defName>RJWSH_TrainPet</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_OwnerInteract</driverClass>
+    <reportString>conditioning TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <playerInterruptible>true</playerInterruptible>
+  </JobDef>
+
+  <!-- Beatdown: owner chases a fleeing pet and beats them until downed (or, if enabled, to death). -->
+  <JobDef>
+    <defName>RJWSH_Beatdown</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_Beatdown</driverClass>
+    <reportString>beating down TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <playerInterruptible>true</playerInterruptible>
+  </JobDef>
+
+  <!-- Pursue: owner chases a fleeing pet, then delivers the punishment on catch. -->
+  <JobDef>
+    <defName>RJWSH_PursueFlee</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_PursueFlee</driverClass>
+    <reportString>chasing down TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <playerInterruptible>true</playerInterruptible>
+  </JobDef>
+
+  <!-- Parade: the stripped pet walks a humiliating circuit around the colony. -->
+  <JobDef>
+    <defName>RJWSH_Parade</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_Parade</driverClass>
+    <reportString>being paraded through the colony.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <playerInterruptible>true</playerInterruptible>
+  </JobDef>
+
+  <JobDef>
+    <defName>RJWSH_Scuffle</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_Scuffle</driverClass>
+    <reportString>scuffling with TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <playerInterruptible>true</playerInterruptible>
+  </JobDef>
+
+  <!-- Key delivery: the owner walks to another pawn to physically hand over or copy a collar key. -->
+  <JobDef>
+    <defName>RJWSH_DeliverKey</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_DeliverKey</driverClass>
+    <reportString>taking a collar key to TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <playerInterruptible>true</playerInterruptible>
+  </JobDef>
+
+  <!-- Scene extension: carry the victim to a private spot, then continue the assault there. -->
+  <JobDef>
+    <defName>RJWSH_DragToPrivate</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_DragToPrivate</driverClass>
+    <reportString>dragging a victim somewhere private.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+  </JobDef>
+
+  <!-- Bound in public: carry the victim to a public cell and leave them locked in a device. -->
+  <JobDef>
+    <defName>RJWSH_DragToPublic</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_DragToPublic</driverClass>
+    <reportString>dragging a victim into the open.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+  </JobDef>
+
+  <!-- Onahole compat: drag the victim to a public spot and lock them into an onahole. -->
+  <JobDef>
+    <defName>RJWSH_DragToOnahole</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_DragToOnahole</driverClass>
+    <reportString>dragging TargetA away.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <playerInterruptible>true</playerInterruptible>
+  </JobDef>
+
+  <!-- Victim's hold job: keeps them pinned beside the harasser while being stripped. -->
+  <JobDef>
+    <defName>RJWSH_BeingStripped</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_HarassVictim</driverClass>
+    <reportString>being assaulted.</reportString>
+    <checkOverrideOnDamage>Never</checkOverrideOnDamage>
+    <casualInterruptible>false</casualInterruptible>
+    <playerInterruptible>false</playerInterruptible>
+  </JobDef>
+
+  <JobDef>
+    <defName>RJWSH_Whore</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_Whore</driverClass>
+    <reportString>offering themselves to TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+  </JobDef>
+
+  <JobDef>
+    <defName>RJWSH_BeingLed</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_BeingLed</driverClass>
+    <reportString>being dragged along.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <playerInterruptible>true</playerInterruptible>
+    <suspendable>false</suspendable>
+  </JobDef>
+
+  <JobDef>
+    <defName>RJWSH_StayPut</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_StayPut</driverClass>
+    <reportString>staying put.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <playerInterruptible>true</playerInterruptible>
+    <suspendable>false</suspendable>
+  </JobDef>
+
+  <JobDef>
+    <defName>RJWSH_Affection</defName>
+    <driverClass>RJWSexualHarassment.JobDriver_Affection</driverClass>
+    <reportString>sharing a tender moment with TargetA.</reportString>
+    <casualInterruptible>true</casualInterruptible>
+    <suspendable>true</suspendable>
+  </JobDef>
+
+</Defs>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Lockable bondage-gear copies of "More Nal Clothes" apparel. Textures copied into
+       Textures/RJWSH_src/MoreNal/. All use a worn graphic mask (CutoutComplex). Inheriting BondageGearBase
+       auto-locks them + enrolls them into the devious-device pool + vulnerability. -->
+
+  <rjw.bondage_gear_def Name="RJWSH_MoreNalBase" ParentName="BondageGearBase" Abstract="True">
+    <soul_type>rjw.bondage_gear_soul</soul_type>
+    <gives_bound_moodlet>true</gives_bound_moodlet>
+    <techLevel>Industrial</techLevel>
+    <statBases>
+      <MaxHitPoints>80</MaxHitPoints>
+      <Flammability>0.6</Flammability>
+      <DeteriorationRate>1.0</DeteriorationRate>
+      <Beauty>-2</Beauty>
+      <MarketValue>120</MarketValue>
+      <Mass>0.15</Mass>
+    </statBases>
+    <apparel>
+      <useWornGraphicMask>true</useWornGraphicMask>
+    </apparel>
+  </rjw.bondage_gear_def>
+
+  <rjw.bondage_gear_def ParentName="RJWSH_MoreNalBase"><defName>RJWSH_DZZBSW</defName><label>white stockings</label><description>A locked pair of white silk stockings.</description>
+    <graphicData><texPath>RJWSH_src/MoreNal/Apparel/DZZBSW/DZZBSW</texPath><graphicClass>Graphic_Single</graphicClass><shaderType>CutoutComplex</shaderType></graphicData>
+    <apparel><bodyPartGroups><li>Feet</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/MoreNal/Apparel/DZZBSW/DZZBSW</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_MoreNalBase"><defName>RJWSH_MZZCKT</defName><label>band-aid</label><description>A locked band-aid covering.</description>
+    <graphicData><texPath>RJWSH_src/MoreNal/Apparel/MZZCKT/MZZCKT</texPath><graphicClass>Graphic_Single</graphicClass><shaderType>CutoutComplex</shaderType></graphicData>
+    <apparel><bodyPartGroups><li>Legs</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/MoreNal/Apparel/MZZCKT/MZZCKT</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_MoreNalBase"><defName>RJWSH_MZZLBW</defName><label>blue and white underwear</label><description>Locked blue and white striped underwear.</description>
+    <graphicData><texPath>RJWSH_src/MoreNal/Apparel/MZZLBW/MZZLBW</texPath><graphicClass>Graphic_Single</graphicClass><shaderType>CutoutComplex</shaderType></graphicData>
+    <apparel><bodyPartGroups><li>Legs</li></bodyPartGroups><layers><li>Middle</li></layers><wornGraphicPath>RJWSH_src/MoreNal/Apparel/MZZLBW/MZZLBW</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_MoreNalBase"><defName>RJWSH_MZZMNK</defName><label>cotton underwear</label><description>Soft locked cotton underwear.</description>
+    <graphicData><texPath>RJWSH_src/MoreNal/Apparel/MZZMNK/MZZMNK</texPath><graphicClass>Graphic_Single</graphicClass><shaderType>CutoutComplex</shaderType></graphicData>
+    <apparel><bodyPartGroups><li>Legs</li></bodyPartGroups><layers><li>Middle</li></layers><wornGraphicPath>RJWSH_src/MoreNal/Apparel/MZZMNK/MZZMNK</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_MoreNalBase"><defName>RJWSH_UZZCKT</defName><label>chest band-aids</label><description>Locked band-aids over the chest.</description>
+    <graphicData><texPath>RJWSH_src/MoreNal/Apparel/UZZCKT/UZZCKT</texPath><graphicClass>Graphic_Single</graphicClass><shaderType>CutoutComplex</shaderType></graphicData>
+    <apparel><bodyPartGroups><li>Torso</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/MoreNal/Apparel/UZZCKT/UZZCKT</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_MoreNalBase"><defName>RJWSH_UZZLSH</defName><label>lace bra</label><description>A locked lace bra.</description>
+    <graphicData><texPath>RJWSH_src/MoreNal/Apparel/UZZLSH/UZZLSH</texPath><graphicClass>Graphic_Single</graphicClass><shaderType>CutoutComplex</shaderType></graphicData>
+    <apparel><bodyPartGroups><li>Torso</li></bodyPartGroups><layers><li>Middle</li></layers><wornGraphicPath>RJWSH_src/MoreNal/Apparel/UZZLSH/UZZLSH</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_MoreNalBase"><defName>RJWSH_UZZJSD</defName><label>restraint strap</label><description>A locked restraint strap across the chest.</description>
+    <graphicData><texPath>RJWSH_src/MoreNal/Apparel/UZZJSD/UZZJSD</texPath><graphicClass>Graphic_Single</graphicClass><shaderType>CutoutComplex</shaderType></graphicData>
+    <apparel><bodyPartGroups><li>Torso</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/MoreNal/Apparel/UZZJSD/UZZJSD</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_MoreNalBase"><defName>RJWSH_SZZBDG</defName><label>white coat</label><description>A locked open white coat.</description>
+    <graphicData><texPath>RJWSH_src/MoreNal/Apparel/SZZBDG/SZZBDG</texPath><graphicClass>Graphic_Single</graphicClass><shaderType>CutoutComplex</shaderType></graphicData>
+    <apparel><bodyPartGroups><li>Shoulders</li><li>Arms</li><li>Torso</li></bodyPartGroups><layers><li>Shell</li></layers><wornGraphicPath>RJWSH_src/MoreNal/Apparel/SZZBDG/SZZBDG</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_MoreNalBase"><defName>RJWSH_DZZLGS</defName><label>blue diamond garter</label><description>A locked blue diamond leg piece.</description>
+    <graphicData><texPath>RJWSH_src/MoreNal/Apparel/DZZLGS/DZZLGS</texPath><graphicClass>Graphic_Single</graphicClass><shaderType>CutoutComplex</shaderType></graphicData>
+    <apparel><bodyPartGroups><li>Legs</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/MoreNal/Apparel/DZZLGS/DZZLGS</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_MoreNalBase"><defName>RJWSH_NZZLXL</defName><label>blue necklace</label><description>A locked blue necklace.</description>
+    <graphicData><texPath>RJWSH_src/MoreNal/Apparel/NZZLXL/NZZLXL</texPath><graphicClass>Graphic_Single</graphicClass><shaderType>CutoutComplex</shaderType></graphicData>
+    <apparel><bodyPartGroups><li>Neck</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/MoreNal/Apparel/NZZLXL/NZZLXL</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_MoreNalBase"><defName>RJWSH_UZZLBS</defName><label>emerald bustier</label><description>A locked emerald bustier.</description>
+    <graphicData><texPath>RJWSH_src/MoreNal/Apparel/UZZLBS/UZZLBS</texPath><graphicClass>Graphic_Single</graphicClass><shaderType>CutoutComplex</shaderType></graphicData>
+    <apparel><bodyPartGroups><li>Torso</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/MoreNal/Apparel/UZZLBS/UZZLBS</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_MoreNalBase"><defName>RJWSH_NZZQXL</defName><label>light blue necklace</label><description>A locked light blue necklace.</description>
+    <graphicData><texPath>RJWSH_src/MoreNal/Apparel/NZZQXL/NZZQXL</texPath><graphicClass>Graphic_Single</graphicClass><shaderType>CutoutComplex</shaderType></graphicData>
+    <apparel><bodyPartGroups><li>Neck</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/MoreNal/Apparel/NZZQXL/NZZQXL</wornGraphicPath></apparel></rjw.bondage_gear_def>
+
+</Defs>

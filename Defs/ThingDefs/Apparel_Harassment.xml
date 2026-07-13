@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Real RimJobWorld bondage gear so it locks with an RJW Holokey (parented to RJW's BondageGearBase:
+       inherits the HoloCryptoStamped lock, the Usable/GetBondageGear comps, and the bondage category).
+       Our CompControlCollar adds the command/shock gizmos on top. -->
+  <rjw.bondage_gear_def ParentName="BondageGearBase">
+    <defName>RJWSH_ControlCollar</defName>
+    <label>control collar</label>
+    <description>A locked shock collar wired to a remote. Whoever holds the matching key can command or punish the wearer at will. It is the end state of deep hypnotic conditioning and, like any locked RimJobWorld device, can only be removed with its key.</description>
+    <graphicData>
+      <texPath>Things/Item/RJWSH_ControlCollar</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <thingCategories>
+      <li>Headgear</li>
+    </thingCategories>
+    <statBases>
+      <MaxHitPoints>80</MaxHitPoints>
+      <Mass>0.3</Mass>
+      <MarketValue>200</MarketValue>
+    </statBases>
+    <!-- Base-game slavery tie-in: the collar suppresses. A collared slave desuppresses far slower, so the
+         collar + conditioning keep them from rebelling (harmless on non-slave wearers). -->
+    <equippedStatOffsets>
+      <SlaveSuppressionFallRate>-0.6</SlaveSuppressionFallRate>
+    </equippedStatOffsets>
+    <apparel>
+      <bodyPartGroups>
+        <li>Neck</li>
+      </bodyPartGroups>
+      <!-- Overhead layer (matching Simple Slavery Collars) so RimWorld does NOT append _{bodyType} to the
+           worn graphic path - lets the plain _north/_south/_east textures serve every body type. -->
+      <layers>
+        <li>Overhead</li>
+      </layers>
+      <wornGraphicPath>Things/Pawn/Humanlike/Apparel/RJWSH_ControlCollar/RJWSH_ControlCollar</wornGraphicPath>
+      <!-- Match Simple Slavery Collars' render layers so the worn collar anchors at the neck.
+           scale 0.65 = calibrated in-game via the "Calibrate control collar" dev tool. -->
+      <drawData>
+        <scale>0.65</scale>
+        <defaultData>
+          <layer>48</layer>
+        </defaultData>
+        <dataNorth>
+          <layer>68</layer>
+        </dataNorth>
+      </drawData>
+    </apparel>
+    <soul_type>rjw.bondage_gear_soul</soul_type>
+    <gives_bound_moodlet>true</gives_bound_moodlet>
+  </rjw.bondage_gear_def>
+
+</Defs>

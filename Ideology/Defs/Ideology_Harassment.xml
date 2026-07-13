@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Phase 7 Ideology layer. Loads only when Ideology is active (LoadFolders IfModActive).
+     The Ownership meme adds a Collaring issue; Honored/Approved reward owners, Forbidden distresses believers.
+     The meme/precepts also feed HarasserPreceptFactor + ApprovesOfCruelty in IdeologyHooks (by defName). -->
+<Defs>
+
+  <MemeDef>
+    <defName>RJWSH_Ownership</defName>
+    <label>ownership</label>
+    <description>People can be owned. To collar another, break them to your will, and keep them as a devoted pet is the natural order - a mark of strength and status.</description>
+    <iconPath>UI/RJWSH_Collar</iconPath>
+    <groupDef>Misc</groupDef>
+    <impact>2</impact>
+    <renderOrder>75</renderOrder>
+    <requireOne>
+      <li>
+        <li>RJWSH_Collaring_Approved</li>
+        <li>RJWSH_Collaring_Honored</li>
+      </li>
+    </requireOne>
+    <!-- Deity/ideo name grammar: without these, deity generation throws "Grammar unresolvable. Root 'r_deityType'"
+         (memeConcept -> UNRESOLVABLE) for ideos built on this meme. Mirrors vanilla meme grammar blocks. -->
+    <generalRules>
+      <rulesStrings>
+        <li>memeAdjective->owned</li>
+        <li>memeAdjective->dominant</li>
+        <li>memeAdjective->sovereign</li>
+        <li>memeHyphenPrefix->master</li>
+        <li>memeConcept->ownership</li>
+        <li>memeConcept->dominion</li>
+        <li>memeConcept->mastery</li>
+        <li>memeConcept->submission</li>
+        <li>memeLeaderNoun->master</li>
+        <li>memeLeaderNoun->owner</li>
+        <li>memeLeaderNoun->keeper</li>
+        <li>memeLeaderNoun->sovereign</li>
+      </rulesStrings>
+    </generalRules>
+  </MemeDef>
+
+  <IssueDef>
+    <defName>RJWSH_Collaring</defName>
+    <label>collaring</label>
+    <iconPath>UI/RJWSH_Collar</iconPath>
+  </IssueDef>
+
+  <PreceptDef>
+    <defName>RJWSH_Collaring_Approved</defName>
+    <issue>RJWSH_Collaring</issue>
+    <label>approved</label>
+    <description>Collaring and keeping people as pets is an accepted part of life.</description>
+    <impact>Medium</impact>
+    <associatedMemes>
+      <li>RJWSH_Ownership</li>
+    </associatedMemes>
+    <displayOrderInIssue>10</displayOrderInIssue>
+  </PreceptDef>
+
+  <PreceptDef>
+    <defName>RJWSH_Collaring_Honored</defName>
+    <issue>RJWSH_Collaring</issue>
+    <label>honored</label>
+    <description>To own and break another to your will is a mark of high status. Those who keep a devoted pet are respected.</description>
+    <impact>High</impact>
+    <associatedMemes>
+      <li>RJWSH_Ownership</li>
+    </associatedMemes>
+    <displayOrderInIssue>20</displayOrderInIssue>
+    <comps>
+      <li Class="PreceptComp_SituationalThought">
+        <thought>RJWSH_OwnsConditionedPet</thought>
+        <description>Owns a devoted pet</description>
+        <tooltipShowMoodRange>true</tooltipShowMoodRange>
+      </li>
+    </comps>
+  </PreceptDef>
+
+  <PreceptDef>
+    <defName>RJWSH_Collaring_Forbidden</defName>
+    <issue>RJWSH_Collaring</issue>
+    <label>forbidden</label>
+    <description>To collar and break a person is a monstrous violation of their dignity.</description>
+    <impact>High</impact>
+    <displayOrderInIssue>30</displayOrderInIssue>
+    <comps>
+      <li Class="PreceptComp_SituationalThought">
+        <thought>RJWSH_CollaredPetPresent</thought>
+        <description>Collared pet in the colony</description>
+        <tooltipShowMoodRange>true</tooltipShowMoodRange>
+      </li>
+    </comps>
+  </PreceptDef>
+
+  <ThoughtDef>
+    <defName>RJWSH_OwnsConditionedPet</defName>
+    <thoughtClass>Thought_Situational</thoughtClass>
+    <workerClass>RJWSexualHarassment.ThoughtWorker_Precept_OwnsConditionedPet</workerClass>
+    <doNotApplyToQuestLodgers>true</doNotApplyToQuestLodgers>
+    <stages>
+      <li>
+        <label>my devoted pet</label>
+        <description>I own someone body and soul, collared and broken to my will. That mastery is a quiet, constant satisfaction.</description>
+        <baseMoodEffect>4</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <ThoughtDef>
+    <defName>RJWSH_CollaredPetPresent</defName>
+    <thoughtClass>Thought_Situational</thoughtClass>
+    <workerClass>RJWSexualHarassment.ThoughtWorker_Precept_CollaredPetPresent</workerClass>
+    <doNotApplyToQuestLodgers>true</doNotApplyToQuestLodgers>
+    <stages>
+      <li>
+        <label>someone is collared</label>
+        <description>Someone here is kept collared and broken like an animal. It is an abomination.</description>
+        <baseMoodEffect>-4</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+</Defs>

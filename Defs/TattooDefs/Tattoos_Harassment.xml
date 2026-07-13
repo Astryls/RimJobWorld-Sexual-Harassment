@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- TEST BATCH (Phase 3b): Fallout 4 SlaveTats FACE art wired as-is. Each source is a single 2048x2048 DDS,
+       duplicated to _south/_east/_north (Graphic_Multi needs a rotation set; west auto-mirrors east). We are
+       evaluating whether FO4 3D-model-UV face textures read acceptably on RimWorld's 2D head sprite from the
+       front. visibleNorth=false so the mark does not draw on the back of the head. DDS live in
+       Textures/RJWSH/Tattoos/Face/ and RimWorld 1.6 loads them natively.
+       Apply in-game via dev action: "RJW Sexual Harassment -> Apply degrading tattoo: face (selected)". -->
+
+  <TattooDef>
+    <defName>RJWSH_Tat_Pet</defName>
+    <label>pet (mark)</label>
+    <tattooType>Face</tattooType>
+    <texPath>RJWSH/Tattoos/Face/Pet</texPath>
+    <visibleNorth>false</visibleNorth>
+  </TattooDef>
+
+  <TattooDef>
+    <defName>RJWSH_Tat_Sold</defName>
+    <label>sold (mark)</label>
+    <tattooType>Face</tattooType>
+    <texPath>RJWSH/Tattoos/Face/Sold</texPath>
+    <visibleNorth>false</visibleNorth>
+  </TattooDef>
+
+  <TattooDef>
+    <defName>RJWSH_Tat_Bred</defName>
+    <label>bred (mark)</label>
+    <tattooType>Face</tattooType>
+    <texPath>RJWSH/Tattoos/Face/Bred</texPath>
+    <visibleNorth>false</visibleNorth>
+  </TattooDef>
+
+  <TattooDef>
+    <defName>RJWSH_Tat_Whore</defName>
+    <label>whore (mark)</label>
+    <tattooType>Face</tattooType>
+    <texPath>RJWSH/Tattoos/Face/Whore</texPath>
+    <visibleNorth>false</visibleNorth>
+  </TattooDef>
+
+  <TattooDef>
+    <defName>RJWSH_Tat_RaidersProperty</defName>
+    <label>raiders' property (mark)</label>
+    <tattooType>Face</tattooType>
+    <texPath>RJWSH/Tattoos/Face/RaidersProperty</texPath>
+    <visibleNorth>false</visibleNorth>
+  </TattooDef>
+
+  <!-- NATIVE CONTROL: a hand-authored mark drawn on the RimWorld head canvas (PNG via render_svg_to_png,
+       central bold heart + bar). If THIS renders on the face but the FO4 marks do not, the pipeline works
+       and the FO4 textures are the problem (3D-UV space, not RimWorld's 2D head sprite). -->
+  <TattooDef>
+    <defName>RJWSH_Tat_ControlMark</defName>
+    <label>control mark (native test)</label>
+    <tattooType>Face</tattooType>
+    <texPath>RJWSH/Tattoos/Face/ControlMark</texPath>
+    <visibleNorth>false</visibleNorth>
+  </TattooDef>
+
+</Defs>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ModMetaData>
+  <name>RimJobWorld - Sexual Harassment</name>
+  <packageId>astryl.RJWSexualHarassment</packageId>
+  <author>astryl</author>
+  <description>An addon for RimJobWorld that adds emergent sexual harassment: pawns catcall, proposition, grope, and (when enabled) escalate to forced acts against vulnerable targets. Dynamic dialogue through SpeakUp and RimTalk when present, karma consequences through Karma &amp; Reputation, and a player intervene prompt before things turn physical. Fully configurable who-harasses-whom matrix.</description>
+  <supportedVersions>
+    <li>1.6</li>
+  </supportedVersions>
+  <modDependencies>
+    <li>
+      <packageId>brrainz.harmony</packageId>
+      <displayName>Harmony</displayName>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+      <downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
+    </li>
+    <li>
+      <packageId>rim.job.world</packageId>
+      <displayName>RimJobWorld</displayName>
+      <downloadUrl>https://gitgud.io/Ed86/rjw</downloadUrl>
+    </li>
+  </modDependencies>
+  <loadAfter>
+    <li>brrainz.harmony</li>
+    <li>rim.job.world</li>
+    <li>JPT.speakup</li>
+    <li>cj.rimtalk</li>
+    <li>astryl.KarmaReputation</li>
+    <li>Nals.FacialAnimation</li>
+  </loadAfter>
+</ModMetaData>

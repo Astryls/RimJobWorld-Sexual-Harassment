@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!--
+    Wearable restraint belt - our lockable-apparel take on the Simple Restraint Belt (which is a surgical
+    implant). As a bondage_gear_def it auto-enrols in our key system: it locks with a HoloCrypto stamp + spawns
+    a Holokey on wear, counts as bondage gear / devious device, and can only be removed with the matching key.
+    The equipped_hediff immobilises the wearer (Moving capped to 0.1), like the original implant.
+    Worn art copied from Simple Restraint Belt (amegakull.SimpleRestraintBelt) - local testing only; needs
+    permission or original art before any Workshop release.
+  -->
+  <rjw.bondage_gear_def ParentName="RJWSH_DeviceBase">
+    <defName>RJWSH_RestraintBelt</defName>
+    <label>restraint belt</label>
+    <description>A heavy locked belt-and-strap harness that binds the whole body, leaving the wearer barely able to shuffle. It takes the matching key to get it off.</description>
+    <equipped_hediff>RJWSH_BeltRestrained</equipped_hediff>
+    <apparel>
+      <bodyPartGroups>
+        <li>Torso</li>
+      </bodyPartGroups>
+      <layers>
+        <li>Belt</li>
+      </layers>
+      <wornGraphicPath>Pawn/Humanlike/Apparel/RJWSH_RestraintBeltWorn/RJWSH_RestraintBeltWorn</wornGraphicPath>
+    </apparel>
+    <graphicData>
+      <texPath>Things/RJWSH_Devices/restraintbelt</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+  </rjw.bondage_gear_def>
+
+</Defs>

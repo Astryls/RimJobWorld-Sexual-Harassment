@@ -1,0 +1,1066 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Verbal: mild leering comment. Fired manually by the harassment engine; never auto-selected
+       (default InteractionWorker returns 0 selection weight). SpeakUp/RimTalk voice these lines. -->
+  <InteractionDef>
+    <defName>RJWSH_Catcall</defName>
+    <label>catcall</label>
+    <symbol>Things/Mote/SpeechSymbols/Romance</symbol>
+    <socialFightBaseChance>0.06</socialFightBaseChance>
+    <recipientThought>RJWSH_WasHarassed</recipientThought>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Damn, [RECIPIENT_nameDef], those curves should be illegal.</li>
+        <li>r_logentry->Hey gorgeous, why don't you come sit on my lap?</li>
+        <li>r_logentry->Smile for me, sweetheart. You'd look even prettier on your knees.</li>
+        <li>r_logentry->Mmm, I'd bend you over right here if you'd let me.</li>
+        <li>r_logentry->Look at that body... get over here and let me get a closer look.</li>
+        <li>r_logentry->Nice ass, [RECIPIENT_nameDef]. Shame to keep it covered up.</li>
+        <li>r_logentry->That outfit is doing a lot of work, [RECIPIENT_nameDef]. Lose it.</li>
+        <li>r_logentry->I could watch you walk away all day.</li>
+        <li>r_logentry->Bet you taste as good as you look.</li>
+        <li>r_logentry->Come warm my bed, sweetheart.</li>
+        <li>r_logentry->Those lips are wasted on talking.</li>
+        <li>r_logentry->Bend over, I think I dropped something.</li>
+        <li>r_logentry->All I can think about is getting you out of those clothes.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Verbal: demanding proposition. -->
+  <InteractionDef>
+    <defName>RJWSH_Proposition</defName>
+    <label>proposition</label>
+    <symbol>Things/Mote/SpeechSymbols/Romance</symbol>
+    <socialFightBaseChance>0.1</socialFightBaseChance>
+    <recipientThought>RJWSH_WasHarassed</recipientThought>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->You're coming to my bed tonight, [RECIPIENT_nameDef]. Don't make me ask twice.</li>
+        <li>r_logentry->Strip. I want to see what I'm working with.</li>
+        <li>r_logentry->I don't care if you want to. You're putting out.</li>
+        <li>r_logentry->On your knees. Now.</li>
+        <li>r_logentry->Be in my room after lights-out, or you'll regret it.</li>
+        <li>r_logentry->My quarters. Tonight. Naked.</li>
+        <li>r_logentry->You owe me, and I'm collecting it in bed.</li>
+        <li>r_logentry->Spread for me or find somewhere else to sleep.</li>
+        <li>r_logentry->I've waited long enough. Get undressed.</li>
+        <li>r_logentry->You're mine to use tonight, like it or not.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Verbal: friendly flirt. Leads to consensual sex if the target is willing, or can turn coercive. -->
+  <InteractionDef>
+    <defName>RJWSH_Flirt</defName>
+    <label>flirt</label>
+    <symbol>Things/Mote/SpeechSymbols/Romance</symbol>
+    <socialFightBaseChance>0.02</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->You've been on my mind all day, [RECIPIENT_nameDef]... how about some private time?</li>
+        <li>r_logentry->Has anyone ever told you how stunning you are?</li>
+        <li>r_logentry->Come back to my room. I'll make it worth your while.</li>
+        <li>r_logentry->I can't stop staring at you.</li>
+        <li>r_logentry->I keep thinking about that smile of yours.</li>
+        <li>r_logentry->Let me buy you a drink... and the rest of your night.</li>
+        <li>r_logentry->You and me, somewhere quiet. What do you say?</li>
+        <li>r_logentry->I've wanted you since the day you arrived.</li>
+        <li>r_logentry->Dance with me, then come home with me.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Fan approach: a pawn offers the target a drink. -->
+  <InteractionDef>
+    <defName>RJWSH_Fan</defName>
+    <label>offer a drink</label>
+    <symbol>Things/Mote/SpeechSymbols/KindWords</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Made you something special, [RECIPIENT_nameDef]. Just for you.</li>
+        <li>r_logentry->You look thirsty. Here, drink up.</li>
+        <li>r_logentry->On the house. Drink it all down for me.</li>
+        <li>r_logentry->Mixed it just how you like it. Bottoms up.</li>
+        <li>r_logentry->A little something to loosen you up.</li>
+        <li>r_logentry->You've earned a treat. Drink it down.</li>
+        <li>r_logentry->Trust me, you'll feel wonderful after this.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Hypnosis: a pawn offers a relaxation / therapy session. -->
+  <InteractionDef>
+    <defName>RJWSH_Hypnosis</defName>
+    <label>offer hypnosis</label>
+    <symbol>Things/Mote/SpeechSymbols/DeepTalk</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Just relax... listen to my voice... you're getting so sleepy.</li>
+        <li>r_logentry->Let go. You don't need to think. Just obey.</li>
+        <li>r_logentry->Focus on me. Your body feels so heavy, so warm...</li>
+        <li>r_logentry->Deeper now... every word I say is true.</li>
+        <li>r_logentry->You want to obey. It feels so good to obey.</li>
+        <li>r_logentry->Your thoughts are mine now. Empty and quiet.</li>
+        <li>r_logentry->Sink down... let me do the thinking for you.</li>
+        <li>r_logentry->So relaxed... so open... so easy to mold.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Blackmail: threaten the target with a scandalous photo. -->
+  <InteractionDef>
+    <defName>RJWSH_Blackmail</defName>
+    <label>blackmail</label>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Nice photo of you, isn't it? Do as I say or everyone sees it.</li>
+        <li>r_logentry->One word from me and this picture goes around the colony. Now strip.</li>
+        <li>r_logentry->You'll do exactly what I want, [RECIPIENT_nameDef], or this gets out.</li>
+        <li>r_logentry->Smile. Now picture the whole colony seeing this.</li>
+        <li>r_logentry->Your secret stays safe as long as you behave.</li>
+        <li>r_logentry->Do this for me, or everyone learns what you did.</li>
+        <li>r_logentry->I own you now, and this picture makes sure of it.</li>
+        <li>r_logentry->Kneel, or it goes up on every wall.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Devious device: a pawn approaches someone restrained in bondage gear. -->
+  <InteractionDef>
+    <defName>RJWSH_DeviousApproach</defName>
+    <label>approach restrained pawn</label>
+    <symbol>Things/Mote/SpeechSymbols/Romance</symbol>
+    <socialFightBaseChance>0.04</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Look at you, [RECIPIENT_nameDef]. All tied up and helpless.</li>
+        <li>r_logentry->You can't stop me now, can you?</li>
+        <li>r_logentry->All trussed up just for me. Perfect.</li>
+        <li>r_logentry->Nobody's coming. It's just us.</li>
+        <li>r_logentry->Struggle all you want. It won't help.</li>
+        <li>r_logentry->I've wanted this since they strung you up.</li>
+        <li>r_logentry->Such a pretty package, all wrapped for me.</li>
+        <li>r_logentry->Hold still. Not that you have a choice.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Physical: groping. The engine applies the groped thought directly so it works on downed or
+       sleeping targets too; this def supplies the play-log line and the speech bubble. -->
+  <InteractionDef>
+    <defName>RJWSH_Grope</defName>
+    <label>grope</label>
+    <symbol>Things/Mote/SpeechSymbols/Slight</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Mmm, just gonna help myself.</li>
+        <li>r_logentry->Hold still while I get a feel.</li>
+        <li>r_logentry->You feel even better than you look, [RECIPIENT_nameDef].</li>
+        <li>r_logentry->Quit squirming. You know you like it.</li>
+        <li>r_logentry->Just taking what's mine.</li>
+        <li>r_logentry->Mmm, perfect handful.</li>
+        <li>r_logentry->You'll get used to my hands.</li>
+        <li>r_logentry->So soft. I could do this all day.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Flavor only (no thought): the victim's reaction line in a multi-line harassment exchange. -->
+  <InteractionDef>
+    <defName>RJWSH_HarassReply</defName>
+    <label>react to harassment</label>
+    <symbol>Things/Mote/SpeechSymbols/Slight</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Please, just leave me alone.</li>
+        <li>r_logentry->Stop it! Get away from me!</li>
+        <li>r_logentry->I'm not interested. Back off.</li>
+        <li>r_logentry->Someone, please...</li>
+        <li>r_logentry->Don't touch me!</li>
+        <li>r_logentry->I just want to go, please.</li>
+        <li>r_logentry->Why are you doing this to me?</li>
+        <li>r_logentry->Get your hands off me!</li>
+        <li>r_logentry->I'll report you for this!</li>
+        <li>r_logentry->No, no, please no...</li>
+        <li>r_logentry->Help! Somebody!</li>
+        <li>r_logentry->You're disgusting.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Flavor only (no thought): the harasser's follow-up pestering line in a multi-line exchange. -->
+  <InteractionDef>
+    <defName>RJWSH_HarassChatter</defName>
+    <label>keep harassing</label>
+    <symbol>Things/Mote/SpeechSymbols/Romance</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Aww, don't be like that.</li>
+        <li>r_logentry->You know you want it.</li>
+        <li>r_logentry->I'm not going anywhere, sweetheart.</li>
+        <li>r_logentry->Keep squirming. I like it.</li>
+        <li>r_logentry->Nobody's coming to help you.</li>
+        <li>r_logentry->Come on, just a little.</li>
+        <li>r_logentry->We're not done yet.</li>
+        <li>r_logentry->Scream all you like, nobody cares.</li>
+        <li>r_logentry->That's it, fight me. It's cuter that way.</li>
+        <li>r_logentry->You'll thank me later.</li>
+        <li>r_logentry->Such a tease, pretending you don't want it.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Flavor only: the target wavering during a hypnosis persuasion. -->
+  <InteractionDef>
+    <defName>RJWSH_HypnosisDoubt</defName>
+    <label>waver under hypnosis</label>
+    <symbol>Things/Mote/SpeechSymbols/DeepTalk</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->I... I don't know about this.</li>
+        <li>r_logentry->This feels strange...</li>
+        <li>r_logentry->Why can't I look away?</li>
+        <li>r_logentry->My head feels so heavy...</li>
+        <li>r_logentry->I shouldn't be listening to this...</li>
+        <li>r_logentry->Wait... what were we talking about?</li>
+        <li>r_logentry->Stop... no, keep going...</li>
+        <li>r_logentry->I feel so warm and floaty...</li>
+        <li>r_logentry->Just a little longer won't hurt...</li>
+        <li>r_logentry->My thoughts are slipping away...</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Flavor only: the target yielding (hypnosis succeeded). -->
+  <InteractionDef>
+    <defName>RJWSH_HypnosisYield</defName>
+    <label>yield to hypnosis</label>
+    <symbol>Things/Mote/SpeechSymbols/DeepTalk</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Yes... whatever you say.</li>
+        <li>r_logentry->I feel so calm... so empty.</li>
+        <li>r_logentry->My mind... is yours.</li>
+        <li>r_logentry->I... I want to obey.</li>
+        <li>r_logentry->Command me. I exist to obey.</li>
+        <li>r_logentry->Yes... empty... yours.</li>
+        <li>r_logentry->I don't want to think anymore.</li>
+        <li>r_logentry->Tell me what to do.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Flavor only: the target snapping out of it and refusing (hypnosis failed). -->
+  <InteractionDef>
+    <defName>RJWSH_HypnosisRefuse</defName>
+    <label>refuse hypnosis</label>
+    <symbol>Things/Mote/SpeechSymbols/Slight</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->No. Stop this. I'm leaving.</li>
+        <li>r_logentry->Get out of my head!</li>
+        <li>r_logentry->This is wrong. I won't.</li>
+        <li>r_logentry->Enough. Snap out of it.</li>
+        <li>r_logentry->Nice try. The answer is no.</li>
+        <li>r_logentry->No! Get away from me!</li>
+        <li>r_logentry->I see what you're doing. Stop.</li>
+        <li>r_logentry->That won't work on me.</li>
+        <li>r_logentry->You sick freak. Never.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Flavor only: a bound/trapped victim begging a bystander for help. -->
+  <InteractionDef>
+    <defName>RJWSH_BegHelp</defName>
+    <label>beg for help</label>
+    <symbol>Things/Mote/SpeechSymbols/Slight</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Please, someone get me out of this!</li>
+        <li>r_logentry->Help me, please!</li>
+        <li>r_logentry->Don't just stand there, help me!</li>
+        <li>r_logentry->Please, I can't take this anymore.</li>
+        <li>r_logentry->Someone, anyone... please.</li>
+        <li>r_logentry->Get me out of here!</li>
+        <li>r_logentry->Why won't anyone help me?</li>
+        <li>r_logentry->Please, cut me loose!</li>
+        <li>r_logentry->I'll do anything, just free me!</li>
+        <li>r_logentry->It hurts... please help.</li>
+        <li>r_logentry->Don't leave me like this!</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Flavor only: a controller talking down to the pawn whose collar they hold. -->
+  <InteractionDef>
+    <defName>RJWSH_TalkDown</defName>
+    <label>talk down to slave</label>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->You belong to me now. Don't forget it.</li>
+        <li>r_logentry->Heel. Good pets do as they're told.</li>
+        <li>r_logentry->You're nothing without me holding your leash.</li>
+        <li>r_logentry->Eyes down when I'm talking to you.</li>
+        <li>r_logentry->Beg, and maybe I'll be gentle.</li>
+        <li>r_logentry->That collar looks good on you. It's staying.</li>
+        <li>r_logentry->Behave, or it's the onahole again.</li>
+        <li>r_logentry->Sit. Stay. Good pet.</li>
+        <li>r_logentry->You exist to please me now.</li>
+        <li>r_logentry->Did I say you could speak?</li>
+        <li>r_logentry->Remember who holds your leash.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Crude dominant banter from an owner to their collared pet (relationship-gated). -->
+  <InteractionDef>
+    <defName>RJWSH_OwnerDirty</defName>
+    <label>degrade pet</label>
+    <symbol>Things/Mote/SpeechSymbols/Romance</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->On your knees where you belong.</li>
+        <li>r_logentry->You're my hole to use whenever I want.</li>
+        <li>r_logentry->Good toy. You get wet the second I tug your collar.</li>
+        <li>r_logentry->Say it. Say you're mine to fuck.</li>
+        <li>r_logentry->I own every inch of you now.</li>
+        <li>r_logentry->Crawl over here and earn your keep.</li>
+        <li>r_logentry->You were made to be used like this.</li>
+        <li>r_logentry->Open up. Don't make me tell you twice.</li>
+        <li>r_logentry->Present yourself. Now.</li>
+        <li>r_logentry->Beg for it like the toy you are.</li>
+        <li>r_logentry->I'll use every hole you've got.</li>
+        <li>r_logentry->Good pets don't get to say no.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Submissive reply from a conditioned pet back to their owner. -->
+  <InteractionDef>
+    <defName>RJWSH_SlaveSubmit</defName>
+    <label>submit to owner</label>
+    <symbol>Things/Mote/SpeechSymbols/Romance</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Yes... I'm yours to use.</li>
+        <li>r_logentry->Please, use me however you want.</li>
+        <li>r_logentry->I'll be good. I'll do anything you say.</li>
+        <li>r_logentry->I belong to you. Only you.</li>
+        <li>r_logentry->Thank you for keeping me.</li>
+        <li>r_logentry->My body is yours to take.</li>
+        <li>r_logentry->Don't stop... I need it.</li>
+        <li>r_logentry->Use me harder, please.</li>
+        <li>r_logentry->I live to please you.</li>
+        <li>r_logentry->Take whatever you want from me.</li>
+        <li>r_logentry->I'm nothing without you.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Roaming self-talk: an unconditioned collared pet resents the collar - wants it off, escape, revenge. -->
+  <InteractionDef>
+    <defName>RJWSH_PetDefiant</defName>
+    <label>seethe</label>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->I'll get this collar off if it's the last thing I do.</li>
+        <li>r_logentry->The second this lock slips, I'm gone.</li>
+        <li>r_logentry->You think a collar makes me yours? Never.</li>
+        <li>r_logentry->I'm not a pet. I'll never be a pet.</li>
+        <li>r_logentry->One day they'll sleep, and I'll be ready.</li>
+        <li>r_logentry->Keep laughing. I'm counting every door.</li>
+        <li>r_logentry->This isn't over. Not even close.</li>
+        <li>r_logentry->I'd cut my own skin to get this thing off.</li>
+        <li>r_logentry->Enjoy it while you can.</li>
+        <li>r_logentry->I'm going to make them regret this collar.</li>
+        <li>r_logentry->Touch me again and I'll bite.</li>
+        <li>r_logentry->I haven't given up. I never will.</li>
+        <li>r_logentry->I dream about the day I'm free of them.</li>
+        <li>r_logentry->Lock all you want. I'm still me in here.</li>
+        <li>r_logentry->Get this off me. Get it off.</li>
+        <li>r_logentry->They'll pay for every minute of this.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Roaming self-talk: a conditioned pet (>=60) has stopped fighting and finds the collar bearable. -->
+  <InteractionDef>
+    <defName>RJWSH_PetContent</defName>
+    <label>muse</label>
+    <symbol>Things/Mote/SpeechSymbols/Slight</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Maybe this collar isn't so bad.</li>
+        <li>r_logentry->It's easier when I just do as I'm told.</li>
+        <li>r_logentry->I don't have to decide anything anymore.</li>
+        <li>r_logentry->Being kept is kind of peaceful.</li>
+        <li>r_logentry->I stopped fighting it. I feel calmer now.</li>
+        <li>r_logentry->My collar keeps me safe. That's what they say.</li>
+        <li>r_logentry->I belong to someone. That's something.</li>
+        <li>r_logentry->Good pets get treats. I want to be good.</li>
+        <li>r_logentry->I don't mind the leash so much these days.</li>
+        <li>r_logentry->It feels right to obey now.</li>
+        <li>r_logentry->Why did I ever struggle? This is easier.</li>
+        <li>r_logentry->I'm getting used to the weight of the collar.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Roaming self-talk: a fully conditioned pet (>=90 or Stockholm) is blissfully devoted. -->
+  <InteractionDef>
+    <defName>RJWSH_PetDevoted</defName>
+    <label>gush</label>
+    <symbol>Things/Mote/SpeechSymbols/Romance</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->I love my collar. I love belonging to them.</li>
+        <li>r_logentry->I was made for this. Made to be owned.</li>
+        <li>r_logentry->There's nothing better than being a good pet.</li>
+        <li>r_logentry->I only feel whole when I'm kneeling for them.</li>
+        <li>r_logentry->My owner is everything. I'm nothing without them.</li>
+        <li>r_logentry->Please, let me serve. It's all I want.</li>
+        <li>r_logentry->This collar is the best thing that ever happened to me.</li>
+        <li>r_logentry->I'm so lucky to be kept like this.</li>
+        <li>r_logentry->I'd never leave. Why would I ever leave?</li>
+        <li>r_logentry->Keep me, use me, I'm yours forever.</li>
+        <li>r_logentry->Being owned is the happiest I've ever been.</li>
+        <li>r_logentry->I melt every time they tug my leash.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- ============ Approach-specific multi-line exchanges (watch it play out) ============ -->
+
+  <!-- Catcall: victim reacts, harasser doubles down. -->
+  <InteractionDef>
+    <defName>RJWSH_CatcallReply</defName>
+    <label>react to catcall</label>
+    <symbol>Things/Mote/SpeechSymbols/Slight</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Ugh, leave me alone.</li>
+        <li>r_logentry->Don't talk to me like that.</li>
+        <li>r_logentry->Keep your eyes to yourself.</li>
+        <li>r_logentry->That is not a compliment.</li>
+        <li>r_logentry->Get away from me.</li>
+        <li>r_logentry->I'm not interested. At all.</li>
+        <li>r_logentry->Stop staring at me.</li>
+        <li>r_logentry->Knock it off, creep.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <InteractionDef>
+    <defName>RJWSH_CatcallPress</defName>
+    <label>press the catcall</label>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Aw, don't be like that. Smile for me.</li>
+        <li>r_logentry->Come on, you love the attention.</li>
+        <li>r_logentry->Where do you think you're going?</li>
+        <li>r_logentry->A body like that wasn't made to be ignored.</li>
+        <li>r_logentry->Play hard to get. I like it.</li>
+        <li>r_logentry->You'll warm up to me.</li>
+        <li>r_logentry->I've got all day, sweetheart.</li>
+        <li>r_logentry->Don't walk away from me.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Proposition: victim refuses, harasser presses. -->
+  <InteractionDef>
+    <defName>RJWSH_PropositionReply</defName>
+    <label>refuse the proposition</label>
+    <symbol>Things/Mote/SpeechSymbols/Slight</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->No. Absolutely not.</li>
+        <li>r_logentry->I would never. Leave me be.</li>
+        <li>r_logentry->You can't be serious.</li>
+        <li>r_logentry->Find someone else. Anyone else.</li>
+        <li>r_logentry->That is not happening.</li>
+        <li>r_logentry->I'm not for sale.</li>
+        <li>r_logentry->Please just stop asking.</li>
+        <li>r_logentry->The answer is no.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <InteractionDef>
+    <defName>RJWSH_PropositionPress</defName>
+    <label>press the proposition</label>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Everyone has a price. What's yours?</li>
+        <li>r_logentry->Just once. No one has to know.</li>
+        <li>r_logentry->You'll enjoy it more than you think.</li>
+        <li>r_logentry->Don't make this difficult.</li>
+        <li>r_logentry->I always get what I want eventually.</li>
+        <li>r_logentry->I can be very persuasive.</li>
+        <li>r_logentry->Stop pretending you don't want it.</li>
+        <li>r_logentry->We can do this the easy way.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Flirt: charged back-and-forth. -->
+  <InteractionDef>
+    <defName>RJWSH_FlirtReply</defName>
+    <label>react to flirting</label>
+    <symbol>Things/Mote/SpeechSymbols/Romance</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Heh. You're bold, I'll give you that.</li>
+        <li>r_logentry->I don't know what to say.</li>
+        <li>r_logentry->That's... a lot.</li>
+        <li>r_logentry->Maybe you should slow down.</li>
+        <li>r_logentry->You're making me blush, stop it.</li>
+        <li>r_logentry->I'm flattered, but no.</li>
+        <li>r_logentry->Smooth. Too smooth.</li>
+        <li>r_logentry->Easy there.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <InteractionDef>
+    <defName>RJWSH_FlirtPress</defName>
+    <label>lay on the charm</label>
+    <symbol>Things/Mote/SpeechSymbols/Romance</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->I can't help it, you're irresistible.</li>
+        <li>r_logentry->Let me show you a good time.</li>
+        <li>r_logentry->One drink. What's the harm?</li>
+        <li>r_logentry->I've been watching you all day.</li>
+        <li>r_logentry->You and me, we'd be perfect.</li>
+        <li>r_logentry->Don't fight it, darling.</li>
+        <li>r_logentry->Come a little closer.</li>
+        <li>r_logentry->I promise you won't regret it.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Spiked drink: coaxing a drugged drink. -->
+  <InteractionDef>
+    <defName>RJWSH_FanReply</defName>
+    <label>question the drink</label>
+    <symbol>Things/Mote/SpeechSymbols/Slight</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->What's in this, exactly?</li>
+        <li>r_logentry->I'm not thirsty.</li>
+        <li>r_logentry->Why are you being so nice all of a sudden?</li>
+        <li>r_logentry->This tastes... strange.</li>
+        <li>r_logentry->I shouldn't drink this.</li>
+        <li>r_logentry->What did you put in it?</li>
+        <li>r_logentry->I feel a little dizzy.</li>
+        <li>r_logentry->Something's wrong with this drink.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <InteractionDef>
+    <defName>RJWSH_FanPress</defName>
+    <label>coax the drink</label>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Drink up, it's a gift.</li>
+        <li>r_logentry->Don't be rude, I made it just for you.</li>
+        <li>r_logentry->It'll help you relax. Trust me.</li>
+        <li>r_logentry->Go on, one more sip.</li>
+        <li>r_logentry->You look like you could use it.</li>
+        <li>r_logentry->That's it. All the way down.</li>
+        <li>r_logentry->Feeling good yet?</li>
+        <li>r_logentry->There's no harm in a little drink.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Devious device: forcing restraints on. -->
+  <InteractionDef>
+    <defName>RJWSH_DeviousReply</defName>
+    <label>recoil from the device</label>
+    <symbol>Things/Mote/SpeechSymbols/Slight</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->What is that? Get it away from me.</li>
+        <li>r_logentry->Don't you dare put that on me.</li>
+        <li>r_logentry->No, please, not that.</li>
+        <li>r_logentry->Keep that thing away from me.</li>
+        <li>r_logentry->Don't touch me with that.</li>
+        <li>r_logentry->What are you going to do with it?</li>
+        <li>r_logentry->Get it off, get it off me.</li>
+        <li>r_logentry->Somebody help!</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <InteractionDef>
+    <defName>RJWSH_DeviousPress</defName>
+    <label>fit the device</label>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Hold still. This will fit perfectly.</li>
+        <li>r_logentry->It looks so good on you already.</li>
+        <li>r_logentry->You won't be taking this off.</li>
+        <li>r_logentry->Struggling only makes it tighter.</li>
+        <li>r_logentry->There. Now you're mine to play with.</li>
+        <li>r_logentry->Let me just lock this into place.</li>
+        <li>r_logentry->A pretty thing like you needs decorating.</li>
+        <li>r_logentry->Don't worry, you'll learn to love it.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Blackmail: leveraging the photos. -->
+  <InteractionDef>
+    <defName>RJWSH_BlackmailReply</defName>
+    <label>plead against blackmail</label>
+    <symbol>Things/Mote/SpeechSymbols/Slight</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->You wouldn't dare show those.</li>
+        <li>r_logentry->Please, delete them. I'll do anything.</li>
+        <li>r_logentry->How did you get those?</li>
+        <li>r_logentry->You're a monster.</li>
+        <li>r_logentry->Don't. My reputation is everything.</li>
+        <li>r_logentry->Name your price. Just don't share them.</li>
+        <li>r_logentry->I'll be ruined. Please.</li>
+        <li>r_logentry->This is extortion.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <InteractionDef>
+    <defName>RJWSH_BlackmailPress</defName>
+    <label>twist the screws</label>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Then you know what you have to do.</li>
+        <li>r_logentry->One click and the whole colony sees.</li>
+        <li>r_logentry->Be good, and they stay private.</li>
+        <li>r_logentry->Your secret is safe... for a price.</li>
+        <li>r_logentry->I'd hate for these to get out.</li>
+        <li>r_logentry->You're mine as long as I have these.</li>
+        <li>r_logentry->Cooperate, and no one finds out.</li>
+        <li>r_logentry->Smile. You don't have a choice.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Grope: a yelp the moment hands land. -->
+  <InteractionDef>
+    <defName>RJWSH_GropeReply</defName>
+    <label>recoil from groping</label>
+    <symbol>Things/Mote/SpeechSymbols/Slight</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Don't touch me!</li>
+        <li>r_logentry->Get your hands off!</li>
+        <li>r_logentry->Stop, please!</li>
+        <li>r_logentry->No, no, no!</li>
+        <li>r_logentry->Let go of me!</li>
+        <li>r_logentry->Help, somebody!</li>
+        <li>r_logentry->Don't, please don't.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- The captor sealing a victim inside a public onahole (logged to the social tab). -->
+  <InteractionDef>
+    <defName>RJWSH_OnaholeBind</defName>
+    <label>seal in onahole</label>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Get in. You're a public toy now.</li>
+        <li>r_logentry->This is where you belong. Sealed up tight.</li>
+        <li>r_logentry->Everyone gets to use you in here.</li>
+        <li>r_logentry->Stay put. Not that you have a choice.</li>
+        <li>r_logentry->The colony onahole. That's all you are now.</li>
+        <li>r_logentry->Comfortable? You'll be in there a while.</li>
+        <li>r_logentry->Scream all you want. No one is cutting you down.</li>
+        <li>r_logentry->Welcome to your new home, hole.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- ============ Captor jeering while dragging a victim somewhere ============ -->
+  <InteractionDef>
+    <defName>RJWSH_DragTaunt</defName>
+    <label>jeer at captive</label>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Quiet. We're almost there.</li>
+        <li>r_logentry->Stop squirming.</li>
+        <li>r_logentry->No one is coming for you.</li>
+        <li>r_logentry->Keep moving.</li>
+        <li>r_logentry->You're mine now.</li>
+        <li>r_logentry->Nobody can hear you out here.</li>
+        <li>r_logentry->Don't make this harder than it needs to be.</li>
+        <li>r_logentry->Almost there. Be good.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- ============ Affection (consensual / content pets): kiss + hold hands ============ -->
+  <InteractionDef>
+    <defName>RJWSH_Kiss</defName>
+    <label>share a kiss</label>
+    <symbol>Things/RJWSH_Symbols/Kiss</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Leans in and kisses them softly.</li>
+        <li>r_logentry->You're wonderful, you know that?</li>
+        <li>r_logentry->I've been wanting to do that.</li>
+        <li>r_logentry->Mmm. Come here.</li>
+        <li>r_logentry->I could kiss you all day.</li>
+        <li>r_logentry->A slow, tender kiss.</li>
+        <li>r_logentry->You make me so happy.</li>
+        <li>r_logentry->Steals a quick kiss.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <InteractionDef>
+    <defName>RJWSH_HoldHands</defName>
+    <label>hold hands</label>
+    <symbol>Things/RJWSH_Symbols/HoldHands</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Gently takes their hand.</li>
+        <li>r_logentry->Stay close to me.</li>
+        <li>r_logentry->I just want to hold you.</li>
+        <li>r_logentry->Laces their fingers together.</li>
+        <li>r_logentry->Your hand fits mine perfectly.</li>
+        <li>r_logentry->Don't let go.</li>
+        <li>r_logentry->I feel safe with you.</li>
+        <li>r_logentry->Gives their hand a gentle squeeze.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- ===== Bystander reactions (fired at witnesses of a harassment event) ===== -->
+
+  <!-- Decent witness scolds the harasser. -->
+  <InteractionDef>
+    <defName>RJWSH_WitnessDisgust</defName>
+    <label>object to harassment</label>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.05</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Leave them alone, [RECIPIENT_nameDef]! That is disgusting.</li>
+        <li>r_logentry->Hey! Get your hands off them!</li>
+        <li>r_logentry->What is wrong with you, [RECIPIENT_nameDef]?</li>
+        <li>r_logentry->Stop that. Right now.</li>
+        <li>r_logentry->That is vile, [RECIPIENT_nameDef]. Leave them be.</li>
+        <li>r_logentry->You should be ashamed of yourself.</li>
+        <li>r_logentry->Someone stop [RECIPIENT_nameDef]!</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- A cruel witness leers and jeers at the victim. -->
+  <InteractionDef>
+    <defName>RJWSH_WitnessLeer</defName>
+    <label>leer</label>
+    <symbol>Things/Mote/SpeechSymbols/Romance</symbol>
+    <socialFightBaseChance>0.02</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Ha! Look at the state of [RECIPIENT_nameDef].</li>
+        <li>r_logentry->Give them a turn when you are done!</li>
+        <li>r_logentry->That is a good look for you, [RECIPIENT_nameDef].</li>
+        <li>r_logentry->Don't stop on my account. I am enjoying the show.</li>
+        <li>r_logentry->Serves them right.</li>
+        <li>r_logentry->Put on a good show for us, [RECIPIENT_nameDef].</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- A friend or lover of the victim confronts the harasser. -->
+  <InteractionDef>
+    <defName>RJWSH_WitnessProtective</defName>
+    <label>defend</label>
+    <symbol>Things/Mote/SpeechSymbols/Slight</symbol>
+    <socialFightBaseChance>0.12</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Get away from them, [RECIPIENT_nameDef], or I will make you!</li>
+        <li>r_logentry->Touch them again and I will break your hand.</li>
+        <li>r_logentry->I swear, [RECIPIENT_nameDef], you are going to regret this.</li>
+        <li>r_logentry->That is enough! Back off!</li>
+        <li>r_logentry->You do not get to treat them like that.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- A fellow collared pet watches with grim, resigned solidarity. -->
+  <InteractionDef>
+    <defName>RJWSH_WitnessResigned</defName>
+    <label>look away</label>
+    <symbol>Things/Mote/SpeechSymbols/DeepTalk</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->...better you than me.</li>
+        <li>r_logentry->You get used to it. You have to.</li>
+        <li>r_logentry->Do not fight it. It only makes it worse.</li>
+        <li>r_logentry->I know. Believe me, I know.</li>
+        <li>r_logentry->Just let it happen. It ends faster that way.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Victim flinches away from a remembered tormentor on sight. -->
+  <InteractionDef>
+    <defName>RJWSH_Recoil</defName>
+    <label>flinch away</label>
+    <symbol>Things/Mote/SpeechSymbols/Slight</symbol>
+    <socialFightBaseChance>0.0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Stay away from me, [RECIPIENT_nameDef].</li>
+        <li>r_logentry->...not you. Please, not again.</li>
+        <li>r_logentry->Do not come any closer.</li>
+        <li>r_logentry->I know what you did. Keep your distance.</li>
+        <li>r_logentry->*flinches at the sight of [RECIPIENT_nameDef]*</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Victim gloats over a tormentor who is now downed or imprisoned. -->
+  <InteractionDef>
+    <defName>RJWSH_Vengeance</defName>
+    <label>gloat</label>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.05</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Not so tough now, are you, [RECIPIENT_nameDef]?</li>
+        <li>r_logentry->Look at you now. How does it feel?</li>
+        <li>r_logentry->I have been waiting a long time for this.</li>
+        <li>r_logentry->Remember me, [RECIPIENT_nameDef]? I remember you.</li>
+        <li>r_logentry->Who is helpless now?</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- ===== Owner-pet ambient check-ins ===== -->
+
+  <!-- Owner looks the pet over. -->
+  <InteractionDef>
+    <defName>RJWSH_Inspect</defName>
+    <label>inspect pet</label>
+    <symbol>Things/Mote/SpeechSymbols/DeepTalk</symbol>
+    <socialFightBaseChance>0.02</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Stand still. Let me look at you.</li>
+        <li>r_logentry->Turn around. Slowly.</li>
+        <li>r_logentry->Chin up, eyes down. Good.</li>
+        <li>r_logentry->Let me see what I own.</li>
+        <li>r_logentry->Hold still while I check you over.</li>
+        <li>r_logentry->Show me you have kept yourself presentable.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Depth: a rival covets someone else's pet. -->
+  <InteractionDef>
+    <defName>RJWSH_Covet</defName>
+    <label>covet pet</label>
+    <symbol>Things/Mote/SpeechSymbols/Slight</symbol>
+    <socialFightBaseChance>0.05</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->A fine little pet. Shame it is wasted on its owner.</li>
+        <li>r_logentry->I could break that one so much better than you have.</li>
+        <li>r_logentry->Sell it to me. Name your price.</li>
+        <li>r_logentry->Such a waste. That collar should be in my hand.</li>
+        <li>r_logentry->Look at it. It practically begs for a real master.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Depth: a dominant pet asserts over a lower-ranking one in the pecking order. -->
+  <InteractionDef>
+    <defName>RJWSH_Assert</defName>
+    <label>assert dominance</label>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.03</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Know your place. Below me.</li>
+        <li>r_logentry->Our owner likes me best. Never forget it.</li>
+        <li>r_logentry->Move. The favorite comes first.</li>
+        <li>r_logentry->You are nothing here. I am the good one.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Depth: a devoted/submissive pet presents itself to its owner unprompted. -->
+  <InteractionDef>
+    <defName>RJWSH_Present</defName>
+    <label>present to owner</label>
+    <symbol>Things/RJWSH_Symbols/Kiss</symbol>
+    <socialFightBaseChance>0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->I am yours. Use me however you please.</li>
+        <li>r_logentry->Please. I only want to serve you.</li>
+        <li>r_logentry->I kept myself ready for you, like you like.</li>
+        <li>r_logentry->Tell me what you need. I live for it.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Owner disciplines their pet (a beating to keep them in line). Social-log entry for the bout. -->
+  <InteractionDef>
+    <defName>RJWSH_Discipline</defName>
+    <label>discipline pet</label>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->This is what happens when you forget your place.</li>
+        <li>r_logentry->You brought this on yourself. Hold still.</li>
+        <li>r_logentry->Learn. I will not tell you twice.</li>
+        <li>r_logentry->Every mark is a lesson. Remember it.</li>
+        <li>r_logentry->You belong to me. Do not make me remind you again.</li>
+        <li>r_logentry->Cry all you like. It changes nothing.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Owner rewards their pet (praise and pampering for good behavior). Social-log entry for the reward. -->
+  <InteractionDef>
+    <defName>RJWSH_Reward</defName>
+    <label>reward pet</label>
+    <symbol>Things/Mote/SpeechSymbols/KindWords</symbol>
+    <socialFightBaseChance>0</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Good. You have earned this.</li>
+        <li>r_logentry->See how nice I can be when you behave?</li>
+        <li>r_logentry->There. That is my good pet.</li>
+        <li>r_logentry->You pleased me today. Enjoy your treat.</li>
+        <li>r_logentry->Such a well behaved little thing. You deserve a reward.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Owner barks a command to test whether the pet still obeys. -->
+  <InteractionDef>
+    <defName>RJWSH_TestObedience</defName>
+    <label>test obedience</label>
+    <symbol>Things/Mote/SpeechSymbols/Slight</symbol>
+    <socialFightBaseChance>0.08</socialFightBaseChance>
+    <ignoreTimeSinceLastInteraction>true</ignoreTimeSinceLastInteraction>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Kneel. Now.</li>
+        <li>r_logentry->Heel. Let us see if you remember your place.</li>
+        <li>r_logentry->Down. Do it without being told twice.</li>
+        <li>r_logentry->Come. Show me you still obey.</li>
+        <li>r_logentry->On your knees. Prove it.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+</Defs>

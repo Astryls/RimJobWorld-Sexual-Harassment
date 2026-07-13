@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Visible "entranced" marker applied while a pawn is under a hypnosis session. The persistent
+       conditioning itself is tracked on the pawn's profile (hypnosisLevel); this is the per-session
+       overlay that also flags the short compliance window. -->
+  <HediffDef>
+    <defName>RJWSH_Hypnotized</defName>
+    <hediffClass>HediffWithComps</hediffClass>
+    <label>hypnotized</label>
+    <description>This pawn has been put into a hypnotic trance and is highly suggestible.</description>
+    <defaultLabelColor>(0.7, 0.5, 0.9)</defaultLabelColor>
+    <isBad>true</isBad>
+    <maxSeverity>1.0</maxSeverity>
+    <initialSeverity>0.1</initialSeverity>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>30000~60000</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+    <!-- Severity tracks the conditioning level (set in ApplyHypnotizedHediff = hypnosisLevel/100), so each
+         session visibly deepens the trance. -->
+    <stages>
+      <li>
+        <minSeverity>0</minSeverity>
+        <label>suggestible</label>
+        <statOffsets><PsychicSensitivity>0.10</PsychicSensitivity></statOffsets>
+      </li>
+      <li>
+        <minSeverity>0.4</minSeverity>
+        <label>entranced</label>
+        <statOffsets><PsychicSensitivity>0.20</PsychicSensitivity></statOffsets>
+      </li>
+      <li>
+        <minSeverity>0.7</minSeverity>
+        <label>deeply entranced</label>
+        <statOffsets><PsychicSensitivity>0.35</PsychicSensitivity></statOffsets>
+        <capMods><li><capacity>Consciousness</capacity><offset>-0.05</offset></li></capMods>
+      </li>
+      <li>
+        <minSeverity>0.9</minSeverity>
+        <label>mind broken</label>
+        <statOffsets><PsychicSensitivity>0.45</PsychicSensitivity></statOffsets>
+        <capMods><li><capacity>Consciousness</capacity><offset>-0.10</offset></li></capMods>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Prolonged time in a control collar erodes the wearer's will: severity climbs while collared and at
+       thresholds the conditioning comp permanently grants Masochist, then Stockholm Syndrome. -->
+  <HediffDef>
+    <defName>RJWSH_Conditioning</defName>
+    <hediffClass>HediffWithComps</hediffClass>
+    <label>collar conditioning</label>
+    <description>Prolonged time in a control collar is slowly reshaping this pawn's mind, wearing down their resistance and reforging their loyalties.</description>
+    <defaultLabelColor>(0.6, 0.3, 0.6)</defaultLabelColor>
+    <isBad>true</isBad>
+    <maxSeverity>1.0</maxSeverity>
+    <comps>
+      <li Class="RJWSexualHarassment.HediffCompProperties_CollarConditioning">
+        <severityPerDayCollared>0.25</severityPerDayCollared>
+        <severityPerDayLoose>-0.04</severityPerDayLoose>
+        <masochistAt>0.5</masochistAt>
+        <stockholmAt>0.9</stockholmAt>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <minSeverity>0</minSeverity>
+        <label>disoriented</label>
+      </li>
+      <li>
+        <minSeverity>0.33</minSeverity>
+        <label>submissive</label>
+        <statOffsets>
+          <PsychicSensitivity>0.1</PsychicSensitivity>
+        </statOffsets>
+      </li>
+      <li>
+        <minSeverity>0.7</minSeverity>
+        <label>broken in</label>
+        <statOffsets>
+          <PsychicSensitivity>0.2</PsychicSensitivity>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- ===== Masochist shock-lust: repeated collar shocks on a masochist build a craving. Severity climbs
+       with each shock (doubled in BDSM gear), decays slowly otherwise, and at higher stages leaves the
+       wearer aching and pliable - lust filled and easier to push around. ===== -->
+  <HediffDef>
+    <defName>RJWSH_ShockLust</defName>
+    <hediffClass>HediffWithComps</hediffClass>
+    <label>shock lust</label>
+    <description>Shock after shock has rewired this pawn's pain into pleasure. Every jolt now leaves them aching, wet, and desperate for more, their will melting a little further each time.</description>
+    <defaultLabelColor>(0.9, 0.4, 0.7)</defaultLabelColor>
+    <isBad>false</isBad>
+    <maxSeverity>1.0</maxSeverity>
+    <initialSeverity>0.05</initialSeverity>
+    <scenarioCanAdd>false</scenarioCanAdd>
+    <comps>
+      <li Class="RJWSexualHarassment.HediffCompProperties_ShockLust">
+        <severityPerDay>-0.2</severityPerDay>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <minSeverity>0</minSeverity>
+        <label>tingling</label>
+        <painFactor>0.92</painFactor>
+      </li>
+      <li>
+        <minSeverity>0.3</minSeverity>
+        <label>aching</label>
+        <painFactor>0.82</painFactor>
+        <statOffsets><PsychicSensitivity>0.10</PsychicSensitivity></statOffsets>
+      </li>
+      <li>
+        <minSeverity>0.6</minSeverity>
+        <label>desperate</label>
+        <painFactor>0.70</painFactor>
+        <statOffsets><PsychicSensitivity>0.20</PsychicSensitivity></statOffsets>
+      </li>
+      <li>
+        <minSeverity>0.85</minSeverity>
+        <label>insatiable</label>
+        <painFactor>0.55</painFactor>
+        <statOffsets><PsychicSensitivity>0.30</PsychicSensitivity></statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- ===== Trapped in a public onahole: a timer status until cut down and freed ===== -->
+  <HediffDef>
+    <defName>RJWSH_OnaholeBound</defName>
+    <label>trapped in an onahole</label>
+    <description>Sealed inside a public onahole and available for anyone to use. They cannot climb out on their own - someone has to cut them down and free them.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>true</isBad>
+    <maxSeverity>1</maxSeverity>
+    <initialSeverity>1</initialSeverity>
+    <scenarioCanAdd>false</scenarioCanAdd>
+    <comps>
+      <li Class="RJWSexualHarassment.HediffCompProperties_OnaholeBound"/>
+    </comps>
+    <stages>
+      <li>
+        <label>trapped</label>
+        <painOffset>0.10</painOffset>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- ===== Worn restraint belt: immobilizes the wearer (applied by RJWSH_RestraintBelt via equipped_hediff) ===== -->
+  <HediffDef>
+    <defName>RJWSH_BeltRestrained</defName>
+    <label>bound in a restraint belt</label>
+    <description>Strapped into a locked restraint belt that binds the whole body. Moving is almost impossible until someone with the key takes it off.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>true</isBad>
+    <maxSeverity>1</maxSeverity>
+    <initialSeverity>1</initialSeverity>
+    <scenarioCanAdd>false</scenarioCanAdd>
+    <stages>
+      <li>
+        <painOffset>0.30</painOffset>
+        <capMods>
+          <li><capacity>Moving</capacity><setMax>0.1</setMax></li>
+        </capMods>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- ===== Display mirrors of the deep sexual attributes (severity = SexAttributes float / 100), kept in
+       sync by HarassmentEngine.SyncAttributeHediffs so a tracked pawn's trauma + addiction show in the
+       Health tab. The trauma MOOD itself comes from ThoughtWorker_Traumatized; these are informational. ===== -->
+  <HediffDef>
+    <defName>RJWSH_SexualTrauma</defName>
+    <label>sexual trauma</label>
+    <description>Accumulated trauma from sexual abuse. It colours how this pawn reacts to intimacy and authority.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <defaultLabelColor>(0.5, 0.5, 0.7)</defaultLabelColor>
+    <isBad>true</isBad>
+    <maxSeverity>1.0</maxSeverity>
+    <scenarioCanAdd>false</scenarioCanAdd>
+    <stages>
+      <li><minSeverity>0</minSeverity><label>shaken</label></li>
+      <li><minSeverity>0.5</minSeverity><label>traumatized</label></li>
+      <li>
+        <minSeverity>0.75</minSeverity><label>severely traumatized</label>
+        <capMods><li><capacity>Consciousness</capacity><offset>-0.05</offset></li></capMods>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <HediffDef>
+    <defName>RJWSH_SexAddiction</defName>
+    <label>sexual compulsion</label>
+    <description>A deep-seated craving for sex. Left unfed it gnaws; a pawn this driven is easier to bend with pleasure.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <defaultLabelColor>(0.85, 0.5, 0.7)</defaultLabelColor>
+    <isBad>true</isBad>
+    <maxSeverity>1.0</maxSeverity>
+    <scenarioCanAdd>false</scenarioCanAdd>
+    <stages>
+      <li><minSeverity>0</minSeverity><label>craving</label></li>
+      <li><minSeverity>0.5</minSeverity><label>dependent</label></li>
+      <li><minSeverity>0.75</minSeverity><label>compulsive</label></li>
+    </stages>
+  </HediffDef>
+
+  <!-- ===== Permanent ownership marks, applied once by SyncAttributeHediffs when a tracked pet becomes
+       deeply submissive (subDom threshold) and the option is enabled. Never removed. ===== -->
+  <HediffDef>
+    <defName>RJWSH_OwnerPiercing</defName>
+    <label>intimate piercings</label>
+    <description>Locked intimate piercings that keep this pawn perpetually aware of their body and their place.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <defaultLabelColor>(0.8, 0.6, 0.75)</defaultLabelColor>
+    <isBad>false</isBad>
+    <maxSeverity>1.0</maxSeverity>
+    <initialSeverity>1.0</initialSeverity>
+    <scenarioCanAdd>false</scenarioCanAdd>
+    <stages>
+      <li><label>pierced</label></li>
+    </stages>
+  </HediffDef>
+
+  <HediffDef>
+    <defName>RJWSH_OwnershipBrand</defName>
+    <label>owner's brand</label>
+    <description>A permanent brand marking this pawn as owned property. It can never be undone.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <defaultLabelColor>(0.7, 0.35, 0.35)</defaultLabelColor>
+    <isBad>false</isBad>
+    <maxSeverity>1.0</maxSeverity>
+    <initialSeverity>1.0</initialSeverity>
+    <scenarioCanAdd>false</scenarioCanAdd>
+    <stages>
+      <li><label>branded</label></li>
+    </stages>
+  </HediffDef>
+
+</Defs>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- A vanilla Work-tab work type for harem pets. Its only substance is the harem SCHEDULE: when a pet has a
+       schedule set, RunScheduleTick (and this work giver's Confined job) drive them by it - and turning this
+       work type OFF in the Work tab pauses that pet's schedule. No workTags so it is never capability-disabled. -->
+  <WorkTypeDef>
+    <defName>RJWSH_Harem</defName>
+    <labelShort>harem</labelShort>
+    <pawnLabel>harem pet</pawnLabel>
+    <gerundLabel>on harem duty</gerundLabel>
+    <description>Follow an assigned harem schedule - serving, training, parading, or staying confined. Turn this off to pause a pet's schedule from the Work tab.</description>
+    <verb>serve</verb>
+    <naturalPriority>90</naturalPriority>
+    <alwaysStartActive>true</alwaysStartActive>
+  </WorkTypeDef>
+
+  <WorkGiverDef>
+    <defName>RJWSH_HaremWork</defName>
+    <label>follow harem schedule</label>
+    <giverClass>RJWSexualHarassment.WorkGiver_Harem</giverClass>
+    <workType>RJWSH_Harem</workType>
+    <verb>serve</verb>
+    <gerund>serving</gerund>
+    <priorityInType>50</priorityInType>
+    <directOrderable>false</directOrderable>
+    <nonColonistsCanDo>true</nonColonistsCanDo>
+  </WorkGiverDef>
+
+</Defs>

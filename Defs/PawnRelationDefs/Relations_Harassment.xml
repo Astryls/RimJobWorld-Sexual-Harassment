@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Stored directly on the owner pointing at the slave. Labels the slave on the OWNER's social card.
+       Label is overwritten at runtime from the relationScheme setting (pet / slave / property). -->
+  <PawnRelationDef>
+    <defName>RJWSH_RelPet</defName>
+    <label>pet</label>
+    <reflexive>false</reflexive>
+    <implied>false</implied>
+    <importance>140</importance>
+    <generationChanceFactor>0</generationChanceFactor>
+  </PawnRelationDef>
+
+  <!-- Implied reverse, derived from our ownership data by the worker. Labels the owner on the SLAVE's
+       social card. Label is overwritten at runtime from the relationScheme setting (owner / master+mistress). -->
+  <PawnRelationDef>
+    <defName>RJWSH_RelOwner</defName>
+    <label>owner</label>
+    <workerClass>RJWSexualHarassment.PawnRelationWorker_RJWSHOwner</workerClass>
+    <reflexive>false</reflexive>
+    <implied>true</implied>
+    <importance>150</importance>
+    <generationChanceFactor>0</generationChanceFactor>
+  </PawnRelationDef>
+
+</Defs>

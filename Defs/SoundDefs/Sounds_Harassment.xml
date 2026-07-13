@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Control-collar shock zap - a sharp electric "bzzt", not the mechanoid psychic drone. Ships no audio:
+       layers Core's small power on/off electrical blips, pitched up short for a quick crackle. Played on
+       every collar shock via PlayShockSound. -->
+  <SoundDef>
+    <defName>RJWSH_Shock</defName>
+    <context>MapOnly</context>
+    <maxSimultaneous>4</maxSimultaneous>
+    <subSounds>
+      <li>
+        <grains>
+          <li Class="AudioGrain_Folder">
+            <clipFolderPath>Electricity/PowerOff/Small</clipFolderPath>
+          </li>
+        </grains>
+        <volumeRange>34~42</volumeRange>
+        <pitchRange>1.6~2.0</pitchRange>
+        <distRange>0~40</distRange>
+        <sustainLoop>False</sustainLoop>
+      </li>
+      <li>
+        <grains>
+          <li Class="AudioGrain_Folder">
+            <clipFolderPath>Electricity/PowerOn/Small</clipFolderPath>
+          </li>
+        </grains>
+        <volumeRange>26~34</volumeRange>
+        <pitchRange>1.7~2.1</pitchRange>
+        <distRange>0~40</distRange>
+        <sustainLoop>False</sustainLoop>
+      </li>
+    </subSounds>
+  </SoundDef>
+
+</Defs>

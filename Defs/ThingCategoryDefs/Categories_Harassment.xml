@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Storage category so scandalous photos can be hauled into stockpiles and filtered like any item. -->
+  <ThingCategoryDef>
+    <defName>RJWSH_Photos</defName>
+    <label>scandalous photos</label>
+    <parent>Root</parent>
+    <iconPath>Things/Item/RJWSH_ScandalousPhoto</iconPath>
+  </ThingCategoryDef>
+
+</Defs>

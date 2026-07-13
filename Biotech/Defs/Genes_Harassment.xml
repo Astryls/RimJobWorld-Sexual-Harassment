@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Biotech conditioning genes. This folder only loads when Biotech is active (About/LoadFolders.xml).
+  The mechanical effects are applied in C# (GeneHelper) by reading these gene defNames:
+    - RJWSH_Gene_Compliant : conditioning gains x1.6, decay x0.5 (breaks fast, recovers slow)
+    - RJWSH_Gene_Willful   : conditioning gains x0.4, decay x3   (very hard to break, snaps back fast)
+    - RJWSH_Gene_Predatory : marks the pawn as a natural aggressor (higher harasser willingness, evil floor)
+  No iconPath (uses the default gene icon) to avoid referencing a specific vanilla texture.
+-->
+<Defs>
+
+  <GeneDef>
+    <defName>RJWSH_Gene_Compliant</defName>
+    <label>compliant mind</label>
+    <description>A pliant, suggestible psyche. This pawn is conditioned to a control collar far faster than normal and shakes off that conditioning far more slowly. Prized by slavers.</description>
+    <displayOrderInCategory>820</displayOrderInCategory>
+    <biostatCpx>1</biostatCpx>
+    <biostatMet>1</biostatMet>
+    <exclusionTags>
+      <li>RJWSH_ConditioningWill</li>
+    </exclusionTags>
+  </GeneDef>
+
+  <GeneDef>
+    <defName>RJWSH_Gene_Willful</defName>
+    <label>iron will</label>
+    <description>An unbreakable, stubborn psyche. This pawn resists collar conditioning fiercely and throws it off quickly once free. A nightmare to keep as a pet.</description>
+    <displayOrderInCategory>821</displayOrderInCategory>
+    <biostatCpx>2</biostatCpx>
+    <biostatMet>-2</biostatMet>
+    <exclusionTags>
+      <li>RJWSH_ConditioningWill</li>
+    </exclusionTags>
+  </GeneDef>
+
+  <GeneDef>
+    <defName>RJWSH_Gene_Predatory</defName>
+    <label>predatory drive</label>
+    <description>A deep-seated urge to dominate. This pawn is far more likely to prey on the vulnerable, harassing and forcing themselves on others without remorse.</description>
+    <displayOrderInCategory>822</displayOrderInCategory>
+    <biostatCpx>1</biostatCpx>
+    <biostatMet>-1</biostatMet>
+  </GeneDef>
+
+  <!-- Phase 7: submission genes. Tie into per-pawn breakSusceptibility (GeneHelper.SusceptibilityGeneFactor)
+       as well as the conditioning gain/decay factors. Deep conditioning can etch RJWSH_Gene_Submissive into a
+       fully-broken pet (heritable), so a broken slave's line is born readier to yield. -->
+  <GeneDef>
+    <defName>RJWSH_Gene_Submissive</defName>
+    <label>submissive nature</label>
+    <description>A psyche that yearns to yield. This pawn is naturally submissive, breaks to a collar with startling ease, and settles into being owned as though born to it.</description>
+    <displayOrderInCategory>823</displayOrderInCategory>
+    <biostatCpx>1</biostatCpx>
+    <biostatMet>1</biostatMet>
+    <exclusionTags>
+      <li>RJWSH_ConditioningWill</li>
+    </exclusionTags>
+  </GeneDef>
+
+  <GeneDef>
+    <defName>RJWSH_Gene_Docile</defName>
+    <label>docile temperament</label>
+    <description>A placid, biddable temperament. This pawn rarely resists and takes to conditioning more readily than most.</description>
+    <displayOrderInCategory>824</displayOrderInCategory>
+    <biostatCpx>1</biostatCpx>
+    <biostatMet>0</biostatMet>
+  </GeneDef>
+
+</Defs>

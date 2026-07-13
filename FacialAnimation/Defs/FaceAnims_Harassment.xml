@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  [NL] Facial Animation faces for RJW Sexual Harassment. This whole folder only loads when
+  Nals.FacialAnimation is active (About/LoadFolders.xml), because these defs reference FA's
+  FaceAnimationDef type and its shape defs.
+
+  PERSISTENT (thought-targeted, ConstantJob): FA keeps this face on the pawn the entire time they
+  carry the matching moodlet - nervous when harassed, afraid when exposed, hollow when beaten-and-low,
+  devoted when rewarded. No per-tick C# needed.
+  ONE-SHOT (played from C# via FABridge.PlayTemporaryAnimation): brief spikes on grope/discipline/
+  shock/reward, referenced by name (RJWSH_FA_Flinch / _Cry / _Bliss).
+
+  Shapes used are exactly the ones FA's own shipped Thought_Naked uses (headShapeDef=blush for the
+  flush, browShapeDef for the emotion) plus base mouth/lid shapes, so this is safe on stock FA.
+  raceName is left default ("") so it applies to humanlikes, like Thought_Naked.
+-->
+<Defs>
+
+  <!-- ============ PERSISTENT (thought-targeted) faces ============ -->
+
+  <!-- Freshly harassed / groped: flushed cheeks + worried brow. Reads as distress, or as flustered
+       arousal for a masochist (whose moodlet flipped positive) - deliberately ambiguous. -->
+  <FacialAnimation.FaceAnimationDef>
+    <defName>RJWSH_FA_Nervous</defName>
+    <priority>210</priority>
+    <targetThoughtDefs>
+      <li>RJWSH_WasHarassedMood</li>
+      <li>RJWSH_WasGropedMood</li>
+    </targetThoughtDefs>
+    <animationFrames>
+      <li>
+        <duration>1</duration>
+        <headShapeDef>blush</headShapeDef>
+        <browShapeDef>s-shaped</browShapeDef>
+      </li>
+    </animationFrames>
+  </FacialAnimation.FaceAnimationDef>
+
+  <!-- Kept naked / bound / humiliated: flush + worried brow + slightly agape mouth = exposed, afraid. -->
+  <FacialAnimation.FaceAnimationDef>
+    <defName>RJWSH_FA_Afraid</defName>
+    <priority>215</priority>
+    <targetThoughtDefs>
+      <li>RJWSH_KeptNaked</li>
+      <li>RJWSH_BoundExposed</li>
+      <li>RJWSH_Humiliated</li>
+    </targetThoughtDefs>
+    <animationFrames>
+      <li>
+        <duration>1</duration>
+        <headShapeDef>blush</headShapeDef>
+        <browShapeDef>s-shaped</browShapeDef>
+        <mouthShapeDef>open</mouthShapeDef>
+      </li>
+    </animationFrames>
+  </FacialAnimation.FaceAnimationDef>
+
+  <!-- Disciplined/shocked AND low mood: hollow, downcast, half-lidded. Gated low-mood so a content
+       masochist does not get the broken look. No blush - pale and empty. -->
+  <FacialAnimation.FaceAnimationDef>
+    <defName>RJWSH_FA_Hollow</defName>
+    <priority>225</priority>
+    <targetMoodMin>0</targetMoodMin>
+    <targetMoodMax>0.35</targetMoodMax>
+    <targetThoughtDefs>
+      <li>RJWSH_Disciplined</li>
+      <li>RJWSH_Shocked</li>
+    </targetThoughtDefs>
+    <animationFrames>
+      <li>
+        <duration>1</duration>
+        <browShapeDef>s-shaped</browShapeDef>
+        <lidShapeDef>close</lidShapeDef>
+      </li>
+    </animationFrames>
+  </FacialAnimation.FaceAnimationDef>
+
+  <!-- Tender moment / rewarded: soft, content, flushed - the devoted look. -->
+  <FacialAnimation.FaceAnimationDef>
+    <defName>RJWSH_FA_Devoted</defName>
+    <priority>205</priority>
+    <targetThoughtDefs>
+      <li>RJWSH_TenderMoment</li>
+      <li>RJWSH_Rewarded</li>
+    </targetThoughtDefs>
+    <animationFrames>
+      <li>
+        <duration>1</duration>
+        <headShapeDef>blush</headShapeDef>
+        <browShapeDef>normal</browShapeDef>
+      </li>
+    </animationFrames>
+  </FacialAnimation.FaceAnimationDef>
+
+  <!-- ============ ONE-SHOT temporary faces (played from C#) ============ -->
+
+  <!-- Sharp flinch: angled brow + open mouth. ~2s. Grope, shock, recoil. -->
+  <FacialAnimation.FaceAnimationDef>
+    <defName>RJWSH_FA_Flinch</defName>
+    <priority>400</priority>
+    <animationFrames>
+      <li>
+        <duration>120</duration>
+        <browShapeDef>angled</browShapeDef>
+        <mouthShapeDef>open</mouthShapeDef>
+      </li>
+    </animationFrames>
+  </FacialAnimation.FaceAnimationDef>
+
+  <!-- Fearful cringe: worried brow, squeezed-shut eyes, open mouth. ~3s. Discipline blow. -->
+  <FacialAnimation.FaceAnimationDef>
+    <defName>RJWSH_FA_Cry</defName>
+    <priority>400</priority>
+    <animationFrames>
+      <li>
+        <duration>180</duration>
+        <browShapeDef>s-shaped</browShapeDef>
+        <lidShapeDef>close</lidShapeDef>
+        <mouthShapeDef>open</mouthShapeDef>
+      </li>
+    </animationFrames>
+  </FacialAnimation.FaceAnimationDef>
+
+  <!-- Flush of pleasure/relief: blush + half-lidded + soft brow. ~3s. Reward, affection. -->
+  <FacialAnimation.FaceAnimationDef>
+    <defName>RJWSH_FA_Bliss</defName>
+    <priority>400</priority>
+    <animationFrames>
+      <li>
+        <duration>200</duration>
+        <headShapeDef>blush</headShapeDef>
+        <browShapeDef>s-shaped</browShapeDef>
+        <lidShapeDef>close</lidShapeDef>
+      </li>
+    </animationFrames>
+  </FacialAnimation.FaceAnimationDef>
+
+</Defs>

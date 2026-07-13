@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Collaring: a permanent life event - art can depict it years later. -->
+  <TaleDef>
+    <defName>RJWSH_Tale_Collared</defName>
+    <label>pet collared</label>
+    <taleClass>Tale_DoublePawn</taleClass>
+    <type>PermanentHistorical</type>
+    <firstPawnSymbol>OWNER</firstPawnSymbol>
+    <secondPawnSymbol>PET</secondPawnSymbol>
+    <baseInterest>3</baseInterest>
+    <maxPerPawn>2</maxPerPawn>
+    <rulePack>
+      <rulesStrings>
+        <li>tale_noun->[OWNER_nameDef] collaring [PET_nameDef]</li>
+        <li>tale_noun->the collaring of [PET_nameDef]</li>
+        <li>image->[OWNER_nameFull] locking a collar around [PET_nameFull]'s neck [circumstance_group]</li>
+        <li>image->[OWNER_nameFull] holding a leash attached to [PET_nameFull] [circumstance_group]</li>
+        <li>image->[PET_nameFull] kneeling before [OWNER_nameFull], a collar gleaming at [PET_possessive] throat [circumstance_group]</li>
+        <li>circumstance_phrase->with an air of quiet ceremony</li>
+        <li>circumstance_phrase->as [PET_pronoun] trembles</li>
+        <li>circumstance_phrase->while [PET_pronoun] stares at the floor</li>
+        <li>circumstance_phrase->with a possessive smile</li>
+        <li>circumstance_phrase->under the eyes of the whole colony</li>
+        <li>desc_sentence->[PET_nameDef] looks resigned.</li>
+        <li>desc_sentence->[PET_nameDef]'s eyes betray a flicker of defiance.</li>
+        <li>desc_sentence->[OWNER_nameDef] wears the key on a cord around [OWNER_possessive] neck.</li>
+        <li>desc_sentence->The collar is rendered in painstaking detail.</li>
+      </rulesStrings>
+    </rulePack>
+  </TaleDef>
+
+  <!-- Breaking point: the Masochist milestone. -->
+  <TaleDef>
+    <defName>RJWSH_Tale_BrokenIn</defName>
+    <label>broken to the collar</label>
+    <taleClass>Tale_SinglePawn</taleClass>
+    <type>Expirable</type>
+    <baseInterest>2</baseInterest>
+    <maxPerPawn>1</maxPerPawn>
+    <expireDays>60</expireDays>
+    <rulePack>
+      <rulesStrings>
+        <li>tale_noun->[PAWN_nameDef]'s breaking</li>
+        <li>tale_noun->the breaking of [PAWN_nameDef]</li>
+        <li>image->[PAWN_nameFull] kneeling in a collar, head bowed [circumstance_group]</li>
+        <li>image->[PAWN_nameFull] pressing the collar to [PAWN_possessive] lips [circumstance_group]</li>
+        <li>image->[PAWN_nameFull] smiling faintly through tears [circumstance_group]</li>
+        <li>circumstance_phrase->as something in [PAWN_objective] gives way</li>
+        <li>circumstance_phrase->no longer fighting it</li>
+        <li>circumstance_phrase->with a strange calm</li>
+        <li>desc_sentence->[PAWN_pronoun] has stopped resisting.</li>
+        <li>desc_sentence->[PAWN_possessive] expression is unreadable.</li>
+        <li>desc_sentence->There is something like relief in [PAWN_possessive] posture.</li>
+      </rulesStrings>
+    </rulePack>
+  </TaleDef>
+
+  <!-- Full devotion: the Stockholm milestone - permanent. -->
+  <TaleDef>
+    <defName>RJWSH_Tale_Devoted</defName>
+    <label>devoted to the collar</label>
+    <taleClass>Tale_SinglePawn</taleClass>
+    <type>PermanentHistorical</type>
+    <baseInterest>3</baseInterest>
+    <maxPerPawn>1</maxPerPawn>
+    <rulePack>
+      <rulesStrings>
+        <li>tale_noun->[PAWN_nameDef]'s devotion</li>
+        <li>tale_noun->the devotion of [PAWN_nameDef]</li>
+        <li>image->[PAWN_nameFull] gazing up adoringly, collar bright at [PAWN_possessive] throat [circumstance_group]</li>
+        <li>image->[PAWN_nameFull] curled contentedly at [PAWN_possessive] owner's feet [circumstance_group]</li>
+        <li>image->[PAWN_nameFull] polishing [PAWN_possessive] own collar with care [circumstance_group]</li>
+        <li>circumstance_phrase->utterly at peace</li>
+        <li>circumstance_phrase->beyond any thought of leaving</li>
+        <li>circumstance_phrase->with shining eyes</li>
+        <li>desc_sentence->[PAWN_pronoun] looks genuinely happy.</li>
+        <li>desc_sentence->Nothing of the old defiance remains.</li>
+        <li>desc_sentence->The artist has captured a disquieting serenity.</li>
+      </rulesStrings>
+    </rulePack>
+  </TaleDef>
+
+  <!-- Parade: a public spectacle. -->
+  <TaleDef>
+    <defName>RJWSH_Tale_Paraded</defName>
+    <label>paraded</label>
+    <taleClass>Tale_DoublePawn</taleClass>
+    <type>Expirable</type>
+    <firstPawnSymbol>OWNER</firstPawnSymbol>
+    <secondPawnSymbol>PET</secondPawnSymbol>
+    <baseInterest>1.5</baseInterest>
+    <maxPerPawn>3</maxPerPawn>
+    <expireDays>25</expireDays>
+    <rulePack>
+      <rulesStrings>
+        <li>tale_noun->[OWNER_nameDef] parading [PET_nameDef]</li>
+        <li>tale_noun->[PET_nameDef]'s parade</li>
+        <li>image->[PET_nameFull] being paraded bare through the colony by [OWNER_nameFull] [circumstance_group]</li>
+        <li>image->[PET_nameFull] walking a circuit of staring onlookers [circumstance_group]</li>
+        <li>image->[OWNER_nameFull] presenting [PET_nameFull] to a gathered crowd [circumstance_group]</li>
+        <li>circumstance_phrase->to whistles and jeers</li>
+        <li>circumstance_phrase->past averted eyes</li>
+        <li>circumstance_phrase->with [PET_possessive] chin held high despite everything</li>
+        <li>circumstance_phrase->while onlookers pretend not to stare</li>
+        <li>desc_sentence->[PET_nameDef]'s cheeks are burning.</li>
+        <li>desc_sentence->Some onlookers leer; others look away.</li>
+        <li>desc_sentence->[OWNER_nameDef] looks enormously pleased.</li>
+      </rulesStrings>
+    </rulePack>
+  </TaleDef>
+
+  <!-- A scandalous photo spreading through the region. -->
+  <TaleDef>
+    <defName>RJWSH_Tale_ScandalPhoto</defName>
+    <label>scandalous photo circulated</label>
+    <taleClass>Tale_SinglePawn</taleClass>
+    <type>Expirable</type>
+    <baseInterest>1.5</baseInterest>
+    <maxPerPawn>2</maxPerPawn>
+    <expireDays>30</expireDays>
+    <rulePack>
+      <rulesStrings>
+        <li>tale_noun->[PAWN_nameDef]'s scandal</li>
+        <li>tale_noun->the photos of [PAWN_nameDef]</li>
+        <li>image->strangers passing around a photograph of [PAWN_nameFull] [circumstance_group]</li>
+        <li>image->[PAWN_nameFull] recognizing [PAWN_possessive] own photo in a stranger's hands [circumstance_group]</li>
+        <li>image->a crumpled photograph of [PAWN_nameFull] pinned to a tavern wall [circumstance_group]</li>
+        <li>circumstance_phrase->in a tavern far from home</li>
+        <li>circumstance_phrase->to muffled laughter</li>
+        <li>circumstance_phrase->passed from hand to hand</li>
+        <li>desc_sentence->The photograph has clearly been handled many times.</li>
+        <li>desc_sentence->[PAWN_nameDef]'s name is written on the back.</li>
+        <li>desc_sentence->Word travels faster than caravans.</li>
+      </rulesStrings>
+    </rulePack>
+  </TaleDef>
+
+  <!-- Selling a pet away. -->
+  <TaleDef>
+    <defName>RJWSH_Tale_SoldPet</defName>
+    <label>pet sold</label>
+    <taleClass>Tale_DoublePawn</taleClass>
+    <type>PermanentHistorical</type>
+    <firstPawnSymbol>OWNER</firstPawnSymbol>
+    <secondPawnSymbol>PET</secondPawnSymbol>
+    <baseInterest>2.5</baseInterest>
+    <maxPerPawn>2</maxPerPawn>
+    <rulePack>
+      <rulesStrings>
+        <li>tale_noun->[OWNER_nameDef] selling [PET_nameDef]</li>
+        <li>tale_noun->the sale of [PET_nameDef]</li>
+        <li>image->[PET_nameFull] being led away by strangers as [OWNER_nameFull] counts silver [circumstance_group]</li>
+        <li>image->[OWNER_nameFull] shaking hands with a trader over [PET_nameFull]'s head [circumstance_group]</li>
+        <li>image->[PET_nameFull] looking back one last time [circumstance_group]</li>
+        <li>circumstance_phrase->without ceremony</li>
+        <li>circumstance_phrase->for a heavy purse</li>
+        <li>circumstance_phrase->as the caravan turns away</li>
+        <li>desc_sentence->[PET_nameDef] does not resist.</li>
+        <li>desc_sentence->The silver gleams in the artist's rendering.</li>
+        <li>desc_sentence->[OWNER_nameDef]'s face gives nothing away.</li>
+      </rulesStrings>
+    </rulePack>
+  </TaleDef>
+
+</Defs>

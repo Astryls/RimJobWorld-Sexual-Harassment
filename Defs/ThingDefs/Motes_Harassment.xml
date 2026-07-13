@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Clasped-hands mote for the "hold hands" affection act. The graphic is loaded at runtime from Show Me
+       Your Hands' "Hand" texture (so Nice Hands Retexture applies by load order) - see Mote_Hands. No texPath
+       here on purpose, so the sync pipeline never writes a magenta stub that would shadow SMYH's texture. -->
+  <ThingDef ParentName="MoteBase">
+    <defName>RJWSH_Mote_Hands</defName>
+    <thingClass>RJWSexualHarassment.Mote_Hands</thingClass>
+    <mote>
+      <fadeInTime>0.3</fadeInTime>
+      <solidTime>2.0</solidTime>
+      <fadeOutTime>0.6</fadeOutTime>
+    </mote>
+    <graphicData>
+      <!-- Placeholder texture only to satisfy mote def validation; Mote_Hands.DrawAt overrides the draw and
+           renders the Show Me Your Hands texture instead, so this is never actually shown. MUST be one of OUR
+           own textures - using a vanilla path here makes the sync pipeline write a magenta stub at that path
+           inside our mod, which then shadows the bundled vanilla texture everywhere it is referenced. -->
+      <texPath>Things/RJWSH_Symbols/HoldHands</texPath>
+      <graphicClass>Graphic_Mote</graphicClass>
+      <drawSize>0.7</drawSize>
+    </graphicData>
+  </ThingDef>
+
+</Defs>

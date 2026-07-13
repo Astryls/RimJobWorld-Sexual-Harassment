@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- The conditioned/owned pet's need to submit and serve. Only appears on tracked pets (gated in
+       Pawn_NeedsTracker.ShouldHaveNeed via a Harmony postfix). Falls over time; serving, reward, and
+       discipline raise it. Low -> restless mood (RJWSH_UnmetSubmission) + more eager self-presentation. -->
+  <NeedDef>
+    <defName>RJWSH_Submission</defName>
+    <needClass>RJWSexualHarassment.Need_Submission</needClass>
+    <label>submission</label>
+    <description>This pawn has been conditioned to need to submit and serve. When it runs low they grow restless and defiant; serving their owner, being rewarded, or being disciplined settles it.</description>
+    <listPriority>26</listPriority>
+    <colonistAndPrisonersOnly>false</colonistAndPrisonersOnly>
+    <major>false</major>
+    <showForCaravanMembers>false</showForCaravanMembers>
+  </NeedDef>
+
+</Defs>

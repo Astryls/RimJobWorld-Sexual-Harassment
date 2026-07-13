@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Phase 5 world layer. These fire on their own mean-time-between from GameComponent_Harassment
+       (each worker's CanFireNowSub gates on the mod's own preconditions), not the vanilla storyteller. -->
+
+  <IncidentDef>
+    <defName>RJWSH_ScandalLeak</defName>
+    <label>scandal spreads</label>
+    <category>Misc</category>
+    <targetTags>
+      <li>Map_PlayerHome</li>
+    </targetTags>
+    <workerClass>RJWSexualHarassment.IncidentWorker_ScandalLeak</workerClass>
+    <baseChance>1.0</baseChance>
+    <minRefireDays>3</minRefireDays>
+    <letterDef>NeutralEvent</letterDef>
+  </IncidentDef>
+
+  <IncidentDef>
+    <defName>RJWSH_RivalSlaver</defName>
+    <label>slaver's offer</label>
+    <category>Misc</category>
+    <targetTags>
+      <li>Map_PlayerHome</li>
+    </targetTags>
+    <workerClass>RJWSexualHarassment.IncidentWorker_RivalSlaver</workerClass>
+    <baseChance>1.0</baseChance>
+    <minRefireDays>6</minRefireDays>
+  </IncidentDef>
+
+  <IncidentDef>
+    <defName>RJWSH_RescueRaid</defName>
+    <label>rescue raid</label>
+    <category>ThreatBig</category>
+    <targetTags>
+      <li>Map_PlayerHome</li>
+    </targetTags>
+    <workerClass>RJWSexualHarassment.IncidentWorker_RescueRaid</workerClass>
+    <baseChance>1.0</baseChance>
+    <minRefireDays>8</minRefireDays>
+  </IncidentDef>
+
+</Defs>

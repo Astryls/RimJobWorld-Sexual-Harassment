@@ -1,0 +1,524 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- ===== Verbal harassment ===== -->
+  <ThoughtDef>
+    <defName>RJWSH_WasHarassed</defName>
+    <thoughtClass>Thought_MemorySocial</thoughtClass>
+    <durationDays>8</durationDays>
+    <stackLimit>50</stackLimit>
+    <stackLimitForSameOtherPawn>6</stackLimitForSameOtherPawn>
+    <stackedEffectMultiplier>0.85</stackedEffectMultiplier>
+    <socialTargetDevelopmentalStageFilter>Adult</socialTargetDevelopmentalStageFilter>
+    <thoughtToMake>RJWSH_WasHarassedMood</thoughtToMake>
+    <stages>
+      <li>
+        <label>harassed me</label>
+        <baseOpinionOffset>-10</baseOpinionOffset>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <ThoughtDef>
+    <defName>RJWSH_WasHarassedMood</defName>
+    <thoughtClass>RJWSexualHarassment.Thought_MaybeMasochist</thoughtClass>
+    <durationDays>0.75</durationDays>
+    <stackLimit>4</stackLimit>
+    <stackedEffectMultiplier>0.7</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>harassed</label>
+        <description>Someone made an unwanted advance toward me. It was degrading.</description>
+        <baseMoodEffect>-3</baseMoodEffect>
+      </li>
+      <li>
+        <label>harassed</label>
+        <description>Someone made an advance toward me. The attention made my pulse race.</description>
+        <baseMoodEffect>3</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- ===== Owner death & legacy ===== -->
+  <ThoughtDef>
+    <defName>RJWSH_OwnerDied</defName>
+    <thoughtClass>Thought_Memory</thoughtClass>
+    <durationDays>20</durationDays>
+    <stackLimit>1</stackLimit>
+    <stages>
+      <li>
+        <label>owner died</label>
+        <description>The one who owned me is gone. I do not know who I am without them.</description>
+        <baseMoodEffect>-18</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <ThoughtDef>
+    <defName>RJWSH_FreedByDeath</defName>
+    <thoughtClass>Thought_Memory</thoughtClass>
+    <durationDays>10</durationDays>
+    <stackLimit>1</stackLimit>
+    <stages>
+      <li>
+        <label>free at last</label>
+        <description>My owner is dead and the collar is off. For the first time in a long time, I belong to no one.</description>
+        <baseMoodEffect>12</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- ===== Owner discipline / reward ===== -->
+  <ThoughtDef>
+    <defName>RJWSH_Disciplined</defName>
+    <thoughtClass>RJWSexualHarassment.Thought_MaybeMasochist</thoughtClass>
+    <durationDays>1.0</durationDays>
+    <stackLimit>5</stackLimit>
+    <stackedEffectMultiplier>0.6</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>disciplined</label>
+        <description>My owner struck me to keep me in line. I do not dare disobey.</description>
+        <baseMoodEffect>-6</baseMoodEffect>
+      </li>
+      <li>
+        <label>disciplined</label>
+        <description>My owner struck me to keep me in line. The sting of it sent a thrill through me.</description>
+        <baseMoodEffect>6</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- Restless/anxious mood when a conditioned pet's Submission need runs low (ThoughtWorker_UnmetSubmission). -->
+  <ThoughtDef>
+    <defName>RJWSH_UnmetSubmission</defName>
+    <workerClass>RJWSexualHarassment.ThoughtWorker_UnmetSubmission</workerClass>
+    <stages>
+      <li>
+        <label>needs to submit</label>
+        <description>No one has told me what to do or put me in my place. I feel adrift without it.</description>
+        <baseMoodEffect>-4</baseMoodEffect>
+      </li>
+      <li>
+        <label>craving submission</label>
+        <description>I am desperate to serve, to be used, to be told I belong to someone. Being left to myself is agony.</description>
+        <baseMoodEffect>-8</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <ThoughtDef>
+    <defName>RJWSH_Rewarded</defName>
+    <durationDays>1.0</durationDays>
+    <stackLimit>5</stackLimit>
+    <stackedEffectMultiplier>0.6</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>rewarded</label>
+        <description>My owner praised and rewarded me. It felt good to please them.</description>
+        <baseMoodEffect>6</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- Owner-side mood: how the owner feels about having disciplined their pet. Stage 0 = distaste (normal
+       owner), stage 1 = satisfaction (cruel/sadist owner). The engine picks the stage by temperament. -->
+  <ThoughtDef>
+    <defName>RJWSH_DisciplinedMyPet</defName>
+    <durationDays>1.0</durationDays>
+    <stackLimit>3</stackLimit>
+    <stackedEffectMultiplier>0.6</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>had to discipline my pet</label>
+        <description>I had to beat my pet to keep them in line. It left a sour taste in my mouth.</description>
+        <baseMoodEffect>-3</baseMoodEffect>
+      </li>
+      <li>
+        <label>disciplined my pet</label>
+        <description>I put my pet back in their place. They needed reminding who is in charge, and it felt good.</description>
+        <baseMoodEffect>4</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- Owner-side mood: a warm feeling from praising and pampering an obedient pet. -->
+  <ThoughtDef>
+    <defName>RJWSH_RewardedMyPet</defName>
+    <durationDays>1.0</durationDays>
+    <stackLimit>3</stackLimit>
+    <stackedEffectMultiplier>0.6</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>rewarded my pet</label>
+        <description>I praised and pampered my pet. Seeing them melt for me was its own quiet pleasure.</description>
+        <baseMoodEffect>3</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- ===== Physical (groping) ===== -->
+  <ThoughtDef>
+    <defName>RJWSH_WasGroped</defName>
+    <thoughtClass>Thought_MemorySocial</thoughtClass>
+    <durationDays>15</durationDays>
+    <stackLimit>50</stackLimit>
+    <stackLimitForSameOtherPawn>5</stackLimitForSameOtherPawn>
+    <stackedEffectMultiplier>0.9</stackedEffectMultiplier>
+    <socialTargetDevelopmentalStageFilter>Adult</socialTargetDevelopmentalStageFilter>
+    <thoughtToMake>RJWSH_WasGropedMood</thoughtToMake>
+    <stages>
+      <li>
+        <label>groped me</label>
+        <baseOpinionOffset>-25</baseOpinionOffset>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <ThoughtDef>
+    <defName>RJWSH_WasGropedMood</defName>
+    <thoughtClass>RJWSexualHarassment.Thought_MaybeMasochist</thoughtClass>
+    <durationDays>1.5</durationDays>
+    <stackLimit>3</stackLimit>
+    <stackedEffectMultiplier>0.8</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>groped</label>
+        <description>Someone put their hands on me without my consent. I feel violated.</description>
+        <baseMoodEffect>-12</baseMoodEffect>
+      </li>
+      <li>
+        <label>groped</label>
+        <description>Someone put their hands on me without asking. I should be furious, but I wanted more.</description>
+        <baseMoodEffect>8</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- ===== Friendly fan treat (genuine, non-spiked) ===== -->
+  <ThoughtDef>
+    <defName>RJWSH_ReceivedTreat</defName>
+    <durationDays>0.5</durationDays>
+    <stackLimit>3</stackLimit>
+    <stackedEffectMultiplier>0.7</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>got a kind treat</label>
+        <description>Someone brought me a nice drink. That was thoughtful.</description>
+        <baseMoodEffect>3</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- ===== Humiliated by distributed photos (blackmail refused) ===== -->
+  <ThoughtDef>
+    <defName>RJWSH_Humiliated</defName>
+    <thoughtClass>RJWSexualHarassment.Thought_MaybeMasochist</thoughtClass>
+    <durationDays>6</durationDays>
+    <stackLimit>3</stackLimit>
+    <stackedEffectMultiplier>0.6</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>scandalous photos circulating</label>
+        <description>Humiliating photos of me are being passed around the colony. I want to disappear.</description>
+        <baseMoodEffect>-12</baseMoodEffect>
+      </li>
+      <li>
+        <label>scandalous photos circulating</label>
+        <description>Photos of me are being passed around the colony. Knowing they are all looking at me is intoxicating.</description>
+        <baseMoodEffect>8</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- ===== Shocked by control collar ===== -->
+  <ThoughtDef>
+    <defName>RJWSH_Shocked</defName>
+    <thoughtClass>RJWSexualHarassment.Thought_MaybeMasochist</thoughtClass>
+    <durationDays>0.25</durationDays>
+    <stackLimit>5</stackLimit>
+    <stackedEffectMultiplier>0.8</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>shocked by collar</label>
+        <description>The collar sent a jolt of electricity through me. It hurt, and I know it will happen again if I disobey.</description>
+        <baseMoodEffect>-5</baseMoodEffect>
+      </li>
+      <li>
+        <label>shocked by collar</label>
+        <description>The collar sent a jolt through me. The pain lit me up in the best way.</description>
+        <baseMoodEffect>5</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- ===== Persistent mood from wearing a collar / being owned: tracks conditioning state ===== -->
+  <ThoughtDef>
+    <defName>RJWSH_CollarMood</defName>
+    <workerClass>RJWSexualHarassment.ThoughtWorker_Collared</workerClass>
+    <stages>
+      <li>
+        <label>collared against my will</label>
+        <description>Someone holds the key to my collar. I am owned, controlled, and I hate every second of it.</description>
+        <baseMoodEffect>-6</baseMoodEffect>
+      </li>
+      <li>
+        <label>resigned to my collar</label>
+        <description>I have stopped fighting the collar. It is easier to just do as I am told. There is a strange calm in it.</description>
+        <baseMoodEffect>3</baseMoodEffect>
+      </li>
+      <li>
+        <label>happy to be owned</label>
+        <description>My collar is everything to me. I belong to my owner completely, and I have never been happier.</description>
+        <baseMoodEffect>10</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- ===== Shared affection (kiss / hold hands) ===== -->
+  <ThoughtDef>
+    <defName>RJWSH_TenderMoment</defName>
+    <durationDays>1</durationDays>
+    <stackLimit>2</stackLimit>
+    <stackedEffectMultiplier>0.7</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>shared a tender moment</label>
+        <description>We held each other close for a while. It felt nice.</description>
+        <baseMoodEffect>5</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- ===== Owner-forced action moodlets (flip positive for masochists via Thought_MaybeMasochist) ===== -->
+  <ThoughtDef>
+    <defName>RJWSH_ForcedWhore</defName>
+    <thoughtClass>RJWSexualHarassment.Thought_MaybeMasochist</thoughtClass>
+    <durationDays>1.0</durationDays>
+    <stackLimit>4</stackLimit>
+    <stackedEffectMultiplier>0.7</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>sold for use</label>
+        <description>My owner sold my body to a stranger for silver. I am nothing but a thing to be rented out.</description>
+        <baseMoodEffect>-8</baseMoodEffect>
+      </li>
+      <li>
+        <label>sold for use</label>
+        <description>My owner sold my body to a stranger for silver. Being used like this is exactly what I crave.</description>
+        <baseMoodEffect>7</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <ThoughtDef>
+    <defName>RJWSH_MadeToService</defName>
+    <thoughtClass>RJWSexualHarassment.Thought_MaybeMasochist</thoughtClass>
+    <durationDays>0.6</durationDays>
+    <stackLimit>3</stackLimit>
+    <stackedEffectMultiplier>0.7</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>made to service</label>
+        <description>My owner ordered me to service someone on command, like I have no say at all.</description>
+        <baseMoodEffect>-5</baseMoodEffect>
+      </li>
+      <li>
+        <label>made to service</label>
+        <description>My owner ordered me to service someone on command. I love being put to use whenever they please.</description>
+        <baseMoodEffect>5</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <ThoughtDef>
+    <defName>RJWSH_DressedUp</defName>
+    <thoughtClass>RJWSexualHarassment.Thought_MaybeMasochist</thoughtClass>
+    <durationDays>1.0</durationDays>
+    <stackLimit>3</stackLimit>
+    <stackedEffectMultiplier>0.7</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>dressed like a doll</label>
+        <description>My owner dressed me up to their taste, parading me like a doll with no say of my own.</description>
+        <baseMoodEffect>-4</baseMoodEffect>
+      </li>
+      <li>
+        <label>dressed like a doll</label>
+        <description>My owner dressed me up just how they like. Being their pretty little doll feels wonderful.</description>
+        <baseMoodEffect>4</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <ThoughtDef>
+    <defName>RJWSH_KeptNaked</defName>
+    <workerClass>RJWSexualHarassment.ThoughtWorker_KeptNaked</workerClass>
+    <stages>
+      <li>
+        <label>kept naked</label>
+        <description>My owner forbids me clothing. I am kept bare for anyone to see, and it is humiliating.</description>
+        <baseMoodEffect>-5</baseMoodEffect>
+      </li>
+      <li>
+        <label>kept naked</label>
+        <description>My owner keeps me bare for all to see. Being exposed like this is exactly how I should be.</description>
+        <baseMoodEffect>4</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <ThoughtDef>
+    <defName>RJWSH_BoundExposed</defName>
+    <workerClass>RJWSexualHarassment.ThoughtWorker_BoundExposed</workerClass>
+    <stages>
+      <li>
+        <label>bound and exposed</label>
+        <description>I am bound and left on display for anyone to use. I have never felt so powerless.</description>
+        <baseMoodEffect>-7</baseMoodEffect>
+      </li>
+      <li>
+        <label>bound and exposed</label>
+        <description>I am bound and left on display for anyone to use. Being this helpless is thrilling.</description>
+        <baseMoodEffect>6</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- ===== Witnessing harassment (decent bystander) ===== -->
+  <ThoughtDef>
+    <defName>RJWSH_SawSomethingWrong</defName>
+    <durationDays>0.5</durationDays>
+    <stackLimit>3</stackLimit>
+    <stackedEffectMultiplier>0.6</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>witnessed something cruel</label>
+        <description>I saw someone being harassed and could do nothing to stop it. It sickened me.</description>
+        <baseMoodEffect>-4</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- ===== Reminded of a tormentor on sight ===== -->
+  <ThoughtDef>
+    <defName>RJWSH_Recoiled</defName>
+    <thoughtClass>RJWSexualHarassment.Thought_MaybeMasochist</thoughtClass>
+    <durationDays>0.25</durationDays>
+    <stackLimit>3</stackLimit>
+    <stackedEffectMultiplier>0.6</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>saw my tormentor</label>
+        <description>I came face to face with someone who used me. My skin crawled.</description>
+        <baseMoodEffect>-3</baseMoodEffect>
+      </li>
+      <li>
+        <label>saw my tormentor</label>
+        <description>I came face to face with someone who used me. Part of me wanted them to do it again.</description>
+        <baseMoodEffect>2</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- ===== Depth systems ===== -->
+
+  <!-- Owner jealousy: someone else used the owner's pet. -->
+  <ThoughtDef>
+    <defName>RJWSH_Jealous</defName>
+    <durationDays>1.0</durationDays>
+    <stackLimit>4</stackLimit>
+    <stackedEffectMultiplier>0.6</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>someone used my pet</label>
+        <description>Someone else put their hands on what is mine. My pet belongs to me alone.</description>
+        <baseMoodEffect>-6</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- Owner codependency: comfort from having a devoted pet. -->
+  <ThoughtDef>
+    <defName>RJWSH_DevotedPetComfort</defName>
+    <durationDays>1.5</durationDays>
+    <stackLimit>1</stackLimit>
+    <stages>
+      <li>
+        <label>my devoted pet</label>
+        <description>I have a pet who lives for me and me alone. Coming home to that devotion is a quiet comfort.</description>
+        <baseMoodEffect>5</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- Owner grief: lost a pet (died or broke free). -->
+  <ThoughtDef>
+    <defName>RJWSH_LostPet</defName>
+    <durationDays>6.0</durationDays>
+    <stackLimit>2</stackLimit>
+    <stackedEffectMultiplier>0.7</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>lost my pet</label>
+        <description>My pet is gone. The house feels empty without them at my heel. I ache for what I had.</description>
+        <baseMoodEffect>-8</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- Sex-addiction withdrawal: craving with no release. Flips positive for masochists (denial as a thrill). -->
+  <ThoughtDef>
+    <defName>RJWSH_Withdrawal</defName>
+    <thoughtClass>RJWSexualHarassment.Thought_MaybeMasochist</thoughtClass>
+    <durationDays>0.5</durationDays>
+    <stackLimit>3</stackLimit>
+    <stackedEffectMultiplier>0.6</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>aching for release</label>
+        <description>My body is screaming to be used and no one will touch me. I can barely think straight.</description>
+        <baseMoodEffect>-5</baseMoodEffect>
+      </li>
+      <li>
+        <label>desperate with need</label>
+        <description>Being denied like this is its own exquisite torture, and some sick part of me loves it.</description>
+        <baseMoodEffect>4</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- Situational trauma mood (scales via the worker). -->
+  <ThoughtDef>
+    <defName>RJWSH_TraumatizedMood</defName>
+    <workerClass>RJWSexualHarassment.ThoughtWorker_Traumatized</workerClass>
+    <stages>
+      <li>
+        <label>haunted</label>
+        <description>The things that were done to me follow me everywhere. I flinch at shadows.</description>
+        <baseMoodEffect>-3</baseMoodEffect>
+      </li>
+      <li>
+        <label>deeply scarred</label>
+        <description>What was done to me has broken something inside. I can never be at ease.</description>
+        <baseMoodEffect>-8</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- Bullied by a dominant pet in the pecking order. -->
+  <ThoughtDef>
+    <defName>RJWSH_Bullied</defName>
+    <durationDays>0.75</durationDays>
+    <stackLimit>3</stackLimit>
+    <stackedEffectMultiplier>0.6</stackedEffectMultiplier>
+    <stages>
+      <li>
+        <label>put in my place</label>
+        <description>Our owner's favorite lorded it over me again. I am the lowest of the low here.</description>
+        <baseMoodEffect>-3</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+</Defs>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<loadFolders>
+  <v1.6>
+    <!-- Root: normal Defs/Patches/Textures/Assemblies/Sounds loading. -->
+    <li>/</li>
+    <!-- [NL] Facial Animation faces: only load when FA is active (they reference FA def types). -->
+    <li IfModActive="Nals.FacialAnimation">FacialAnimation</li>
+    <!-- Biotech conditioning genes: only load when Biotech is active. -->
+    <li IfModActive="Ludeon.RimWorld.Biotech">Biotech</li>
+    <!-- Ideology ownership meme / collaring precepts: only load when Ideology is active. -->
+    <li IfModActive="Ludeon.RimWorld.Ideology">Ideology</li>
+  </v1.6>
+</loadFolders>

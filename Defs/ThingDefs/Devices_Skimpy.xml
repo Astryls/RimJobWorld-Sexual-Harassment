@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Lockable bondage-gear copies of "Skimpy Clothes for Nal's" apparel. Textures copied into
+       Textures/RJWSH_src/Skimpy/. Inheriting BondageGearBase auto-locks them (HoloCrypto), gives the bound
+       moodlet, and auto-enrolls them into the devious-device pool + vulnerability. Real directional worn art. -->
+
+  <rjw.bondage_gear_def Name="RJWSH_SkimpyBase" ParentName="BondageGearBase" Abstract="True">
+    <soul_type>rjw.bondage_gear_soul</soul_type>
+    <gives_bound_moodlet>true</gives_bound_moodlet>
+    <techLevel>Industrial</techLevel>
+    <statBases>
+      <MaxHitPoints>80</MaxHitPoints>
+      <Flammability>0.6</Flammability>
+      <DeteriorationRate>1.0</DeteriorationRate>
+      <Beauty>-2</Beauty>
+      <MarketValue>120</MarketValue>
+      <Mass>0.2</Mass>
+    </statBases>
+  </rjw.bondage_gear_def>
+
+  <!-- ===== Black Tape (Torso / OnSkin) ===== -->
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_BTP_1_</defName><label>black tape outfit 1</label><description>A locked black tape outfit.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/BTP/BTP_Style1</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+    <apparel><bodyPartGroups><li>Torso</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/BTP/BTP_Style1</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_BTP_2_</defName><label>black tape outfit 2</label><description>A locked black tape outfit.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/BTP/BTP_Style1</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+    <apparel><bodyPartGroups><li>Torso</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/BTP/BTP_Style2</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_BTP_3_</defName><label>black tape outfit 3</label><description>A locked black tape outfit.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/BTP/BTP_Style1</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+    <apparel><bodyPartGroups><li>Torso</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/BTP/BTP_Style3</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_BTP_4_</defName><label>black tape outfit 4</label><description>A locked black tape outfit.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/BTP/BTP_Style1</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+    <apparel><bodyPartGroups><li>Torso</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/BTP/BTP_Style4</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_BTP_5_</defName><label>black tape outfit 5</label><description>A locked black tape outfit.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/BTP/BTP_Style1</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+    <apparel><bodyPartGroups><li>Torso</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/BTP/BTP_Style5</wornGraphicPath></apparel></rjw.bondage_gear_def>
+
+  <!-- ===== Bunnysuits (Neck+Torso+Shoulders+Arms+Legs / OnSkin, masked) ===== -->
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_Ranchu_Bunnysuit</defName><label>bunnysuit</label><description>A locked bunnysuit.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/Bunnysuits/Bunnysuit</texPath><graphicClass>Graphic_Single</graphicClass><shaderType>CutoutComplex</shaderType></graphicData>
+    <apparel><bodyPartGroups><li>Neck</li><li>Torso</li><li>Shoulders</li><li>Arms</li><li>Legs</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/Bunnysuits/Bunnysuit</wornGraphicPath><useWornGraphicMask>true</useWornGraphicMask></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_Ranchu_ReverseBunnysuit</defName><label>reverse bunnysuit</label><description>A locked reverse bunnysuit.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/Bunnysuits/ReverseBunnysuit</texPath><graphicClass>Graphic_Single</graphicClass><shaderType>CutoutComplex</shaderType></graphicData>
+    <apparel><bodyPartGroups><li>Neck</li><li>Torso</li><li>Shoulders</li><li>Arms</li><li>Legs</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/Bunnysuits/ReverseBunnysuit</wornGraphicPath><useWornGraphicMask>true</useWornGraphicMask></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_Catbot_Prestige_Bunnysuit</defName><label>prestige bunnysuit</label><description>A locked prestige bunnysuit.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/Bunnysuits/Royal/PrestigeBunnysuit</texPath><graphicClass>Graphic_Single</graphicClass><shaderType>CutoutComplex</shaderType></graphicData>
+    <apparel><bodyPartGroups><li>Neck</li><li>Torso</li><li>Shoulders</li><li>Arms</li><li>Legs</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/Bunnysuits/Royal/PrestigeBunnysuit</wornGraphicPath><useWornGraphicMask>true</useWornGraphicMask></apparel></rjw.bondage_gear_def>
+
+  <!-- ===== Fishnets (Neck+Torso+Shoulders+Arms+Legs / OnSkin) ===== -->
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_FN_FishnetA</defName><label>fishnet A</label><description>A locked fishnet bodystocking.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/Fishnets/FishnetA</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+    <apparel><bodyPartGroups><li>Neck</li><li>Torso</li><li>Shoulders</li><li>Arms</li><li>Legs</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/Fishnets/FishnetA</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_FN_FishnetB</defName><label>fishnet B</label><description>A locked fishnet bodystocking.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/Fishnets/FishnetB</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+    <apparel><bodyPartGroups><li>Neck</li><li>Torso</li><li>Shoulders</li><li>Arms</li><li>Legs</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/Fishnets/FishnetB</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_FN_FishnetC</defName><label>fishnet C</label><description>A locked fishnet bodystocking.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/Fishnets/FishnetC</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+    <apparel><bodyPartGroups><li>Neck</li><li>Torso</li><li>Shoulders</li><li>Arms</li><li>Legs</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/Fishnets/FishnetC</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_FN_FishnetD</defName><label>fishnet D</label><description>A locked fishnet bodystocking.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/Fishnets/FishnetD</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+    <apparel><bodyPartGroups><li>Neck</li><li>Torso</li><li>Shoulders</li><li>Arms</li><li>Legs</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/Fishnets/FishnetD</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_FN_FishnetE</defName><label>fishnet E</label><description>A locked fishnet bodystocking.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/Fishnets/FishnetE</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+    <apparel><bodyPartGroups><li>Neck</li><li>Torso</li><li>Shoulders</li><li>Arms</li><li>Legs</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/Fishnets/FishnetE</wornGraphicPath></apparel></rjw.bondage_gear_def>
+
+  <!-- ===== Shibari (Torso / Middle) ===== -->
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_RShibari</defName><label>red shibari</label><description>A locked red shibari rope harness.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/Shibari/RedShibari</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+    <apparel><bodyPartGroups><li>Torso</li></bodyPartGroups><layers><li>Middle</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/Shibari/RedShibari</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_BShibari</defName><label>black shibari</label><description>A locked black shibari rope harness.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/Shibari/BlackShibari</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+    <apparel><bodyPartGroups><li>Torso</li></bodyPartGroups><layers><li>Middle</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/Shibari/BlackShibari</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_BLShibari</defName><label>blue shibari</label><description>A locked blue shibari rope harness.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/Shibari/BlueShibari</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+    <apparel><bodyPartGroups><li>Torso</li></bodyPartGroups><layers><li>Middle</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/Shibari/BlueShibari</wornGraphicPath></apparel></rjw.bondage_gear_def>
+
+  <!-- ===== Swimsuits (Torso / OnSkin) ===== -->
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_Swimsuits_Dudou</defName><label>dudou</label><description>A locked dudou.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/Swimsuits/Dudou</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+    <apparel><bodyPartGroups><li>Torso</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/Swimsuits/Dudou</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_Swimsuits_MicroBikini</defName><label>micro bikini</label><description>A locked micro bikini.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/Swimsuits/MicroBikini</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+    <apparel><bodyPartGroups><li>Torso</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/Swimsuits/MicroBikini</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_Swimsuits_Onepiece</defName><label>onepiece</label><description>A locked one-piece swimsuit.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/Swimsuits/Onepiece</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+    <apparel><bodyPartGroups><li>Torso</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/Swimsuits/Onepiece</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_Swimsuits_SlingBikini</defName><label>sling bikini</label><description>A locked sling bikini.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/Swimsuits/SlingBikini</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+    <apparel><bodyPartGroups><li>Torso</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/Swimsuits/SlingBikini</wornGraphicPath></apparel></rjw.bondage_gear_def>
+  <rjw.bondage_gear_def ParentName="RJWSH_SkimpyBase"><defName>RJWSH_Swimsuits_Vsling</defName><label>vsling bikini</label><description>A locked vsling bikini.</description>
+    <graphicData><texPath>RJWSH_src/Skimpy/Things/Apparel/Swimsuits/Vsling</texPath><graphicClass>Graphic_Single</graphicClass></graphicData>
+    <apparel><bodyPartGroups><li>Torso</li></bodyPartGroups><layers><li>OnSkin</li></layers><wornGraphicPath>RJWSH_src/Skimpy/Things/Apparel/Swimsuits/Vsling</wornGraphicPath></apparel></rjw.bondage_gear_def>
+
+</Defs>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <ThingDef>
+    <defName>RJWSH_ScandalousPhoto</defName>
+    <label>scandalous photo</label>
+    <description>A compromising photo of a colonist taken without their knowledge. Someone could use it as leverage. Destroy it before it falls into the wrong hands.</description>
+    <thingClass>RJWSexualHarassment.Thing_ScandalousPhoto</thingClass>
+    <category>Item</category>
+    <selectable>true</selectable>
+    <stackLimit>1</stackLimit>
+    <thingCategories>
+      <li>RJWSH_Photos</li>
+    </thingCategories>
+    <useHitPoints>true</useHitPoints>
+    <healthAffectsPrice>false</healthAffectsPrice>
+    <altitudeLayer>Item</altitudeLayer>
+    <tickerType>Rare</tickerType>
+    <pathCost>14</pathCost>
+    <drawGUIOverlay>false</drawGUIOverlay>
+    <alwaysHaulable>true</alwaysHaulable>
+    <tradeability>None</tradeability>
+    <graphicData>
+      <texPath>Things/Item/RJWSH_ScandalousPhoto</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>15</MaxHitPoints>
+      <Mass>0.02</Mass>
+      <Flammability>1.3</Flammability>
+      <DeteriorationRate>2</DeteriorationRate>
+    </statBases>
+    <comps>
+      <li Class="RJWSexualHarassment.CompProperties_ScandalousPhoto"/>
+    </comps>
+  </ThingDef>
+
+</Defs>

@@ -1,0 +1,10 @@
+# Build intermediates (final DLL is kept in Assemblies/)
+Source/**/bin/
+Source/**/obj/
+Source/**/.vs/
+[Bb]in/[Dd]ebug/
+[Bb]in/[Rr]elease/
+.vs/
+*.user
+*.suo
+*.userprefs

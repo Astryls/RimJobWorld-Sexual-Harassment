@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "path": "Textures/RJWSH/Tattoos/Face/Bred.png",
+      "kind": "texture",
+      "sha256": "eeebf38f43c97e0cf4fca8e974065642edd06ecdea08a3a3c4d57650817459bf",
+      "generatedAt": "2026-07-06T11:35:16.047Z"
+    },
+    {
+      "path": "Textures/RJWSH/Tattoos/Face/Pet.png",
+      "kind": "texture",
+      "sha256": "eeebf38f43c97e0cf4fca8e974065642edd06ecdea08a3a3c4d57650817459bf",
+      "generatedAt": "2026-07-06T11:35:16.049Z"
+    },
+    {
+      "path": "Textures/RJWSH/Tattoos/Face/RaidersProperty.png",
+      "kind": "texture",
+      "sha256": "eeebf38f43c97e0cf4fca8e974065642edd06ecdea08a3a3c4d57650817459bf",
+      "generatedAt": "2026-07-06T11:35:16.051Z"
+    },
+    {
+      "path": "Textures/RJWSH/Tattoos/Face/Sold.png",
+      "kind": "texture",
+      "sha256": "eeebf38f43c97e0cf4fca8e974065642edd06ecdea08a3a3c4d57650817459bf",
+      "generatedAt": "2026-07-06T11:35:16.053Z"
+    },
+    {
+      "path": "Textures/RJWSH/Tattoos/Face/Whore.png",
+      "kind": "texture",
+      "sha256": "eeebf38f43c97e0cf4fca8e974065642edd06ecdea08a3a3c4d57650817459bf",
+      "generatedAt": "2026-07-06T11:35:16.055Z"
+    },
+    {
+      "path": "Textures/RJWSH/Tattoos/Face/ControlMark.png",
+      "kind": "texture",
+      "sha256": "eeebf38f43c97e0cf4fca8e974065642edd06ecdea08a3a3c4d57650817459bf",
+      "generatedAt": "2026-07-06T12:14:51.853Z"
+    }
+  ]
+}

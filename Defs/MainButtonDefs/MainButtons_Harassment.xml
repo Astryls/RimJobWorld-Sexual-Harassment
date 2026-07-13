@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Pet dashboard main-tab button. Text label for reliability; the cute paw art lives in the window border. -->
+  <MainButtonDef>
+    <defName>RJWSH_Pets</defName>
+    <label>pets</label>
+    <description>Review every collared pet and owned slave in the colony: who owns whom, their conditioning and rapport, and their current status.</description>
+    <workerClass>RJWSexualHarassment.MainButtonWorker_Harem</workerClass>
+    <iconPath>UI/RJWSH_PetTab</iconPath>
+    <minimized>true</minimized>  <!-- half-width icon button -->
+    <order>91</order>
+    <validWithoutMap>false</validWithoutMap>
+  </MainButtonDef>
+
+</Defs>

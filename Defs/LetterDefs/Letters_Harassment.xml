@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Radio-mode choice letter for the rival slaver's buy-out offer (Phase 5). -->
+  <LetterDef>
+    <defName>RJWSH_SlaverOffer</defName>
+    <letterClass>RJWSexualHarassment.ChoiceLetter_RivalSlaver</letterClass>
+    <color>(214, 191, 102)</color>
+    <flashInterval>-1</flashInterval>
+  </LetterDef>
+
+</Defs>

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Phase D (#8): Ownership-meme rituals. Loads only when Ideology is active (LoadFolders IfModActive).
+     Two optional rites gated to the RJWSH_Ownership meme via associatedMemes: a collaring ceremony that
+     deepens conditioning on the colony's collared pets, and a devotion parade that does the same plus
+     humiliation + infamy. Both reuse the vanilla quality machinery (RitualOutcomeEffectWorker_FromQuality
+     subclass) and a minimal role-less gather-party behavior (no speaker role -> no speech NRE traps). -->
+<Defs>
+
+  <!-- Shared behavior: a role-less gathering. Participants party near the altar/spot for the duration. -->
+  <RitualBehaviorDef>
+    <defName>RJWSH_OwnershipRiteBehavior</defName>
+    <durationTicks>5000</durationTicks>
+    <spectatorsLabel>Participants</spectatorsLabel>
+    <spectatorGerund>participate</spectatorGerund>
+    <stages>
+      <li>
+        <defaultDuty>Party</defaultDuty>
+        <endTriggers>
+          <li Class="StageEndTrigger_DurationPercentage">
+            <percentage>1.0</percentage>
+          </li>
+        </endTriggers>
+      </li>
+    </stages>
+  </RitualBehaviorDef>
+
+  <!-- Outcomes: both use our worker subclass; it branches collaring vs parade on defName. -->
+  <RitualOutcomeEffectDef>
+    <defName>RJWSH_RiteCollaringOutcome</defName>
+    <description>Depending on ritual quality, the colony's collared pets are conditioned more deeply, and participants gain mood.</description>
+    <workerClass>RJWSexualHarassment.RitualOutcomeEffectWorker_RJWSHOwnership</workerClass>
+    <comps>
+      <li Class="RitualOutcomeComp_ParticipantCount">
+        <label>participant count</label>
+        <curve>
+          <points>
+            <li>(1,  0.0)</li>
+            <li>(5,  0.15)</li>
+            <li>(10, 0.25)</li>
+          </points>
+        </curve>
+      </li>
+      <li Class="RitualOutcomeComp_RitualTargetDefs">
+        <allowAltars>true</allowAltars>
+        <label>started at altar</label>
+        <qualityOffset>0.2</qualityOffset>
+        <expectedThingLabelTip>an altar</expectedThingLabelTip>
+      </li>
+    </comps>
+    <outcomeChances>
+      <li>
+        <label>Botched</label>
+        <chance>0.1</chance>
+        <memory>RJWSH_RiteBotched</memory>
+        <description>The {0} was botched - the ceremony fell flat and little was gained.</description>
+        <positivityIndex>-1</positivityIndex>
+      </li>
+      <li>
+        <label>Solemn</label>
+        <chance>0.55</chance>
+        <memory>RJWSH_RiteSolemn</memory>
+        <description>The {0} was a solemn affair. The pets were reminded of their place.</description>
+        <positivityIndex>1</positivityIndex>
+      </li>
+      <li>
+        <label>Exalted</label>
+        <chance>0.35</chance>
+        <memory>RJWSH_RiteExalted</memory>
+        <description>The {0} was exalted! The faithful reveled in their mastery and the pets sank deeper.</description>
+        <positivityIndex>2</positivityIndex>
+      </li>
+    </outcomeChances>
+  </RitualOutcomeEffectDef>
+
+  <RitualOutcomeEffectDef>
+    <defName>RJWSH_RiteParadeOutcome</defName>
+    <description>Depending on ritual quality, the colony's collared pets are paraded and conditioned, and word of the spectacle spreads.</description>
+    <workerClass>RJWSexualHarassment.RitualOutcomeEffectWorker_RJWSHOwnership</workerClass>
+    <comps>
+      <li Class="RitualOutcomeComp_ParticipantCount">
+        <label>participant count</label>
+        <curve>
+          <points>
+            <li>(1,  0.0)</li>
+            <li>(5,  0.15)</li>
+            <li>(10, 0.25)</li>
+          </points>
+        </curve>
+      </li>
+      <li Class="RitualOutcomeComp_RitualTargetDefs">
+        <allowAltars>true</allowAltars>
+        <label>started at altar</label>
+        <qualityOffset>0.2</qualityOffset>
+        <expectedThingLabelTip>an altar</expectedThingLabelTip>
+      </li>
+    </comps>
+    <outcomeChances>
+      <li>
+        <label>Botched</label>
+        <chance>0.1</chance>
+        <memory>RJWSH_RiteBotched</memory>
+        <description>The {0} was botched - the spectacle drew jeers rather than awe.</description>
+        <positivityIndex>-1</positivityIndex>
+      </li>
+      <li>
+        <label>Rowdy</label>
+        <chance>0.55</chance>
+        <memory>RJWSH_RiteSolemn</memory>
+        <description>The {0} was rowdy fun. The pets were shown off and everyone had their say.</description>
+        <positivityIndex>1</positivityIndex>
+      </li>
+      <li>
+        <label>Legendary</label>
+        <chance>0.35</chance>
+        <memory>RJWSH_RiteExalted</memory>
+        <description>The {0} was legendary! Word of the colony's paraded pets will spread far and wide.</description>
+        <positivityIndex>2</positivityIndex>
+      </li>
+    </outcomeChances>
+  </RitualOutcomeEffectDef>
+
+  <!-- Patterns: bind behavior + outcome; startable anytime at a gathering spot or altar. -->
+  <RitualPatternDef>
+    <defName>RJWSH_RiteCollaring</defName>
+    <nameMaker>NamerRitualFestival</nameMaker>
+    <ritualExpectedDesc>{MEMBERS} can hold a collaring ceremony to deepen their pets' devotion.</ritualExpectedDesc>
+    <canStartAnytime>true</canStartAnytime>
+    <ritualObligationTargetFilter>GatheringSpotOrAltar</ritualObligationTargetFilter>
+    <ritualBehavior>RJWSH_OwnershipRiteBehavior</ritualBehavior>
+    <ritualOutcomeEffect>RJWSH_RiteCollaringOutcome</ritualOutcomeEffect>
+    <tags>
+      <li>RJWSH_OwnershipRite</li>
+    </tags>
+    <patternGroupTag>RJWSH_OwnershipRite</patternGroupTag>
+  </RitualPatternDef>
+
+  <RitualPatternDef>
+    <defName>RJWSH_RiteParade</defName>
+    <nameMaker>NamerRitualFestival</nameMaker>
+    <ritualExpectedDesc>{MEMBERS} can hold a devotion parade to show off their pets.</ritualExpectedDesc>
+    <canStartAnytime>true</canStartAnytime>
+    <ritualObligationTargetFilter>GatheringSpotOrAltar</ritualObligationTargetFilter>
+    <ritualBehavior>RJWSH_OwnershipRiteBehavior</ritualBehavior>
+    <ritualOutcomeEffect>RJWSH_RiteParadeOutcome</ritualOutcomeEffect>
+    <tags>
+      <li>RJWSH_OwnershipRite</li>
+    </tags>
+    <patternGroupTag>RJWSH_OwnershipRite</patternGroupTag>
+  </RitualPatternDef>
+
+  <!-- Precepts: gated to the Ownership meme via associatedMemes. -->
+  <PreceptDef>
+    <defName>RJWSH_Rite_Collaring</defName>
+    <label>collaring ceremony</label>
+    <description>A sanctioned rite in which the faithful gather to reaffirm their mastery. Collared pets are conditioned more deeply by the ceremony.</description>
+    <issue>Ritual</issue>
+    <impact>Medium</impact>
+    <iconPath>UI/RJWSH_Collar</iconPath>
+    <preceptClass>Precept_Ritual</preceptClass>
+    <ritualPatternBase>RJWSH_RiteCollaring</ritualPatternBase>
+    <associatedMemes>
+      <li>RJWSH_Ownership</li>
+    </associatedMemes>
+    <allowDuplicates>false</allowDuplicates>
+    <countsTowardsPreceptLimit>false</countsTowardsPreceptLimit>
+    <canGenerateAsSpecialPrecept>false</canGenerateAsSpecialPrecept>
+    <receivesExpectationsQualityOffset>true</receivesExpectationsQualityOffset>
+  </PreceptDef>
+
+  <PreceptDef>
+    <defName>RJWSH_Rite_Parade</defName>
+    <label>devotion parade</label>
+    <description>A sanctioned festival in which owners parade their pets before the faithful. Deepens conditioning and spreads the colony's renown for depravity.</description>
+    <issue>Ritual</issue>
+    <impact>Medium</impact>
+    <iconPath>UI/RJWSH_Collar</iconPath>
+    <preceptClass>Precept_Ritual</preceptClass>
+    <ritualPatternBase>RJWSH_RiteParade</ritualPatternBase>
+    <associatedMemes>
+      <li>RJWSH_Ownership</li>
+    </associatedMemes>
+    <allowDuplicates>false</allowDuplicates>
+    <countsTowardsPreceptLimit>false</countsTowardsPreceptLimit>
+    <canGenerateAsSpecialPrecept>false</canGenerateAsSpecialPrecept>
+    <receivesExpectationsQualityOffset>true</receivesExpectationsQualityOffset>
+  </PreceptDef>
+
+  <!-- Ritual outcome memories (participant mood). -->
+  <ThoughtDef>
+    <defName>RJWSH_RiteBotched</defName>
+    <thoughtClass>Thought_MemorySocial</thoughtClass>
+    <durationDays>4</durationDays>
+    <stackLimit>1</stackLimit>
+    <stages>
+      <li>
+        <label>botched rite</label>
+        <description>The ceremony fell flat. Embarrassing.</description>
+        <baseMoodEffect>-2</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <ThoughtDef>
+    <defName>RJWSH_RiteSolemn</defName>
+    <thoughtClass>Thought_MemorySocial</thoughtClass>
+    <durationDays>6</durationDays>
+    <stackLimit>1</stackLimit>
+    <stages>
+      <li>
+        <label>attended a rite</label>
+        <description>We gathered to reaffirm our mastery. Satisfying.</description>
+        <baseMoodEffect>4</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <ThoughtDef>
+    <defName>RJWSH_RiteExalted</defName>
+    <thoughtClass>Thought_MemorySocial</thoughtClass>
+    <durationDays>10</durationDays>
+    <stackLimit>1</stackLimit>
+    <stages>
+      <li>
+        <label>an exalted rite</label>
+        <description>The ceremony was glorious. We reveled in our dominion together.</description>
+        <baseMoodEffect>8</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+</Defs>

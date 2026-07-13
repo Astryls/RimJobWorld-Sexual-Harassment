@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+
+  <!-- Inspect tab label for the per-pawn sexual attributes panel. -->
+  <RJWSH_TabSexuality>Sexuality</RJWSH_TabSexuality>
+
+  <!-- Inspect tab label for the pet control panel (Discipline/Reward/Condition/etc. as icon buttons). -->
+  <RJWSH_TabControl>Control</RJWSH_TabControl>
+
+</LanguageData>
