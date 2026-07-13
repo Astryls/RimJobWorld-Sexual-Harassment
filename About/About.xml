@@ -3,7 +3,63 @@
   <name>RimJobWorld - Sexual Harassment</name>
   <packageId>astryl.RJWSexualHarassment</packageId>
   <author>astryl</author>
-  <description>An addon for RimJobWorld that adds emergent sexual harassment: pawns catcall, proposition, grope, and (when enabled) escalate to forced acts against vulnerable targets. Dynamic dialogue through SpeakUp and RimTalk when present, karma consequences through Karma &amp; Reputation, and a player intervene prompt before things turn physical. Fully configurable who-harasses-whom matrix.</description>
+  <description>[h1]Emergent harassment, ownership, and consequence for RimJobWorld[/h1]
+An addon for RimJobWorld that grows a living story of predation and control around your colony. Pawns notice, approach, and (when you allow it) escalate. Victims can be collared, conditioned, paraded, sold, blackmailed, or rescued, and every step feeds karma, notoriety, moodlets, tales, and a per pawn chronicle. Nothing fires unless you leave it enabled.
+
+[h1]The harassment loop[/h1]
+Each map quietly rolls for an event. A willing pawn is chosen by morality, confidence, sex drive, traits, ideology, and genes, then walks to a valid nearby target and runs an approach:
+[list]
+[*][b]Catcall:[/b] a crude verbal jab, mostly mood and flavor.
+[*][b]Flirt:[/b] consensual casual sex when the target is willing, coercion when they are not.
+[*][b]Proposition:[/b] a direct demand that can escalate.
+[*][b]Grope and Forced:[/b] the hands on and non consensual paths.
+[*][b]Spiked drink:[/b] a friendly looking approach that may secretly drug the target.
+[*][b]Hypnosis:[/b] a quiet entrancement that deepens later control.
+[*][b]Blackmail:[/b] offered when the harasser holds a scandalous photo.
+[*][b]Devious device:[/b] locks a device onto an already bound target.
+[/list]
+Verbal approaches fire as real social interactions, so SpeakUp and RimTalk voice them and vanilla applies the thoughts.
+
+[h1]The intervene gate[/h1]
+Whenever one of your colonists is the target and a scene tries to turn physical, the game pauses and offers you a chance to step in. Success scales with the intervener's stats. Extend the gate to hypnosis, blackmail, and devices, or turn it off entirely.
+
+[h1]Collars, conditioning, and the break[/h1]
+Collar a pawn to take ownership. Conditioning deepens over time, faster in isolation, in a bondage bed, or under repeated use, and it is abuse gated and filtered through a per pawn susceptibility so no two pawns break alike. Pawns pass through break stages from Defiant to Broken, gaining quirks at milestones and, with Biotech and RJW Genes, a heritable submissive gene at a full break. A pawn broken by fear rather than trust stays volatile.
+
+[h1]The command deck[/h1]
+One floating window runs your whole stable: a roster, a central stage with a clickable doll and an equipment strip, and an operations column for commands, toggles, and a full twenty four hour schedule. Context tabs show a live feed, a conditioning graph, the history chronicle, and the social web. Manual discipline opens an interactive read the pet training minigame.
+
+[h1]Photos, blackmail, and notoriety[/h1]
+Scenes can be photographed and the photos circulate through the world. Auction them, destroy them, or use them to blackmail a faction for silver. Everything scandalous feeds a notoriety meter that, with Karma and Reputation installed, mirrors into a signed colony infamy score and paces world incidents by how the world sees you.
+
+[h1]Consequences that remember[/h1]
+[list]
+[*][b]Nemesis arc:[/b] a pawn who escapes or is sold off carries a grudge and returns at the head of a raid, named alongside their former owner.
+[*][b]Owner death and legacy:[/b] pets grieve, break free, or pass to an heir when their owner dies.
+[*][b]Chronicles and tales:[/b] every pawn keeps a life story, and vanilla art immortalizes the milestones.
+[*][b]Pet market:[/b] a weekly market to buy and sell.
+[/list]
+
+[h1]Ideology and Biotech[/h1]
+With Ideology, build a faith around an ownership meme with collaring precepts and two optional rites, a collaring ceremony and a devotion parade. With Biotech, conditioning and submission become heritable genes. Both layers load only when the DLC is active.
+
+[h1]Requirements[/h1]
+[list]
+[*][b]RimJobWorld[/b] and [b]Harmony[/b] are required.
+[*]Optional integrations light up automatically: SpeakUp, RimTalk, Karma and Reputation, c0ffee Animations, Melee Animation, NL Facial Animation, Onahole Extension, Rimpsyche, Modern Bio Tab, Simple Slavery Collars, BondageBed Torture, Restraint Keys and Hands, and RJW Quirks, Sexperience, and Genes.
+[*]Absent integrations simply do nothing, with no errors.
+[/list]
+
+[h1]Content and safety[/h1]
+This is adult content for adults, and everything is opt in. The master switch disables the whole mod, escalation can be capped at the verbal stage, forced content can be turned off, and the who harasses whom matrix plus the gender, orientation, and age gates shape exactly which interactions are possible. Both age bands default to eighteen and above.
+
+[h3] My Quality Commitment:[/h3]
+[list]
+[*] [b]Fully Tested:[/b] Every feature and line of code has been thoroughly tested in-game to ensure it functions as intended and integrates smoothly.
+[*] [b]Active Support:[/b] I am fully committed to maintaining this mod. If you encounter any bugs, compatibility issues, or unintended behavior, please report them in the comments or a dedicated discussion thread.
+[*] [b]No Abandonware:[/b] I will actively patch, refine, and update this mod to keep it working and up to standard.
+[*] [b]No Coffee:[/b] I will never ask for donations for AI created / assisted mods. I share these in the hopes they spark joy for someone, making AI generated content and then begging for money that could go to artists and people more deserving is NOT responsible AI usage.
+[/list]</description>
   <supportedVersions>
     <li>1.6</li>
   </supportedVersions>
