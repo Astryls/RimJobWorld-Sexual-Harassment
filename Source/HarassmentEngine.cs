@@ -57,6 +57,7 @@ namespace RJWSexualHarassment
             if (!xxx.is_human(p)) return false;
             if (p.Downed || !p.Awake()) return false;
             if (p.InMentalState) return false;
+            if (p.Drafted) return false; // player took manual control; don't auto-harass
             if (p.ageTracker == null || !p.ageTracker.Adult) return false;
             int hAge = p.ageTracker.AgeBiologicalYears;
             if (hAge < S.harasserMinAge || hAge > S.harasserMaxAge) return false; // harasser age-range gate
