@@ -20,7 +20,7 @@ namespace RJWSexualHarassment
 
         public override void DoSettingsWindowContents(Rect inRect)
         {
-            var viewRect = new Rect(0f, 0f, inRect.width - 24f, 2800f);
+            var viewRect = new Rect(0f, 0f, inRect.width - 24f, 3100f);
             Widgets.BeginScrollView(inRect, ref _scroll, viewRect);
 
             var l = new Listing_Standard();
@@ -45,6 +45,22 @@ namespace RJWSexualHarassment
             Settings.gizmoCooldownTicks = (int)l.Slider(Settings.gizmoCooldownTicks, 0f, 5000f);
             l.Label("Auto-service interval: " + Settings.autoServiceIntervalTicks + " ticks");
             Settings.autoServiceIntervalTicks = (int)l.Slider(Settings.autoServiceIntervalTicks, 600f, 15000f);
+            l.GapLine();
+
+            l.Label("Performance");
+            l.CheckboxLabeled("Depth simulation (rivalry, pecking order, autonomy)", ref Settings.enableDepthSystems,
+                "The per-pet depth layer: rivalry, pecking order, codependency, ongoing training focus, autonomous acts and addiction pulls. The heaviest optional upkeep. Turn off on large colonies to save TPS - core break-in progression and the visible needs/hediffs keep running either way.");
+            l.CheckboxLabeled("Ambient pet chatter", ref Settings.enableAmbientBanter,
+                "Idle flavor speech from owned and collared pets (self-talk, two pets commiserating, owner-slave lines). Pure flavor with no mechanical effect - the main source of idle speech-bubble work. Off = silent pets, lighter load.");
+            if (Settings.enableAmbientBanter)
+            {
+                l.Label("Ambient chatter frequency: " + Settings.ambientBanterScale.ToStringPercent());
+                Settings.ambientBanterScale = l.Slider(Settings.ambientBanterScale, 0.1f, 1f);
+            }
+            l.Label("Ambient affection interval: " + (Settings.affectionInterval > 0 ? Settings.affectionInterval + " ticks" : "off"));
+            Settings.affectionInterval = (int)l.Slider(Settings.affectionInterval, 0f, 12000f);
+            l.Label("Captive begging interval: " + (Settings.begInterval > 0 ? Settings.begInterval + " ticks" : "off"));
+            Settings.begInterval = (int)l.Slider(Settings.begInterval, 0f, 3000f);
             l.GapLine();
 
             l.Label("Approach types");

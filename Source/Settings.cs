@@ -15,6 +15,24 @@ namespace RJWSexualHarassment
         // Chance, per scan, that the map attempts one harassment event. 0..1.
         public float eventChancePerScan = 0.25f;
 
+        // ── Performance ─────────────────────────────────────────
+        // Master toggle for the "depth" simulation layer per owned pet: rivalry, pecking order, codependency,
+        // ongoing training focus, autonomy, and addiction pulls. The heaviest optional per-pet upkeep. When off,
+        // core break-in progression and the visible hediffs still run - only the extra interaction sim stops.
+        public bool enableDepthSystems = true;
+        // Ambient flavor chatter from owned/collared pets (self-talk, fellow-pet commiseration, owner-slave lines).
+        // Pure flavor with no mechanical effect; the single biggest source of idle speech-bubble churn.
+        public bool enableAmbientBanter = true;
+        // Scales the chance of ambient flavor chatter firing (lower = fewer bubbles + less string/SpeakUp work).
+        // Shipped conservative (0.6) so a busy harem is quieter and lighter out of the box.
+        public float ambientBanterScale = 0.6f;
+        // How often, in ticks, ambient consensual affection is rolled across humanlikes. Pure flavor (kiss / hold
+        // hands motes). Shipped conservative (3000, ~1.2 in-game hours) - raise for even less, 0 disables.
+        public int affectionInterval = 3000;
+        // How often, in ticks, captive begging + roaming-pet chatter is rolled. Lower = captives cry for help
+        // sooner. Kept responsive by default (450); 0 disables.
+        public int begInterval = 450;
+
         // ── Approach-type enables ─────────────────────────────────────────────
         public bool enableCatcall = true;
         public bool enableProposition = true;
@@ -204,6 +222,11 @@ namespace RJWSexualHarassment
             Scribe_Values.Look(ref enableSounds, "enableSounds", true);
             Scribe_Values.Look(ref scanIntervalTicks, "scanIntervalTicks", 1250);
             Scribe_Values.Look(ref eventChancePerScan, "eventChancePerScan", 0.25f);
+            Scribe_Values.Look(ref enableDepthSystems, "enableDepthSystems", true);
+            Scribe_Values.Look(ref enableAmbientBanter, "enableAmbientBanter", true);
+            Scribe_Values.Look(ref ambientBanterScale, "ambientBanterScale", 0.6f);
+            Scribe_Values.Look(ref affectionInterval, "affectionInterval", 3000);
+            Scribe_Values.Look(ref begInterval, "begInterval", 450);
 
             Scribe_Values.Look(ref enableCatcall, "enableCatcall", true);
             Scribe_Values.Look(ref enableProposition, "enableProposition", true);

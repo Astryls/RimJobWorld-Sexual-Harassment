@@ -92,6 +92,40 @@ namespace RJWSexualHarassment
             map?.GetComponent<MapComponent_HarassmentScan>()?.pending.Add((harasser, victim, 3));
         }
 
+        // ── Per-tick pawn index ──────────────────────────────────────────────
+        // Rebuilt at most once per game tick. Kills the old O(n^2) owner lookups (a linear AllPawnsSpawned scan
+        // per profiled pet, every 60 ticks) and lets the upkeep loops iterate only humanlikes / profiled pawns,
+        // skipping wildlife. Snapshot lists also make the loops safe if a pawn despawns mid-pass.
+        private int _indexStamp = -1;
+        private readonly Dictionary<int, Pawn> _byId = new Dictionary<int, Pawn>(128);
+        private readonly List<Pawn> _humanlikes = new List<Pawn>(64);
+        private readonly List<Pawn> _profiled = new List<Pawn>(32);
+
+        private void EnsureIndex()
+        {
+            int now = Find.TickManager != null ? Find.TickManager.TicksGame : 0;
+            if (_indexStamp == now) return;
+            _indexStamp = now;
+            _byId.Clear(); _humanlikes.Clear(); _profiled.Clear();
+            var gc = GameComponent_Harassment.Instance;
+            var pawns = map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                var p = pawns[i];
+                if (p == null) continue;
+                _byId[p.thingIDNumber] = p;
+                if (p.RaceProps != null && p.RaceProps.Humanlike) _humanlikes.Add(p);
+                if (gc != null && gc.GetProfileIfExists(p) != null) _profiled.Add(p);
+            }
+        }
+
+        /// <summary>O(1) spawned-pawn lookup by thingIDNumber on this map (builds this tick's index on demand).</summary>
+        public Pawn PawnById(int id)
+        {
+            EnsureIndex();
+            return _byId.TryGetValue(id, out var p) && p.Spawned ? p : null;
+        }
+
         public override void MapComponentTick()
         {
             DrainPending();
@@ -106,8 +140,8 @@ namespace RJWSexualHarassment
             if (now % 2500 == 0) ConditioningUpkeep();
             if (scheduledLines.Count > 0) DrainScheduledLines(now);
             if (scheduledActs.Count > 0) DrainScheduledActs(now);
-            if (now % 450 == 0) BegUpkeep();
-            if (now % 1500 == 0) AffectionUpkeep(now);
+            if (s.begInterval > 0 && now % s.begInterval == 0) BegUpkeep();
+            if (s.affectionInterval > 0 && now % s.affectionInterval == 0) AffectionUpkeep(now);
             if (now % 500 == 0) HarassmentEngine.EvilKeyScavenge(map);
             if (now % 550 == 0) HarassmentEngine.PhotoScavenge(map);
             if (now % 2500 == 0) HarassmentEngine.RecomputeHeadGirls(map);
@@ -152,8 +186,9 @@ namespace RJWSexualHarassment
             // Raids build trauma across the colony while they rage.
             if (breakoutTick && HarassmentEngine.RaidChaosActive(map)) HarassmentEngine.RaidTraumaTick(map);
 
+            EnsureIndex();
             var gc = GameComponent_Harassment.Instance;
-            var pawns = map.mapPawns.AllPawnsSpawned;
+            var pawns = _profiled;
             for (int i = 0; i < pawns.Count; i++)
             {
                 var p = pawns[i];
@@ -207,10 +242,12 @@ namespace RJWSexualHarassment
                                     : (prof.relationshipOwnerId >= 0 ? FindPawnById(prof.relationshipOwnerId) : null);
                     if (breakoutTick)
                     {
+                        // Core break-in progression + visible hediffs always run; only the heavier interaction
+                        // sim (rivalry/pecking/codependency/training/autonomy/addiction) is gated by the toggle.
                         HarassmentEngine.DepthStageTick(p, prof);
                         HarassmentEngine.DepthTraumaTick(p, prof);
                         HarassmentEngine.SyncAttributeHediffs(p, prof); // surface trauma/addiction + marks + submission need
-                        if (depthOwner != null)
+                        if (depthOwner != null && s.enableDepthSystems)
                         {
                             HarassmentEngine.DepthRivalryTick(p, prof, depthOwner);
                             HarassmentEngine.DepthPeckingTick(p, prof, depthOwner);
@@ -218,7 +255,7 @@ namespace RJWSexualHarassment
                             HarassmentEngine.DepthTrainingTick(p, prof, depthOwner); // ongoing conditioning focus
                         }
                     }
-                    if (autoTick)
+                    if (autoTick && s.enableDepthSystems)
                     {
                         HarassmentEngine.DepthAddictionTick(p, prof);
                         if (depthOwner != null) HarassmentEngine.DepthAutonomousTick(p, prof, depthOwner);
@@ -244,7 +281,7 @@ namespace RJWSexualHarassment
                 // needs - sleep, food, drink, hygiene/bathroom - by its normal think tree.
                 bool needsAllowed = HarassmentEngine.NeedsAllowed(prof, owner);
 
-                if (autoTick && !needsAllowed && Rand.Chance(0.12f))
+                if (autoTick && !needsAllowed && s.enableAmbientBanter && Rand.Chance(0.12f * s.ambientBanterScale))
                     HarassmentEngine.FireOwnerSlaveBanter(owner, p);
 
                 bool scheduled = prof.schedule != null && prof.schedule.Count == 24;
@@ -388,11 +425,11 @@ namespace RJWSexualHarassment
         // grants traits over time. Covers collars applied outside LockControlCollar and pre-update saves.
         private void ConditioningUpkeep()
         {
-            var pawns = map.mapPawns.AllPawnsSpawned;
+            EnsureIndex();
+            var pawns = _humanlikes;
             for (int i = 0; i < pawns.Count; i++)
             {
                 var p = pawns[i];
-                if (!p.RaceProps.Humanlike) continue;
                 if (HarassmentEngine.IsCollared(p))   // our control collar OR a Simple Slavery Collars collar
                 {
                     HarassmentEngine.ApplyConditioningHediff(p);
@@ -444,11 +481,11 @@ namespace RJWSexualHarassment
         {
             var gc = GameComponent_Harassment.Instance;
             if (gc == null) return;
-            var pawns = map.mapPawns.AllPawnsSpawned;
+            EnsureIndex();
+            var pawns = _humanlikes;
             for (int i = 0; i < pawns.Count; i++)
             {
                 var a = pawns[i];
-                if (!a.RaceProps.Humanlike) continue;
                 var ap = gc.GetProfileIfExists(a);
                 if (ap != null && now < ap.affectionCooldownTick) continue;
                 if (!HarassmentEngine.IsFreeForAffection(a)) continue;
@@ -464,7 +501,9 @@ namespace RJWSexualHarassment
         {
             var gc = GameComponent_Harassment.Instance;
             if (gc == null) return;
-            var pawns = map.mapPawns.AllPawnsSpawned;
+            var s = RimJobWorldSexualHarassmentMod.Settings;
+            EnsureIndex();
+            var pawns = _profiled;
             for (int i = 0; i < pawns.Count; i++)
             {
                 var p = pawns[i];
@@ -491,18 +530,15 @@ namespace RJWSexualHarassment
                 // Roaming collared/owned pet: occasional conditioning-aware self-talk, never the captive begging.
                 bool ownedPet = prof.ownerId >= 0 || prof.relationshipOwnerId >= 0 || HarassmentEngine.WearingControlCollar(p);
                 if (!ownedPet || HarassmentEngine.IsBusyInAct(p)) continue;
-                if (Rand.Chance(0.06f)) HarassmentEngine.FireFellowPetBanter(p, prof); // two pets commiserate
-                else if (Rand.Chance(0.1f)) HarassmentEngine.FirePetSelfTalk(p, prof);
+                if (s == null || !s.enableAmbientBanter) continue; // ambient pet chatter is pure flavor
+                float bscale = s.ambientBanterScale;
+                if (Rand.Chance(0.06f * bscale)) HarassmentEngine.FireFellowPetBanter(p, prof); // two pets commiserate
+                else if (Rand.Chance(0.1f * bscale)) HarassmentEngine.FirePetSelfTalk(p, prof);
             }
         }
 
-        private Pawn FindPawnById(int id)
-        {
-            var pawns = map.mapPawns.AllPawnsSpawned;
-            for (int i = 0; i < pawns.Count; i++)
-                if (pawns[i].thingIDNumber == id) return pawns[i];
-            return null;
-        }
+        // Routed through the per-tick index (was a linear AllPawnsSpawned scan, called per profiled pet).
+        private Pawn FindPawnById(int id) => PawnById(id);
 
         private void DrainPending()
         {

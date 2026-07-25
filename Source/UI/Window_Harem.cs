@@ -2704,16 +2704,8 @@ namespace RJWSexualHarassment
             return result;
         }
 
-        private static Pawn FindPawnById(int id)
-        {
-            foreach (var map in Find.Maps)
-            {
-                var pawns = map.mapPawns.AllPawnsSpawned;
-                for (int i = 0; i < pawns.Count; i++)
-                    if (pawns[i].thingIDNumber == id) return pawns[i];
-            }
-            return null;
-        }
+        // Routed through the shared per-tick pawn index (was a linear cross-map AllPawnsSpawned scan).
+        private static Pawn FindPawnById(int id) => PawnLookup.AnyMap(id);
 
         private static void DrawPortrait(Rect rect, Pawn p)
         {

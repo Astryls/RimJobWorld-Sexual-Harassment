@@ -560,7 +560,12 @@ namespace RJWSexualHarassment
         private static float SafeMood(Pawn p) => p?.needs?.mood?.CurLevelPercentage ?? 0.5f;
 
         // ── Control collar (final hypnosis tier) ──────────────────────────────
+        // Memoized per tick (called several times per pawn per pass across the upkeep loops). Collar equip/remove
+        // sites call PawnFlagCache.Invalidate so the value is exact within a tick; the memo self-heals each tick.
+        private static readonly System.Func<Pawn, bool> _fnWearControlCollar = ComputeWearingControlCollar;
         public static bool WearingControlCollar(Pawn p)
+            => PawnFlagCache.Get(p, PawnFlagCache.WearControlCollar, _fnWearControlCollar);
+        private static bool ComputeWearingControlCollar(Pawn p)
         {
             if (p?.apparel == null) return false;
             var worn = p.apparel.WornApparel;
@@ -573,7 +578,10 @@ namespace RJWSexualHarassment
         private static ThingDef[] _slaveryCollarDefs;
         /// <summary>True if the pawn wears a Simple Slavery Collars collar (any tier). Recognized for CONDITIONING
         /// only - the key-holder control suite still needs our own Holokey-locked control collar.</summary>
+        private static readonly System.Func<Pawn, bool> _fnWearSlaveryCollar = ComputeWearingSlaveryCollar;
         public static bool WearingSlaveryCollar(Pawn p)
+            => PawnFlagCache.Get(p, PawnFlagCache.SlaveryCollar, _fnWearSlaveryCollar);
+        private static bool ComputeWearingSlaveryCollar(Pawn p)
         {
             if (!SoftDeps.SimpleSlaveryCollarsActive || p?.apparel == null) return false;
             if (_slaveryCollarDefs == null)
@@ -661,6 +669,7 @@ namespace RJWSexualHarassment
             {
                 var collar = (Apparel)ThingMaker.MakeThing(RJWSH_ThingDefOf.RJWSH_ControlCollar);
                 victim.apparel.Wear(collar, false, true); // RJW Wear patch locks it + spawns the Holokey
+                PawnFlagCache.Invalidate(victim); // collar state changed - drop the tick memo
                 PlaySoundClip("FlickSwitch", victim); // a satisfying mechanical lock click
                 ConsolidateVictimKey(victim, collar, controller, true); // controller keeps the ONE key (dedup)
                 if (controller != null)
@@ -2606,6 +2615,7 @@ namespace RJWSexualHarassment
                         victim.apparel.Remove(col);
                         if (!col.Destroyed) col.Destroy();
                     }
+                PawnFlagCache.Invalidate(victim); // collar removed - drop the tick memo
             }
             if (victim.jobs != null && victim.CurJobDef == RJWSH_JobDefOf.RJWSH_Follow)
                 victim.jobs.EndCurrentJob(JobCondition.InterruptForced);
@@ -3046,6 +3056,7 @@ namespace RJWSexualHarassment
             }
             for (int i = 0; i < toRemove.Count; i++)
                 try { GameComponent_Harassment.Instance?.RemoveLockedExtra(toRemove[i]); victim.apparel.Remove(toRemove[i]); toRemove[i].Destroy(); } catch { }
+            PawnFlagCache.Invalidate(victim); // gear removed - drop the tick memo
             var vp = GameComponent_Harassment.Instance?.GetProfileIfExists(victim);
             if (vp != null) vp.boundInPublic = false; // freed - stop begging
 
@@ -3513,6 +3524,7 @@ namespace RJWSexualHarassment
                 var stuff = def.MadeFromStuff ? GenStuff.DefaultStuffFor(def) : null;
                 var app = (Apparel)ThingMaker.MakeThing(def, stuff);
                 victim.apparel.Wear(app, false, true);
+                PawnFlagCache.Invalidate(victim); // worn gear changed - drop the tick memo
                 if (app.Wearer != victim) { try { if (!app.Destroyed) app.Destroy(); } catch { } return null; } // blocked by a locked conflict
 
                 if (def is rjw.bondage_gear_def)
@@ -4070,7 +4082,10 @@ namespace RJWSexualHarassment
         }
 
         /// <summary>True if the pawn is bound in an onahole: running the BeOnahole job, or in/owning an onahole bed.</summary>
+        private static readonly System.Func<Pawn, bool> _fnInOnaholeBed = ComputeIsInOnaholeBed;
         public static bool IsInOnaholeBed(Pawn p)
+            => PawnFlagCache.Get(p, PawnFlagCache.InOnahole, _fnInOnaholeBed);
+        private static bool ComputeIsInOnaholeBed(Pawn p)
         {
             if (p?.jobs == null) return false;
             try
@@ -4706,16 +4721,8 @@ namespace RJWSexualHarassment
             return FindPawnByIdAnyMap(vp.ownerId)?.LabelShort;
         }
 
-        private static Pawn FindPawnByIdAnyMap(int id)
-        {
-            foreach (var map in Find.Maps)
-            {
-                var pawns = map.mapPawns.AllPawnsSpawned;
-                for (int i = 0; i < pawns.Count; i++)
-                    if (pawns[i].thingIDNumber == id) return pawns[i];
-            }
-            return null;
-        }
+        // Routed through the shared per-tick pawn index (was a linear cross-map AllPawnsSpawned scan).
+        private static Pawn FindPawnByIdAnyMap(int id) => PawnLookup.AnyMap(id);
 
         /// <summary>True if dropping this Holokey should be refused (the holder is an AI controller using it).</summary>
         public static bool IsRefusedKeyDrop(Pawn holder, Thing t)
