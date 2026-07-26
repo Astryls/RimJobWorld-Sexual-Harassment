@@ -92,12 +92,20 @@
     </animationFrames>
   </FacialAnimation.FaceAnimationDef>
 
-  <!-- ============ ONE-SHOT temporary faces (played from C#) ============ -->
+  <!-- ============ ONE-SHOT temporary faces (played from C#) ============
+       These are ONLY ever played via FABridge.PlayTemporaryAnimation, which adds them straight to
+       FA's forcedTemporaryAnimationList (bypassing the job/thought dict). They MUST NOT enter the
+       ambient rotation: FaceAnimationDef defaults targetJobs to ["ConstantJob"], and any ConstantJob
+       def with no targetThoughtDefs is applied to EVERY pawn every tick - which pinned every FA
+       colonist's face into a permanent flinch/cry/bliss. Declaring a sentinel targetJobs that is
+       neither "ConstantJob" nor any real JobDef defName removes them from all ambient lists while
+       leaving PlayTemporaryAnimation fully functional. -->
 
   <!-- Sharp flinch: angled brow + open mouth. ~2s. Grope, shock, recoil. -->
   <FacialAnimation.FaceAnimationDef>
     <defName>RJWSH_FA_Flinch</defName>
     <priority>400</priority>
+    <targetJobs><li>RJWSH_NeverAmbient</li></targetJobs>
     <animationFrames>
       <li>
         <duration>120</duration>
@@ -111,6 +119,7 @@
   <FacialAnimation.FaceAnimationDef>
     <defName>RJWSH_FA_Cry</defName>
     <priority>400</priority>
+    <targetJobs><li>RJWSH_NeverAmbient</li></targetJobs>
     <animationFrames>
       <li>
         <duration>180</duration>
@@ -125,6 +134,7 @@
   <FacialAnimation.FaceAnimationDef>
     <defName>RJWSH_FA_Bliss</defName>
     <priority>400</priority>
+    <targetJobs><li>RJWSH_NeverAmbient</li></targetJobs>
     <animationFrames>
       <li>
         <duration>200</duration>
