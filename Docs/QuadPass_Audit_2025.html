@@ -1,0 +1,338 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>RJW Sexual Harassment - Quad-Pass Audit</title><style>
+@page { size: A4; margin: 14mm 12mm 14mm 12mm; }
+* { box-sizing: border-box; }
+body {
+  font-family: "Segoe UI", "Inter", system-ui, sans-serif;
+  font-size: 9.4pt; line-height: 1.5; color: #1b1f27; margin: 0;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+h1 { font-size: 21pt; margin: 0 0 2mm; color: #10131a; letter-spacing: -0.4px; line-height: 1.2; }
+h2 { font-size: 13.5pt; margin: 9mm 0 3mm; padding: 2mm 0 1.6mm; color: #10131a;
+     border-bottom: 2px solid #2f6fa8; letter-spacing: -0.2px; page-break-after: avoid; }
+h3 { font-size: 10.8pt; margin: 6mm 0 2mm; color: #24405c; page-break-after: avoid; }
+h4 { font-size: 9.8pt; margin: 4mm 0 1.5mm; color: #3a4657; page-break-after: avoid; }
+p { margin: 0 0 2.4mm; }
+ul, ol { margin: 0 0 2.6mm; padding-left: 5.5mm; }
+li { margin-bottom: 1.1mm; }
+strong { color: #0d1117; font-weight: 650; }
+hr { border: 0; border-top: 1px solid #d8dee6; margin: 7mm 0; }
+code { font-family: "Cascadia Mono", Consolas, monospace; font-size: 8.4pt;
+       background: #eef1f5; padding: 0.4mm 1.1mm; border-radius: 2px; color: #1e3a5f; }
+pre { background: #f4f6f9; border: 1px solid #dde3ea; border-left: 3px solid #2f6fa8;
+      padding: 2.5mm 3mm; border-radius: 3px; overflow-x: auto; margin: 0 0 3mm; }
+pre code { background: none; padding: 0; font-size: 8.2pt; color: #14304d; }
+blockquote { margin: 0 0 3mm; padding: 2.2mm 3mm; background: #fff6e8;
+             border-left: 3px solid #d98324; border-radius: 3px; font-weight: 600; color: #6b3d09; }
+table { border-collapse: collapse; width: 100%; margin: 0 0 4mm; font-size: 8.3pt;
+        page-break-inside: auto; }
+tr { page-break-inside: avoid; }
+th { background: #2f4a63; color: #fff; text-align: left; padding: 1.6mm 2mm;
+     font-weight: 600; font-size: 8.1pt; border: 1px solid #24394d; }
+td { padding: 1.5mm 2mm; border: 1px solid #d8dee6; vertical-align: top; }
+tbody tr:nth-child(even) td { background: #f6f8fa; }
+.cover { border-bottom: 3px solid #2f6fa8; padding-bottom: 4mm; margin-bottom: 6mm; }
+.sub { color: #5a6675; font-size: 9pt; margin-top: 1.5mm; }
+</style></head><body><div class="cover"><h1>RimJobWorld - Sexual Harassment — Quadruple-Pass Codebase Audit</h1>
+<p><strong>Scope:</strong> 84 C# files / 19,152 LOC. Passes: (1) hot paths &amp; tick polling, (2) IMGUI / UI / VRAM, (3) inter-mod compatibility depth + expansion surface, (4) frameworks, caching, duplication. <strong>Constraint honoured throughout:</strong> no proposed change alters the aesthetic or the function of the UI. <strong>Nothing has been built.</strong> This is analysis only.</p>
+</div><hr>
+<h2>0. Executive summary</h2>
+<p>Three structural conclusions, in order of impact:</p>
+<p><strong>A. The VRAM problem is not IMGUI — it is <code>PortraitsCache</code>.</strong> IMGUI does not own VRAM; it references textures other systems allocate. The mod's real GPU footprint is <code>RenderTexture</code> allocations made by <code>RimWorld.PortraitsCache</code>, and the Command deck feeds that cache <em>unquantized, resize-derived, and animation-derived</em> sizes. RimWorld pools expired portrait RenderTextures in <code>renderTexturesPool</code> and <strong>never destroys them</strong> outside <code>PortraitsCache.Clear()</code> (game load/quit). One sustained drag of the Harem window's resize grip can therefore strand on the order of <strong>hundreds of MB of VRAM for the rest of the session</strong>. This is the single highest-value finding in the audit.</p>
+<p><strong>B. The IMGUI problem is draw calls and CPU, not memory.</strong> <code>Window_Harem</code> issues an estimated <strong>400–900 <code>GUI.DrawTexture</code> calls per frame</strong>, across ~20 distinct textures, with <strong>zero scroll culling</strong> and <strong>no <code>EventType.Repaint</code> gating</strong>, and it rebuilds its entire pet roster (a cross-map pawn scan + 5 list allocations + one <code>ToLowerInvariant()</code> per pawn) <strong>on every IMGUI event</strong> — which is 2–6× per rendered frame, not once. Every one of these is fixable with byte-identical output on screen.</p>
+<p><strong>C. Soft-dependency detection is silently failing for Steam-installed mods — right now, on this machine.</strong> <code>ModLister.GetActiveModWithIdentifier(id)</code> matches the <em>exact</em> packageId. Steam-subscribed mods carry <code>ModMetaData.SteamModPostfix = "_steam"</code>. Only the Karma check passes <code>ignorePostfix: true</code>. Cross-referenced against the live 909-mod active list, <strong>6 of 11 soft-dep probes currently evaluate to <code>false</code> despite the mod being installed and active</strong>: Facial Animation, SpeakUp, RimTalk, Simple Slavery Collars, BondageBed Torture, and Rimpsyche-Sexuality. The entire FA bridge, the chatter routing, and the SSC/BondageBed conditioning layers are dead code in this configuration. This is a ~15-line fix.</p>
+<p><strong>Headline verdict on the stated goal ("UI runs better than vanilla with less overhead"):</strong> achievable, and by a comfortable margin — but <em>only</em> after items A and B. In its current state the Command deck is meaningfully heavier than a vanilla tab of equivalent density, primarily because of unculled rows, unquantized portraits, and per-event roster rebuilds. None of the three requires an aesthetic change.</p>
+<hr>
+<h2>PASS 1 — Hot paths, ticks, and multi-polling</h2>
+<h3>1.1 Convergent modulus spike at <code>% 2500</code></h3>
+<p><code>MapComponent_HarassmentScan.MapComponentTick</code> and <code>GameComponent_Harassment.GameComponentTick</code> both key several heavy passes to the <strong>same</strong> modulus. On every tick where <code>TicksGame % 2500 == 0</code>, all of the following run back-to-back in one frame:</p>
+<table><thead><tr><th>System</th><th>Location</th></tr></thead><tbody>
+<tr><td><code>ConditioningUpkeep()</code> — full humanlike scan, <code>ApplyConditioningHediff</code> + <code>IsolationConditioningTick</code> + <code>BondageBedTick</code> per pawn</td><td>MapComponent</td></tr>
+<tr><td><code>RecomputeHeadGirls(map)</code> — full spawned scan + 2 <code>Dictionary</code> + 1 <code>List</code> allocation</td><td>MapComponent</td></tr>
+<tr><td><code>ControlUpkeep</code> <code>breakoutTick</code> block — <code>ReconcileOwnerRelations</code>, <code>RaidTraumaTick</code>, <code>KarmaDriftTick</code>, <code>DepthStageTick</code>, <code>DepthTraumaTick</code>, <code>SyncAttributeHediffs</code>, <code>DepthRivalry/Pecking/Codependency/Training</code> per profiled pet</td><td>MapComponent</td></tr>
+<tr><td><code>foreach (profiles.Values)</code> — hypnosis decay + <code>RecordHistorySample</code> + <code>sex.HourlyDrift</code> for <strong>every profile ever created</strong></td><td>GameComponent</td></tr>
+</tbody></table>
+<p>That is 4+ full passes converging on one tick, <strong>per map</strong>, producing a periodic frame hitch roughly every 41 seconds of game time. The individual passes are each defensible; the collision is not.</p>
+<p><strong>Fix:</strong> phase-offset each system by a distinct constant — <code>(now + 617) % 2500 == 0</code>, <code>(now + 1291) % 2500 == 0</code>, etc. Behaviour is unchanged (same cadence, different phase); the spike flattens into four small costs spread across 2500 ticks. Trivially safe.</p>
+<p>Secondary collisions: <code>% 500</code> (<code>EvilKeyScavenge</code>) vs <code>% 550</code> (<code>PhotoScavenge</code>) coincide every 5500 ticks; <code>% 250</code> (<code>autoTick</code>) vs <code>% 500</code> coincide on every other <code>autoTick</code>.</p>
+<h3>1.2 Periodic scans bypass the per-tick index that already exists</h3>
+<p><code>PawnIndex.cs</code> builds <code>_humanlikes</code> and <code>_profiled</code> snapshots at most once per tick, and <code>ControlUpkeep</code> already forces that build on most ticks. Five periodic passes nevertheless re-scan <code>map.mapPawns.AllPawnsSpawned</code> raw and re-derive the same filters:</p>
+<table><thead><tr><th>Pass</th><th>Cadence</th><th>Line</th></tr></thead><tbody>
+<tr><td><code>RecomputeHeadGirls</code></td><td>2500</td><td><code>HarassmentEngine.cs:829</code></td></tr>
+<tr><td><code>HeadGirlTick</code></td><td>1200</td><td><code>HarassmentEngine.cs:857</code></td></tr>
+<tr><td><code>MemoryReactionScan</code></td><td>350</td><td><code>HarassmentEngine.cs:5971</code></td></tr>
+<tr><td><code>EvilKeyScavenge</code></td><td>500</td><td><code>HarassmentEngine.cs:4175, 4195</code></td></tr>
+<tr><td><code>PhotoScavenge</code></td><td>550</td><td><code>HarassmentEngine.cs:4284</code></td></tr>
+</tbody></table>
+<p>On a map with 200 spawned animals and 20 humanlikes this iterates 220 entries where 20 (or fewer, for <code>_profiled</code>) would do — an order-of-magnitude waste, five times over, at four different cadences. The index is already paid for; these passes simply do not consume it.</p>
+<p><strong>Fix:</strong> expose <code>Humanlikes()</code> / <code>Profiled()</code> accessors on <code>MapComponent_HarassmentScan</code> (calling <code>EnsureIndex()</code> internally, exactly as <code>PawnById</code> does) and swap the five loop sources. No behaviour change — all five already skip non-humanlikes or non-profiled pawns explicitly in their first <code>continue</code>.</p>
+<h3>1.3 <code>MemoryReactionScan</code> is the most expensive recurring call in the mod</h3>
+<p>Every 350 ticks, for every profiled pawn holding a <code>harasserMemory</code> entry, it runs <code>GenSight.LineOfSight(v.Position, h.Position, map)</code> per memory entry. <code>LineOfSight</code> is a cell-by-cell Bresenham walk. The distance pre-check (<code>&gt; 9f</code> → skip) is present and correct, which caps the damage, but with a colony of well-remembered tormentors the inner loop is unbounded by design.</p>
+<p><strong>Fix:</strong> cap work per pass (process N pawns per invocation, round-robin via a stored cursor) and hoist the <code>LineOfSight</code> call behind the existing <code>bestCount</code> comparison so it only runs for the <em>candidate</em> tormentor rather than every entry. Same outcome, a fraction of the raycasts.</p>
+<h3>1.4 Unbounded profile store</h3>
+<p><code>GameComponent_Harassment.profiles</code> is a <code>Dictionary&lt;int, PawnProfile&gt;</code> with <strong>no pruning path anywhere in the codebase</strong> (<code>grep</code> for <code>profiles.Remove</code> / <code>PruneProfiles</code> returns nothing). A profile is created for any pawn that gets seeded, including every raider, visitor, and trader who is ever harassed and then leaves forever. Consequences:</p>
+<ul>
+<li>The dictionary grows monotonically for the life of the save.</li>
+<li>It is <code>Scribe_Collections.Look(..., LookMode.Deep)</code> — every dead profile, its <code>chronicle</code> (capped at 100</li>
+</ul>
+<p>  entries) and its history samples are <strong>fully serialised into every save file</strong>.</p>
+<ul>
+<li><code>GameComponentTick</code>'s hourly loop calls <code>sex?.HourlyDrift(false)</code> for <strong>every</strong> profile unconditionally,</li>
+</ul>
+<p>  including thousands that will never be seen again.</p>
+<p><strong>Fix:</strong> a low-cadence sweep (e.g. every 6 in-game days) that drops any profile whose pawn resolves to <code>null</code> via <code>PawnLookup.AnyMap</code> <strong>and</strong> is absent from <code>Find.WorldPawns</code>, is not a nemesis, and has no live owner link. Must be conservative — dropping a world-pawn's profile would erase nemesis grudges — so the predicate matters more than the sweep.</p>
+<h3>1.5 Tick-layer scorecard</h3>
+<table><thead><tr><th>ID</th><th>Finding</th><th>Severity</th><th>Certainty</th></tr></thead><tbody>
+<tr><td>T1</td><td>Four heavy passes converge on <code>% 2500</code> → periodic hitch</td><td>High</td><td><strong>98%</strong></td></tr>
+<tr><td>T2</td><td>Five periodic scans bypass the existing <code>_humanlikes</code>/<code>_profiled</code> index</td><td>High</td><td><strong>99%</strong></td></tr>
+<tr><td>T3</td><td><code>MemoryReactionScan</code> runs <code>LineOfSight</code> per memory entry, every 350t</td><td>Med-High</td><td><strong>92%</strong></td></tr>
+<tr><td>T4</td><td><code>RecomputeHeadGirls</code> allocates 2 <code>Dictionary</code> + 1 <code>List</code> per map per call</td><td>Medium</td><td><strong>99%</strong></td></tr>
+<tr><td>T5</td><td><code>profiles</code> dictionary never pruned → save bloat + growing hourly loop</td><td>Medium</td><td><strong>93%</strong></td></tr>
+<tr><td>T6</td><td><code>%500</code> / <code>%550</code> scavenger collision</td><td>Low</td><td><strong>95%</strong></td></tr>
+</tbody></table>
+<hr>
+<h2>PASS 2 — IMGUI, UI, and VRAM</h2>
+<h3>2.1 The portrait RenderTexture leak (highest-value finding)</h3>
+<p><code>PortraitsCache.Get</code> keys its cache on a <code>PortraitParams</code> struct comprising <strong>size × cameraOffset × cameraZoom × rotation × flags</strong>, then per-pawn inside that bucket. Each miss allocates <code>new RenderTexture(w, h, 24)</code> at <code>requestedSize × 1.25 (supersample) × Prefs.UIScale</code>. Entries expire after 1 second of non-use into <code>renderTexturesPool</code> — and <strong><code>renderTexturesPool</code> is only ever emptied by <code>PortraitsCache.Clear()</code></strong>, which runs on game load and quit. Nothing trims it during play.</p>
+<p>Three separate call patterns in this mod feed that cache unbounded keys:</p>
+<p><strong>(a) Resize-derived stage doll size — the severe one.</strong> <code>Window_Harem.DrawStage</code> computes <code>frame</code> from <code>rect.width</code> and <code>dollArea.height</code>, both derived from the <strong>resizeable</strong> window rect, then passes <code>new Vector2(frame.width, frame.height)</code> straight to <code>PortraitsCache.Get</code>. Every distinct pixel size touched during a resize drag mints a new RenderTexture.</p>
+<p>At a 1200×800 window the stage frame is ≈216 × 556 → ×1.25 → 270 × 695 ≈ 188k px. At ~8 bytes/px (ARGB32 colour + 24-bit depth) that is <strong>≈1.5 MB per size, per pawn</strong>. A single deliberate corner-drag at 60 fps easily touches 150–300 distinct sizes:</p>
+<blockquote><strong>≈ 225–450 MB of orphaned VRAM per sustained resize drag, held until the game is restarted.</strong></blockquote>
+<p><strong>(b) Animated <code>cameraZoom</code> — the spiky one.</strong> <code>_stageZoom</code> is <code>Mathf.Lerp</code>-ed toward the target every Repaint and passed as <code>cameraZoom</code>. The code already quantises with <code>Mathf.Round(zoom * 50f) / 50f</code>, which is good instinct, but 1/50 granularity across the 0.82 → 1.70 Stylist transition still yields <strong>up to 44 distinct <code>PortraitParams</code> buckets</strong>. The 1-second expiry is longer than the ~0.5 s animation, so all 44 are live simultaneously:</p>
+<blockquote><strong>≈ 66 MB live spike every time the Stylist is opened</strong>, then 44 stage-sized RTs retained in the pool.</blockquote>
+<p><strong>(c) Eight distinct headshot sizes.</strong> <code>DrawPortrait</code> is called with rects of 30, 31, 34, 36, 42, 44, 56 and 64 px — <strong>8 buckets</strong>, each a separate RenderTexture family per pawn, and each requiring its own full <code>PawnCacheRenderer.RenderPawn</code> pass. ≈189 KB/pawn across all eight, versus ≈71 KB if collapsed to two buckets.</p>
+<p><strong>Fixes — all pixel-identical on screen:</strong></p>
+<ol>
+<li><strong>Quantise the stage frame</strong> to a 16 px step before the <code>Get</code> call, then <code>GUI.DrawTexture</code> the result into</li>
+</ol>
+<p>   the exact (unquantised) rect. The RT is already 1.25× supersampled; bilinear downscale of ≤16 px is not    perceptible. Cuts resize churn ~16×. Optionally quantise to 64 px <em>while</em> <code>Event.current.type</code> indicates    an active drag, and settle to 16 px on mouse-up — effectively zero churn.</p>
+<ol>
+<li><strong>Stop animating <code>cameraZoom</code>.</strong> Request the portrait at the <em>target</em> zoom only, and animate the</li>
+</ol>
+<p>   <strong>destination <code>Rect</code></strong> instead (scale the quad). For a 0.5 s transition this is visually equivalent and    collapses 44 buckets to 2. If the camera-zoom feel must be preserved exactly, quantise to 1/8 instead of    1/50 (8 buckets, ~12 MB).</p>
+<ol>
+<li><strong>Collapse the 8 headshot sizes to 2</strong> (e.g. 32 and 64) and let <code>GUI.DrawTexture</code> scale into the real rect.</li>
+</ol>
+<p>   ~2.4 MB saved on a 20-pet colony and, more importantly, six fewer full pawn re-renders per pawn.</p>
+<h3>2.2 No <code>EventType.Repaint</code> gating</h3>
+<p>Unity IMGUI invokes <code>OnGUI</code> at least twice per rendered frame (Layout + Repaint) plus once per input event. <code>Dialog_Stylist</code> and <code>Dialog_DressUp</code> correctly guard their portrait fetch with <code>if (Event.current.type == EventType.Repaint)</code>. <strong><code>Window_Harem.DrawPortrait</code> and <code>DrawStageDoll</code> do not.</strong></p>
+<p>Because <code>PortraitsCache.SetAnimatedPortraitsDirty()</code> marks any flashing pawn dirty every frame, a damaged or recently-hit pet on the roster triggers a <strong>full <code>PawnCacheRenderer.RenderPawn</code> on each of 2–6 passes per frame</strong> instead of one. Every decorative draw in the window (border icons, stage corners, bars, dividers) likewise executes on all passes despite being invisible on non-Repaint events.</p>
+<p><strong>Fix:</strong> gate purely decorative draws and all <code>PortraitsCache.Get</code> calls behind a Repaint check. Interactive widgets (<code>Widgets.ButtonInvisible</code>, <code>TextField</code>, scroll views) must continue to run on every pass — their hit-testing depends on it — so this is a targeted gate, not a blanket wrap.</p>
+<h3>2.3 Zero scroll culling</h3>
+<p><code>grep</code> for <code>GetScrollPositionForRect</code>, visible-rect overlap tests, or any culling idiom in <code>Window_Harem</code> returns <strong>nothing</strong>. Every scroll view draws every row:</p>
+<ul>
+<li><strong>Roster column</strong> (<code>DrawRosterColumn</code>): all <code>shown</code> rows at ~48 px each, ~14 draw calls per row</li>
+</ul>
+<p>  (background, selection accent, 4-call border, portrait, star + its backing box, 2× <code>FillableBar</code> at   2 textures each, risk dot).</p>
+<ul>
+<li><strong>Harem table</strong> (<code>DrawHarem</code>): rows are <strong>200 px tall</strong> (40 px base + 160 px schedule). Each row draws a</li>
+</ul>
+<p>  portrait, two fillable bars, a submission bar, and a full 24-cell schedule grid. With 20 pets and ~4 rows   visible, <strong>16 rows of that are drawn entirely off-screen, every pass, on every frame.</strong></p>
+<p><strong>Fix:</strong> the standard vanilla idiom — compute the visible rect from the scroll position and <code>if (!rowRect.Overlaps(visibleRect)) continue;</code>. Pixel-identical output. On a 20-pet colony this is roughly a <strong>5× reduction</strong> in the Harem view's per-frame draw work, and it also stops off-screen pets from being <code>PortraitsCache.Get</code>-ed at all — which compounds directly into finding 2.1.</p>
+<h3>2.4 Per-color textures break IMGUI batching</h3>
+<p><code>Window_Harem.SolidBar(Color)</code> and <code>SexualityPanelDrawer._texCache</code> memoise <code>SolidColorMaterials.NewSolidColorTexture(c)</code>, which allocates a <strong>2×2 <code>Texture2D</code> per colour</strong>. The caching is correct and the VRAM is negligible (~16 bytes each). The cost is elsewhere: Unity IMGUI batches consecutive draws that share a texture, and <strong>every distinct bar colour forces a texture switch</strong>. <code>Widgets.FillableBar</code> issues 2–3 <code>GUI.DrawTexture</code> calls with <em>different</em> textures for fill and background, so each bar is a guaranteed batch break — and the roster draws two bars per row.</p>
+<p>Meanwhile <code>Widgets.DrawBoxSolid</code> — used everywhere else in the window — already draws <code>BaseContent.WhiteTex</code> tinted by <code>GUI.color</code>.</p>
+<p><strong>Fix:</strong> a small <code>FillBar(Rect, pct, fillColor, bgColor)</code> helper that draws <code>BaseContent.WhiteTex</code> twice with <code>GUI.color</code> set, replacing every <code>Widgets.FillableBar(..., SolidBar(x), SolidBar(y), ...)</code> call site. This collapses ~14 distinct textures to the one shared white texture, so all bars batch with all boxes. Byte-identical pixels; the current code is already drawing flat solid quads.</p>
+<h3>2.5 Decorative border trail is ~94 draw calls per pass</h3>
+<p><code>DrawBorderIcons</code> walks all four window edges at a 40 px step. At 1200×800 that is ≈29 + 29 + 18 + 18 = <strong>≈94 <code>GUI.DrawTexture</code> calls per pass</strong>, purely ornamental, ungated by Repaint — so 190–560 calls per frame.</p>
+<p><strong>Fix (aesthetic preserved exactly):</strong> Repaint-gate it (immediate ~3× cut), and optionally cache the computed icon rects in a <code>List&lt;Rect&gt;</code> keyed on the window size so the loop arithmetic is not redone per pass. If a further cut is wanted later, the whole chrome layer can be pre-rendered once into a window-sized <code>RenderTexture</code> and blitted as one quad — but that <em>costs</em> ~3.8 MB of VRAM, so it is only worth doing after 2.1 has freed hundreds of MB. Recommended as optional, not first-wave.</p>
+<h3>2.6 Roster rebuilt on every IMGUI event</h3>
+<p><code>DoWindowContents</code> calls <code>AllPets()</code> unconditionally, and <code>DrawRosterColumn</code> then calls <code>FilterSortPets(pets)</code>. Per IMGUI event (2–6× per frame):</p>
+<ul>
+<li><code>AllPets()</code> → <code>BuildGroups()</code> → a <strong>cross-map <code>AllPawnsSpawned</code> scan</strong>, plus a <code>Dictionary</code>, a <code>List&lt;Group&gt;</code>,</li>
+</ul>
+<p>  and a <code>List&lt;Pawn&gt;</code> per group; then de-duplicates with <code>list.Contains(...)</code> — <strong>O(n²)</strong>.</p>
+<ul>
+<li><code>FilterSortPets()</code> → <code>new List&lt;Pawn&gt;(pets)</code>, a <code>FindAll</code> with a closure, **one <code>ToLowerInvariant()</code> string</li>
+</ul>
+<p>  allocation per pawn per event** for the filter, a <code>Sort</code> with a delegate, then two more <code>List&lt;Pawn&gt;</code>   (<code>pinned</code> / <code>rest</code>).</p>
+<ul>
+<li>The <code>_sortMode == 3</code> comparator calls <code>HarassmentEngine.FindKeyHolderFor(a)</code> inside the comparison —</li>
+</ul>
+<p>  O(n log n) key-holder resolutions per event.</p>
+<ul>
+<li><code>DrawSummaryCard</code> and <code>DrawHaremSummary</code> each independently re-walk the full pet list computing the same</li>
+</ul>
+<p>  averages.</p>
+<p><strong>Fix:</strong> the frame-stamp pattern already used correctly by <code>EnsureFontH</code> (<code>Time.frameCount == _fhFrame</code>) and by <code>FindLockedVictimForKey</code>. Cache the resolved+filtered+sorted list, the summary aggregates, and the lower-cased filter string against <code>Time.frameCount</code>, into reusable <code>List&lt;Pawn&gt;</code> fields rather than fresh allocations. Also swap <code>list.Contains</code> for a <code>HashSet&lt;int&gt;</code> of thing IDs. This is roughly a <strong>6× reduction</strong> in the window's CPU and allocation cost at zero visual difference.</p>
+<h3>2.7 <code>Verse.Window.WindowOnGUI</code> is patched globally to draw one grip</h3>
+<p><code>Patch_HaremResizeGrip</code> postfixes <code>Verse.Window.WindowOnGUI</code> — one of the hottest methods in the game, invoked for <strong>every window on the stack, on every IMGUI event</strong>. The guard (<code>if (!(__instance is Window_Harem)) return;</code>) is cheap, but the Harmony stub, its try/finally, and the delegate dispatch are paid by every window belonging to every other mod, forever, so that this mod can draw three dark lines on one window.</p>
+<p><strong>Fix:</strong> <code>Window.WindowOnGUI</code> is <code>public virtual</code>. Override it in <code>Window_Harem</code>, call <code>base.WindowOnGUI()</code>, then draw the grip. The global patch is deleted outright. Identical visuals, zero cost to any other mod. This is the cleanest single win in the audit.</p>
+<h3>2.8 Gizmos rebuilt from scratch every frame</h3>
+<p><code>Patch_Pawn_GetGizmos</code> is a postfix on a method RimWorld calls <strong>every frame for every selected pawn</strong>. It invokes five builders (<code>BuildKeyHolderGizmos</code>, <code>BuildConditionedGizmo</code>, <code>BuildFightBackGizmo</code>, <code>BuildAutoResistGizmo</code>, <code>BuildOnaholeTimerGizmo</code>), and <code>BuildKeyHolderGizmos</code> allocates a fresh <code>List&lt;Gizmo&gt;</code> plus a stream of <code>Command_Action</code> / <code>Command_Toggle</code> / <code>Command_Target</code> objects — each with its own label string concatenation, closure, and (for <code>Command_Target</code>) a <code>new TargetingParameters { validator = lambda }</code>. With a multi-pawn selection this is dozens of allocations per frame.</p>
+<p>The inner <code>FindLockedVictimForKey</code> is already frame-cached, which shows the pattern is understood — it simply was not applied one level up.</p>
+<p><strong>Fix:</strong> memoise the assembled gizmo list per <code>(pawn.thingIDNumber, Time.frameCount)</code>. Gizmos are consumed immediately after construction, so a one-frame cache is safe. See also 3.3 for a correctness bug in that existing cache.</p>
+<h3>2.9 On the explicit question: IMGUI alternatives with less VRAM and the same aesthetic</h3>
+<p>Assessed honestly, including the options that do <strong>not</strong> work:</p>
+<table><thead><tr><th>Option</th><th>VRAM effect</th><th>Aesthetic risk</th><th>Verdict</th></tr></thead><tbody>
+<tr><td>Portrait size + zoom quantisation (2.1)</td><td><strong>−100s of MB</strong></td><td>None (supersampled bilinear)</td><td><strong>Do first</strong></td></tr>
+<tr><td>Scroll-rect culling (2.3)</td><td>Large indirect (off-screen pets never enter the portrait cache)</td><td>None</td><td><strong>Do first</strong></td></tr>
+<tr><td>Repaint-gating decorative draws (2.2, 2.5)</td><td>None (CPU/draw-call win)</td><td>None</td><td><strong>Do first</strong></td></tr>
+<tr><td><code>BaseContent.WhiteTex</code> + <code>GUI.color</code> for bars (2.4)</td><td>Negligible VRAM; removes batch breaks</td><td>None</td><td><strong>Do</strong></td></tr>
+<tr><td>Frame-stamped roster cache (2.6)</td><td>None (CPU + GC win)</td><td>None</td><td><strong>Do</strong></td></tr>
+<tr><td>Pre-rendered chrome <code>RenderTexture</code> (2.5, optional)</td><td><strong>+3.8 MB</strong>, −94 draw calls/pass</td><td>None</td><td>Optional, only after 2.1</td></tr>
+<tr><td><code>Widgets.DrawAtlas</code> 9-slice instead of <code>DrawBoxSolid</code>+<code>DrawBox</code></td><td>Neutral</td><td>Low</td><td><strong>No</strong> — <code>DrawAtlas</code> issues 9 draws; our borders are 5. Not a win.</td></tr>
+<tr><td>Unity UIToolkit / UI Elements</td><td>N/A</td><td>N/A</td><td><strong>Not viable.</strong> RimWorld 1.6 (Unity 2019.4) exposes no UIToolkit runtime path that can interleave with <code>Verse.WindowStack</code>'s IMGUI ordering.</td></tr>
+<tr><td>Retained-mode <code>Mesh</code>/<code>GL</code> batching</td><td>Would help draw calls</td><td>High — clip-rect and z-order interactions with <code>GUI.BeginGroup</code> are fragile</td><td><strong>No</strong></td></tr>
+<tr><td>Compressing our own <code>Textures/UI/*.png</code></td><td>Small, real</td><td>None</td><td>Worth a pass; ~35 UI textures loaded eagerly as <code>static readonly</code> at startup</td></tr>
+</tbody></table>
+<p><strong>The core correction to the premise:</strong> IMGUI is not the VRAM consumer here. Vanilla RimWorld's UI is IMGUI too, and it is cheap. What makes this window heavier than vanilla is (i) portrait RenderTextures keyed on unquantised sizes, (ii) unculled rows, and (iii) per-event roster rebuilds. Fix those three and the Command deck lands <em>below</em> an equivalent-density vanilla tab, because vanilla does not cache its roster per frame at all.</p>
+<h3>2.10 UI scorecard</h3>
+<table><thead><tr><th>ID</th><th>Finding</th><th>Severity</th><th>Certainty</th></tr></thead><tbody>
+<tr><td>U1</td><td>Resize-derived stage doll size → orphaned RenderTextures, never freed</td><td><strong>Critical</strong></td><td><strong>95%</strong></td></tr>
+<tr><td>U2</td><td>Animated <code>cameraZoom</code> → up to 44 live stage-sized RTs (~66 MB spike)</td><td>High</td><td><strong>93%</strong></td></tr>
+<tr><td>U3</td><td>Eight distinct headshot sizes → 8 RT families + 8 renders per pawn</td><td>Med-High</td><td><strong>97%</strong></td></tr>
+<tr><td>U4</td><td>No <code>EventType.Repaint</code> gating → 2–6× redundant portrait renders + decorative draws</td><td>High</td><td><strong>90%</strong></td></tr>
+<tr><td>U5</td><td>Zero scroll culling; Harem rows are 200 px tall and always fully drawn</td><td><strong>Critical</strong></td><td><strong>99%</strong></td></tr>
+<tr><td>U6</td><td>Per-colour 2×2 textures break IMGUI batching on every bar</td><td>Medium</td><td><strong>96%</strong></td></tr>
+<tr><td>U7</td><td><code>DrawBorderIcons</code> ≈94 ungated decorative draws per pass</td><td>Medium</td><td><strong>97%</strong></td></tr>
+<tr><td>U8</td><td><code>AllPets()</code>/<code>FilterSortPets()</code> rebuilt per IMGUI event, 5 allocs + N string allocs</td><td>High</td><td><strong>98%</strong></td></tr>
+<tr><td>U9</td><td><code>AllPets()</code> de-duplicates with <code>List.Contains</code> → O(n²)</td><td>Low-Med</td><td><strong>99%</strong></td></tr>
+<tr><td>U10</td><td><code>Verse.Window.WindowOnGUI</code> patched globally for one window's grip</td><td>Medium</td><td><strong>99%</strong></td></tr>
+<tr><td>U11</td><td><code>Patch_Pawn_GetGizmos</code> rebuilds all <code>Command_*</code> objects every frame</td><td>Med-High</td><td><strong>96%</strong></td></tr>
+</tbody></table>
+<hr>
+<h2>PASS 3 — Inter-mod compatibility</h2>
+<h3>3.1 Steam <code>_steam</code> suffix breaks 6 of 11 soft-dep probes (confirmed live)</h3>
+<p><code>ModLister.GetActiveModWithIdentifier(identifier, bool ignorePostfix = false)</code> looks up <code>modsByPackageId</code> — an <strong>exact</strong> match — unless <code>ignorePostfix: true</code> selects <code>modsByPackageIdIgnorePostfix</code>. <code>ModMetaData.SteamModPostfix</code> is <code>"_steam"</code>, and RimWorld marks the non-suffix-aware <code>ModsConfig</code> helpers <code>[Obsolete("Callers should use ... which automatically trims _steam suffixes")]</code>.</p>
+<p><code>SoftDeps.Detect()</code> passes <code>ignorePostfix: true</code> <strong>only for Karma</strong>. Cross-referencing against the live 909-mod active list:</p>
+<table><thead><tr><th>Probe</th><th>Install source here</th><th>Result</th></tr></thead><tbody>
+<tr><td><code>Nals.FacialAnimation</code></td><td>Workshop</td><td>❌ <strong>false</strong> — entire FA bridge never initialises</td></tr>
+<tr><td><code>JPT.speakup</code></td><td>Workshop</td><td>❌ <strong>false</strong></td></tr>
+<tr><td><code>cj.rimtalk</code></td><td>Workshop</td><td>❌ <strong>false</strong></td></tr>
+<tr><td><code>TRIBeagle.simpleslaverycollars</code></td><td>Workshop</td><td>❌ <strong>false</strong> — SSC collars unrecognised</td></tr>
+<tr><td><code>Mlie.BondageBedTorture</code></td><td>Workshop</td><td>❌ <strong>false</strong> — <code>BondageBedTick</code> inert</td></tr>
+<tr><td><code>Maux36.Rimpsyche.Sexuality</code></td><td>Workshop</td><td>❌ <strong>false</strong> — orientation gate falls back</td></tr>
+<tr><td><code>rim.job.world.onahole.ext</code></td><td>Local</td><td>✅ true</td></tr>
+<tr><td><code>rjw.quirks</code>, <code>rjw.sexperience</code>, <code>Vegapnk.rjw.genes</code></td><td>Local</td><td>✅ true</td></tr>
+<tr><td><code>astryl.KarmaReputation</code></td><td>Workspace (+ <code>, true</code>)</td><td>✅ true</td></tr>
+</tbody></table>
+<p>The mod's own startup log line would read <code>FacialAnim=False</code> on this machine despite Facial Animation being active at load order #31. <strong>Fix: add <code>, true</code> to every probe</strong> (~15 lines). Highest value-per-byte change in the entire audit.</p>
+<h3>3.2 Negative reflection results are not cached</h3>
+<p>The idiom <code>if (_type == null) _type = GenTypes.GetTypeInAnyAssembly("X");</code> treats "not found" as "not yet looked up". When the mod is <strong>absent</strong>, <code>_type</code> stays <code>null</code> forever and every call re-walks every loaded assembly. Live instances:</p>
+<ul>
+<li><code>OnaholeBedTypeCached()</code> and <code>BeOnaholeJobType()</code> — both called from <code>ComputeIsInOnaholeBed</code>, which is one</li>
+</ul>
+<p>  of the hottest predicates in the mod (<code>PawnFlagCache</code> memoises it per tick, which mercifully caps this, but   the first call each tick per pawn still pays a full assembly scan when Onahole Extension is not installed).</p>
+<ul>
+<li><code>_coffeeCompType</code> (<code>HarassmentEngine.cs:6375</code>), <code>_rmbBest</code> / <code>_rmbSex</code> — the <code>_rmbBestTried</code> flag is the</li>
+</ul>
+<p>  correct pattern and is used for <code>_rmbBest</code>; the others lack it.</p>
+<p><strong>Fix:</strong> a <code>bool _tried</code> sentinel alongside each cached <code>Type</code>, matching the pattern already used correctly in <code>FABridge</code>, <code>KarmaBridge</code>, <code>RoomServiceBridge</code> and <code>_rmbBestTried</code>.</p>
+<h3>3.3 <code>FindLockedVictimForKey</code> roots a dead game graph</h3>
+<pre><code>Dictionary&lt;rjw.CompHoloCryptoStamped, int&gt;  _lockedVictimFrame
+Dictionary&lt;rjw.CompHoloCryptoStamped, Pawn&gt; _lockedVictimCache</code></pre>
+<p>Both are <code>static</code>, keyed on a <strong>live <code>ThingComp</code> reference</strong>, and store a <strong><code>Pawn</code> value</strong>. Neither is cleared on game load. A <code>ThingComp</code> reaches its parent <code>Thing</code>, which reaches <code>Map</code>, which reaches <code>Game</code> — so after a save→load in the same session these dictionaries pin the entire previous game object graph. The 512-entry cap bounds the count, not the retained graph.</p>
+<p>The Schematic explicitly records that <code>PawnFlagCache</code> keys on <code>int</code> ids "so the static store cannot root a dead Game graph". This cache predates or missed that rule.</p>
+<p><strong>Fix:</strong> key on <code>keyComp.parent.thingIDNumber</code> and store the victim's <code>thingIDNumber</code>, resolving through <code>PawnLookup</code> on read; clear both on <code>GameComponent.FinalizeInit</code>.</p>
+<h3>3.4 Compat surfaces that are already robust</h3>
+<p>Worth stating explicitly, because they are the template for the rest: <code>RoomServiceBridge</code> and <code>GastronomyBridge</code> (<code>VenueBridges.cs</code>), <code>FABridge</code>, <code>KarmaBridge</code>, <code>ReputationBridge</code>, <code>RimTalkBridge</code>, <code>SexHistoryBridge</code> and <code>FreeWillBridge</code> all use the correct shape — one-shot <code>_tried</code> init, <code>AccessTools</code> resolution cached into <code>MethodInfo</code>, every call wrapped in <code>try/catch</code>, graceful no-op when absent, and driving the <strong>host mod's own validated job</strong> rather than constructing one. <code>RoomServiceBridge</code> in particular is exemplary. The recommendation for pass 3 is to bring the remaining ad-hoc reflection sites up to this standard, not to redesign it.</p>
+<h3>3.5 Unexploited integration surface (all confirmed <strong>active</strong> in the live 909-mod list)</h3>
+<p>Ranked by fit-to-theme × (near-)zero overhead. All are additive, all fail closed if the mod is absent.</p>
+<table><thead><tr><th>Mod</th><th>packageId</th><th>Opportunity</th><th>Overhead</th><th>Certainty</th></tr></thead><tbody>
+<tr><td><strong>Vanilla Skills Expanded</strong></td><td><code>vanillaexpanded.skills</code></td><td>The Phase E roadmap item — <code>ExpertiseDef</code> for Devoted endgame roles (Bodyguard/Handler/Courtesan). Confirmed installed; the planned hediff fallback is already the right design.</td><td>XML defs + one grant on stage transition — <strong>zero tick cost</strong></td><td>96%</td></tr>
+<tr><td><strong>Suppression (Continued)</strong></td><td><code>Mlie.Suppression</code></td><td>Directly overlaps <code>SlaveryHooks.SyncSuppression</code>. Both write a suppression floor. <strong>Check for double-application before it becomes a bug report.</strong></td><td>Detection only</td><td>80%</td></tr>
+<tr><td><strong>Prisoners Dont Have Keys</strong></td><td><code>Mlie.PrisonersDontHaveKeys</code></td><td>Manipulates prisoner inventories/keys — plausible interaction with the Holokey inventory logic in <code>BuildKeyHolderGizmos</code>. <strong>Verify, do not assume.</strong></td><td>Detection only</td><td>70%</td></tr>
+<tr><td><strong>Nudity Matters More</strong> (+ opinions)</td><td><code>dord.nuditymattersmore</code>, <code>shark510.nuditymattersmoreopinions</code></td><td><code>forceNudity</code> / <code>StripToBondage</code> should feed its nudity opinion model — makes forced nudity land socially instead of only as our own thought.</td><td>Event-driven</td><td>88%</td></tr>
+<tr><td><strong>Privacy, Please!</strong></td><td><code>abscon.privacy.please</code></td><td><code>FindPrivateCell</code> / <code>DragToPrivate</code> could defer to its room privacy evaluation instead of our own heuristic — better results, less code.</td><td>Replaces existing work</td><td>82%</td></tr>
+<tr><td><strong>RimHUD</strong></td><td><code>Jaxe.RimHUD</code></td><td>Conditioning / rapport as custom HUD rows. RimHUD supports def-driven custom rows.</td><td>Def-only</td><td>85%</td></tr>
+<tr><td><strong>Grudges!</strong></td><td><code>TheOcean.Grudges</code></td><td><code>RegisterNemesis</code> could register a real grudge, so escaped pets carry hostility through the host mod's own system.</td><td>Event-driven</td><td>78%</td></tr>
+<tr><td><strong>Rimpsyche - Disposition</strong></td><td><code>Maux36.Rimpsyche.Disposition</code></td><td>Active but <strong>not probed</strong> — only Rimpsyche core and Sexuality are. Disposition is exactly the axis <code>HarasserWillingness</code> wants.</td><td>Read-only, cached</td><td>84%</td></tr>
+<tr><td><strong>Restraints / Simple Restraint Belt</strong></td><td><code>BDew.Restraints</code>, <code>amegakull.SimpleRestraintBelt</code></td><td>Recognise as locked harassment gear in <code>WearingLockedHarassmentGear</code>.</td><td>Def list, one-time</td><td>86%</td></tr>
+<tr><td><strong>Slaves Are Furniture / Pawns on Display</strong></td><td><code>Arkymn.SlavesAreFurniture</code>, <code>nawjak.pawnsondisplay</code></td><td>Overlaps <code>boundInPublic</code> / display glances — either interop or explicitly stand down to avoid double-display.</td><td>Detection only</td><td>72%</td></tr>
+<tr><td><strong>Better Pawn Control</strong></td><td><code>VouLT.BetterPawnControl</code></td><td>Harem schedule presets could ride its policy-switch event so pet schedules follow colony alerts.</td><td>Event-driven</td><td>70%</td></tr>
+<tr><td><strong>Ideology: More Precepts / Alpha Memes / VIE-Memes</strong></td><td><code>llunak.MorePrecepts</code>, <code>Sarg.AlphaMemes</code>, <code>VanillaExpanded.VMemesE</code></td><td><code>RJWSH_Ownership</code> meme could gain compatible precepts and appear in their generated ideologies.</td><td>XML only</td><td>80%</td></tr>
+<tr><td><strong>Epitaph / In Memoriam</strong></td><td><code>telardo.Epitaph</code>, <code>astryl.InMemoriam</code></td><td>Owner-death legacy and the per-pawn chronicle could write real epitaphs/memorials — strong thematic payoff.</td><td>Event-driven</td><td>76%</td></tr>
+<tr><td><strong>Vanilla Social Interactions Expanded</strong></td><td><code>VanillaExpanded.VanillaSocialInteractionsExpanded</code></td><td>Our <code>InteractionDef</code>s could register with its social log and relationship layer.</td><td>XML + detection</td><td>74%</td></tr>
+<tr><td><strong>Melee Animation</strong></td><td><code>co.uk.epicguru.meleeanimation</code></td><td>Listed as a soft dep in the Schematic, but <strong>no bridge code exists</strong> — either wire it or drop the claim.</td><td>—</td><td>90%</td></tr>
+<tr><td><strong>RJW ecosystem, unprobed</strong></td><td><code>rjw.menstruation</code>, <code>vegapnk.cumpilation</code>, <code>c0ffee.rjw.events</code>, <code>rjw.dirtytalk</code>, <code>moth.rjw.flavor</code>, <code>rjw.sexperience.ideology</code>, <code>ElToro.*</code></td><td>All active. Several have data our chronicle/attribute layer would benefit from; <code>rjw.dirtytalk</code> and <code>moth.rjw.flavor</code> overlap our banter and may double up.</td><td>Mixed</td><td>70%</td></tr>
+</tbody></table>
+<h3>3.6 Compat scorecard</h3>
+<table><thead><tr><th>ID</th><th>Finding</th><th>Severity</th><th>Certainty</th></tr></thead><tbody>
+<tr><td>C1</td><td><code>_steam</code> suffix breaks 6 of 11 soft-dep probes — <strong>live on this machine</strong></td><td><strong>Critical</strong></td><td><strong>97%</strong></td></tr>
+<tr><td>C2</td><td>Negative <code>GetTypeInAnyAssembly</code> results re-scan all assemblies every call</td><td>Medium</td><td><strong>94%</strong></td></tr>
+<tr><td>C3</td><td><code>FindLockedVictimForKey</code> static cache roots a dead <code>Game</code> graph across load</td><td>Med-High</td><td><strong>90%</strong></td></tr>
+<tr><td>C4</td><td>Melee Animation claimed as a soft dep with no implementing code</td><td>Low</td><td><strong>90%</strong></td></tr>
+<tr><td>C5</td><td>Suppression / Prisoners-Dont-Have-Keys overlap unverified</td><td>Medium</td><td><strong>75%</strong></td></tr>
+</tbody></table>
+<hr>
+<h2>PASS 4 — Frameworks, caching, duplication</h2>
+<h3>4.1 The UI widget layer is duplicated instead of shared</h3>
+<p><code>ModernStyle</code> owns only <code>DrawCard</code>, the palette, and the scrollbar push/pop. Every actual widget lives as a <code>private static</code> inside <code>Window_Harem</code> and is therefore re-implemented elsewhere:</p>
+<table><thead><tr><th>Widget</th><th>Canonical</th><th>Duplicate(s)</th></tr></thead><tbody>
+<tr><td>Gray button</td><td><code>Window_Harem.GrayButton</code> (×2 overloads)</td><td><code>Dialog_DressUp.GrayBtn</code>, <code>Dialog_Stylist.GrayBtn</code></td></tr>
+<tr><td>Section header</td><td><code>Window_Harem.MiniHeader</code> (used 15×)</td><td><code>SexualityPanelDrawer.Section</code></td></tr>
+<tr><td>Labelled bar</td><td><code>Window_Harem.DrawMiniBar</code></td><td><code>SexualityPanelDrawer.Bar</code>, <code>SexualityPanelDrawer.SubDomBar</code></td></tr>
+<tr><td>Colour→texture cache</td><td><code>Window_Harem._barCache</code></td><td><code>SexualityPanelDrawer._texCache</code></td></tr>
+<tr><td>Portrait draw</td><td><code>Window_Harem.DrawPortrait</code></td><td><code>Dialog_DressUp</code>, <code>Dialog_Stylist</code> (each inline, each with different params)</td></tr>
+</tbody></table>
+<p>This is a direct violation of the project's <strong>Frameworks Over Duplicated Code</strong> rule, and it is also what allowed the portrait-size sprawl in 2.1c: five call sites, five sets of parameters, no single place to enforce quantisation.</p>
+<p><strong>Fix:</strong> promote the widget set into <code>ModernStyle</code> (or a new <code>RJWSH.UI.Widgets</code>) — <code>GrayButton</code>, <code>GrayToggle</code>, <code>IconButton</code>, <code>IconToggle</code>, <code>MiniHeader</code>, <code>FillBar</code>, <code>Portrait</code>, <code>Card</code>. Every fix in Pass 2 (Repaint gating, white-tex bars, portrait quantisation) then applies <strong>once</strong> and is inherited by every panel. This single refactor is the multiplier that makes the rest of the UI work cheap.</p>
+<h3>4.2 No central tick scheduler</h3>
+<p>Nine periodic systems each hardcode their own modulus inline in <code>MapComponentTick</code>, which is what produced the <code>% 2500</code> convergence (1.1) and makes the cadences invisible as a set.</p>
+<p><strong>Fix:</strong> a tiny <code>TickScheduler</code> holding <code>(interval, phase, Action)</code> tuples, registered once, dispatched from one loop. Phases are then assignable centrally and collisions become structurally impossible. It also gives a single place to hang the kill-switch and the per-system <code>try/catch</code> the project's <strong>Robust On Error</strong> rule requires — several of the nine currently rely on the caller's guard.</p>
+<h3>4.3 <code>HarassmentEngine.cs</code> is a 6,577-line / 363 KB single file</h3>
+<p>Already partially split (<code>.Depth</code>, <code>.Nemesis</code>, <code>.Legacy</code>, <code>.Blackmail</code>, <code>.Rituals</code> partials), which is the right direction. The remaining core file still holds target selection, gizmo construction, jobs, scavenging, conditioning, banter, photos, market and venue logic. This is a maintainability finding, not a performance one, but it is why duplicated helpers (<code>FindPawnById</code> × 5 aliases, five <code>AllPawnsSpawned</code> scan idioms) keep reappearing — the file is too large to see itself.</p>
+<p><strong>Fix:</strong> continue the existing partial-class split — <code>.Gizmos</code>, <code>.Scavenge</code>, <code>.Banter</code>, <code>.Targeting</code>. Zero behavioural risk, purely file moves. Per the project rule, each move needs a timestamped backup to <code>D:\RimJobWorld - Sexual Harassment\&lt;YYYYMMDD-HHMMSS&gt;\</code> first.</p>
+<h3>4.4 Caching that is already right</h3>
+<p>Credit where due — these are correct and should be the model: <code>PawnIndex.EnsureIndex</code> (tick-stamped rebuild), <code>PawnLookup</code> (O(1) id resolution), <code>PawnFlagCache</code> (tick-scoped, <strong>int-keyed</strong>, self-healing, delegate-hoisted to avoid per-call allocation), <code>Window_Harem.EnsureFontH</code> (frame-stamped), <code>_lockedVictimFrame</code> (frame-stamped). The gaps identified in this audit are all <em>non-adoption</em> of these existing patterns, not absence of them.</p>
+<h3>4.5 Framework scorecard</h3>
+<table><thead><tr><th>ID</th><th>Finding</th><th>Severity</th><th>Certainty</th></tr></thead><tbody>
+<tr><td>F1</td><td>UI widgets duplicated across 4+ files; no shared widget layer</td><td>High</td><td><strong>99%</strong></td></tr>
+<tr><td>F2</td><td>No central tick scheduler; nine inline moduli</td><td>Medium</td><td><strong>95%</strong></td></tr>
+<tr><td>F3</td><td><code>HarassmentEngine.cs</code> at 6,577 lines despite existing partial split</td><td>Medium</td><td><strong>100%</strong></td></tr>
+<tr><td>F4</td><td>Five <code>FindPawnById</code> aliases (all now correctly delegate — cosmetic only)</td><td>Low</td><td><strong>90%</strong></td></tr>
+</tbody></table>
+<hr>
+<h2>5. Consolidated priority table</h2>
+<table><thead><tr><th>Rank</th><th>ID</th><th>Finding</th><th>Effort</th><th>Risk</th><th>Certainty</th></tr></thead><tbody>
+<tr><td>1</td><td>C1</td><td>Add <code>ignorePostfix: true</code> to all soft-dep probes</td><td>~15 lines</td><td>None</td><td><strong>97%</strong></td></tr>
+<tr><td>2</td><td>U1</td><td>Quantise stage-doll portrait size</td><td>~10 lines</td><td>None</td><td><strong>95%</strong></td></tr>
+<tr><td>3</td><td>U5</td><td>Scroll-rect culling in both list views</td><td>~20 lines</td><td>None</td><td><strong>99%</strong></td></tr>
+<tr><td>4</td><td>U2</td><td>Stop animating <code>cameraZoom</code>; animate the destination rect</td><td>~15 lines</td><td>Low</td><td><strong>93%</strong></td></tr>
+<tr><td>5</td><td>U10</td><td>Override <code>WindowOnGUI</code>; delete the global <code>Window</code> patch</td><td>~12 lines</td><td>None</td><td><strong>99%</strong></td></tr>
+<tr><td>6</td><td>U4</td><td>Repaint-gate portraits + decorative draws</td><td>~30 lines</td><td>Low</td><td><strong>90%</strong></td></tr>
+<tr><td>7</td><td>U8</td><td>Frame-stamp the roster / filter / summary caches</td><td>~40 lines</td><td>Low</td><td><strong>98%</strong></td></tr>
+<tr><td>8</td><td>T1</td><td>Phase-offset the four <code>% 2500</code> systems</td><td>~8 lines</td><td>None</td><td><strong>98%</strong></td></tr>
+<tr><td>9</td><td>T2</td><td>Route the five periodic scans through <code>_humanlikes</code>/<code>_profiled</code></td><td>~25 lines</td><td>Low</td><td><strong>99%</strong></td></tr>
+<tr><td>10</td><td>U3</td><td>Collapse 8 headshot sizes to 2</td><td>~10 lines</td><td>None</td><td><strong>97%</strong></td></tr>
+<tr><td>11</td><td>U6</td><td><code>FillBar</code> on <code>WhiteTex</code> + <code>GUI.color</code></td><td>~25 lines</td><td>None</td><td><strong>96%</strong></td></tr>
+<tr><td>12</td><td>F1</td><td>Promote widgets into a shared <code>ModernStyle</code>/<code>Widgets</code> layer</td><td>~150 lines</td><td>Low</td><td><strong>99%</strong></td></tr>
+<tr><td>13</td><td>U11</td><td>Frame-cache the gizmo list</td><td>~20 lines</td><td>Low</td><td><strong>96%</strong></td></tr>
+<tr><td>14</td><td>C3</td><td>Re-key <code>FindLockedVictimForKey</code> to int ids; clear on load</td><td>~15 lines</td><td>None</td><td><strong>90%</strong></td></tr>
+<tr><td>15</td><td>C2</td><td><code>_tried</code> sentinels on negative type lookups</td><td>~15 lines</td><td>None</td><td><strong>94%</strong></td></tr>
+<tr><td>16</td><td>T3</td><td>Cap + reorder <code>MemoryReactionScan</code> <code>LineOfSight</code></td><td>~20 lines</td><td>Low</td><td><strong>92%</strong></td></tr>
+<tr><td>17</td><td>U7</td><td>Repaint-gate + cache border-icon rects</td><td>~15 lines</td><td>None</td><td><strong>97%</strong></td></tr>
+<tr><td>18</td><td>F2</td><td><code>TickScheduler</code></td><td>~80 lines</td><td>Low</td><td><strong>95%</strong></td></tr>
+<tr><td>19</td><td>T5</td><td>Conservative profile pruning sweep</td><td>~40 lines</td><td><strong>Med</strong></td><td><strong>93%</strong></td></tr>
+<tr><td>20</td><td>T4</td><td>Static scratch collections in <code>RecomputeHeadGirls</code></td><td>~10 lines</td><td>None</td><td><strong>99%</strong></td></tr>
+</tbody></table>
+<hr>
+<h2>6. Proposed paths forward</h2>
+<p>Four self-contained tranches. Each is independently shippable and independently testable.</p>
+<h3>Tranche A — "Free wins" (items 1, 5, 8, 15, 20)</h3>
+<p>Soft-dep suffix fix, <code>WindowOnGUI</code> override, <code>% 2500</code> phase offsets, <code>_tried</code> sentinels, scratch collections. <strong>~60 lines, no behaviour change, no aesthetic change, no risk.</strong> Tranche A alone revives six dead compat bridges and removes a global patch on the game's hottest UI method.</p>
+<h3>Tranche B — "VRAM and frame time" (items 2, 3, 4, 6, 10)</h3>
+<p>Portrait quantisation, scroll culling, zoom-animation change, Repaint gating, headshot size collapse. <strong>~85 lines.</strong> This is where the stated goal is actually met: it eliminates the resize leak, cuts the Harem view's draw work by roughly 5×, and removes 2–6× redundant pawn renders per frame. Requires careful testing of the Stylist transition and of the resize drag, but no visual change is expected — worth a side-by-side screenshot check at 1× and 2× UI scale.</p>
+<h3>Tranche C — "The UI framework" (items 7, 11, 12, 13, 17)</h3>
+<p>Shared widget layer, frame-stamped roster cache, <code>FillBar</code>, gizmo cache, border-icon cache. <strong>~250 lines, mostly mechanical.</strong> Do this <em>after</em> B so the Pass-2 fixes get folded into the shared widgets as they are written, rather than being applied twice. This is the tranche that makes the window measurably lighter than a vanilla tab.</p>
+<h3>Tranche D — "Tick hygiene and compat depth" (items 9, 14, 16, 18, 19 + Pass 3.5)</h3>
+<p>Index adoption, cache re-keying, <code>MemoryReactionScan</code> capping, <code>TickScheduler</code>, profile pruning, plus the integration work from 3.5. <strong>Largest and highest-variance.</strong> Recommend splitting: D1 = the mechanical tick items; D2 = profile pruning (needs a careful predicate and a save-compat test); D3 = new integrations, starting with the two <em>risk</em> items (Suppression double-application, Prisoners-Dont-Have-Keys) before any of the additive ones, and then Vanilla Skills Expanded expertise as the flagship feature.</p>
+<h3>Open questions before any build</h3>
+<ol>
+<li><strong>Resize quantisation granularity</strong> — 16 px is my recommendation; 8 px is safer visually and still gives an</li>
+</ol>
+<p>   8× reduction. Preference?</p>
+<ol>
+<li><strong>Stylist zoom</strong> — animate the destination rect (best), or keep camera-zoom animation at 1/8 quantisation</li>
+</ol>
+<p>   (safer, still ~5× fewer RTs)? The first is visually near-identical but not bit-identical during the    0.5 s transition.</p>
+<ol>
+<li><strong>Profile pruning</strong> — acceptable to drop profiles for pawns that are gone from both the maps and</li>
+</ol>
+<p>   <code>Find.WorldPawns</code> and hold no nemesis/owner link? This is the only item in the audit that can lose data.</p>
+<ol>
+<li><strong>Tranche C sequencing</strong> — should the shared widget layer land before Tranche B (cleaner, fixes applied</li>
+</ol>
+<p>   once) at the cost of delaying the VRAM fix?</p>
+<h3>Confidence in this audit</h3>
+<p>Static analysis against the decompiled 1.6 source and the live 909-mod active list. Findings marked ≥95% are verified against engine source (<code>PortraitsCache</code>, <code>SolidColorMaterials</code>, <code>ModLister</code>, <code>ModMetaData</code>, <code>Widgets.FillableBar</code>, <code>Window.WindowOnGUI</code>). The VRAM figures in 2.1 are <strong>derived estimates</strong>, not measured — the mechanism is certain, the megabyte totals depend on <code>Prefs.UIScale</code>, RenderTexture format, and how far the user actually drags. Recommend confirming with a profiler capture before/after Tranche B rather than trusting my arithmetic.</p></body></html>
