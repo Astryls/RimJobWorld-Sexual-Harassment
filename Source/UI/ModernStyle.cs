@@ -1,8 +1,100 @@
+using RimWorld;
 using UnityEngine;
 using Verse;
 
 namespace RJWSexualHarassment
 {
+    /// <summary>
+    /// Shared portrait drawing. Every portrait in this mod goes through here.
+    ///
+    /// WHY THIS EXISTS: PortraitsCache keys its RenderTexture cache on
+    /// (size x cameraOffset x cameraZoom x rotation x flags), then per pawn inside that bucket, and it
+    /// allocates `new RenderTexture(w, h, 24)` at requestedSize * 1.25 (supersample) * Prefs.UIScale on every
+    /// miss. Expired entries are parked in a pool that is ONLY ever emptied by PortraitsCache.Clear()
+    /// (game load / quit) - nothing trims it during play. So every distinct size we ever ask for mints a
+    /// RenderTexture that stays resident for the rest of the session. Handing it a size derived from a
+    /// RESIZEABLE window rect therefore strands roughly 1.5 MB per pixel of drag.
+    ///
+    /// Two rules follow, and both are enforced here rather than at the call sites:
+    ///   1. Never request an unquantised, resize-derived size (see PortraitSizer).
+    ///   2. Fixed-size headshots snap to a short ladder so 8 call sites do not mint 8 RenderTexture
+    ///      families - and 8 full PawnCacheRenderer passes - per pawn (see PortraitBucket).
+    /// Both quantise UP, and PortraitsCache supersamples 1.25x on top, so the texture always covers the rect
+    /// we draw into: we are always downscaling, never upscaling. ScaleToFit keeps the pawn unstretched.
+    /// </summary>
+    public static class Portraits
+    {
+        /// <summary>Round up to a multiple of `step`.</summary>
+        public static float SnapUp(float v, float step) => Mathf.Ceil(v / step) * step;
+
+        // Chosen so every existing headshot call site (30/31/34/36/42/44/56/64 px) lands on a bucket whose
+        // 1.25x render is at least as supersampled as it was before - i.e. this is non-degrading, and for
+        // most sizes it is a slight quality gain. Collapses 8 buckets to 3.
+        private static readonly float[] Ladder = { 32f, 48f, 64f, 96f, 128f };
+
+        /// <summary>Smallest ladder bucket that still comfortably covers `size` px once supersampled.</summary>
+        public static float PortraitBucket(float size)
+        {
+            float need = size * 0.9f;
+            for (int i = 0; i < Ladder.Length; i++)
+                if (Ladder[i] >= need) return Ladder[i];
+            return SnapUp(size, 64f);
+        }
+
+        /// <summary>
+        /// Picks the size to REQUEST for a portrait whose rect can change (anything inside a resizeable
+        /// window). While the rect is still moving we ask for a coarsely-snapped size, so a whole resize drag
+        /// costs a handful of RenderTextures instead of one per pixel. Once it holds still for a few frames we
+        /// ask for the exact size again - so the settled image, which is the one the player actually looks at,
+        /// is pixel-identical to an unquantised request. Hold one of these per portrait as a plain field.
+        /// </summary>
+        public struct Sizer
+        {
+            private Vector2 _last;
+            private int _stableSince;
+
+            public Vector2 Request(Vector2 exact, float snapStep = 32f, int settleFrames = 6)
+            {
+                int f = Time.frameCount;
+                if (exact != _last) { _last = exact; _stableSince = f; }
+                if (f - _stableSince >= settleFrames) return exact;   // settled: exact size, one texture
+                return new Vector2(SnapUp(exact.x, snapStep), SnapUp(exact.y, snapStep));
+            }
+        }
+
+        /// <summary>Fixed-size headshot. Repaint-gated and ladder-bucketed.</summary>
+        public static void Head(Rect rect, Pawn p, float zoom = 1.2f)
+        {
+            if (Event.current == null || Event.current.type != EventType.Repaint) return;
+            if (p == null) { GUI.DrawTexture(rect, BaseContent.GreyTex); return; }
+            try
+            {
+                float b = PortraitBucket(Mathf.Max(rect.width, rect.height));
+                var tex = PortraitsCache.Get(p, new Vector2(b, b), Rot4.South, default, zoom);
+                if (tex != null) GUI.DrawTexture(rect, tex, ScaleMode.ScaleToFit);
+            }
+            catch { Widgets.ThingIcon(rect, p); }
+        }
+
+        /// <summary>
+        /// Full-body / free-size doll. `request` comes from a Sizer so a resize drag cannot mint a texture per
+        /// pixel. ScaleToFit means a snapped request is letterboxed rather than stretched, and when the request
+        /// equals the rect (the settled case) ScaleToFit is identical to a plain stretch-to-fill.
+        /// </summary>
+        public static void Body(Rect frame, Pawn p, Vector2 request, float zoom, float offZ)
+        {
+            if (Event.current == null || Event.current.type != EventType.Repaint) return;
+            if (p == null) return;
+            try
+            {
+                var tex = PortraitsCache.Get(p, request, Rot4.South, new Vector3(0f, 0f, offZ), zoom,
+                                             healthStateOverride: PawnHealthState.Mobile);
+                if (tex != null) GUI.DrawTexture(frame, tex, ScaleMode.ScaleToFit);
+            }
+            catch { Widgets.ThingIcon(frame, p); }
+        }
+    }
+
     /// <summary>
     /// Shared dark "Modern Suite" styling, copied verbatim from the user's Modern UI mods
     /// (ModernFactionMenu.Palette / ModernStyle) so this window matches Modern Needs Tab etc.

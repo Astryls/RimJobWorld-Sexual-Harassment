@@ -302,7 +302,12 @@ namespace RJWSexualHarassment
                 _stageZoom = Mathf.Lerp(_stageZoom, tz, k); _stageOff = Mathf.Lerp(_stageOff, to, k);
                 if (Mathf.Abs(_stageZoom - tz) < 0.01f) { _stageZoom = tz; _stageOff = to; }
             }
-            DrawStageDoll(frame, pet, _stageZoom, _stageOff);
+            // cameraZoom is part of PortraitsCache's cache key, so a finely-lerped zoom mints a stage-sized
+            // RenderTexture per distinct value and they all stay live for the cache's 1s expiry. Quantise
+            // during the transition only; at the target we pass the exact value through (both 0.82 and 1.70
+            // survive DrawStageDoll's /50 snap unchanged), so the settled image is pixel-identical.
+            float drawZoom = _stageZoom == tz ? tz : Mathf.Round(_stageZoom * 20f) / 20f;
+            DrawStageDoll(frame, pet, drawZoom, _stageOff);
 
             float cond = prof != null ? prof.hypnosisLevel : 0f;
             float rap = prof != null ? prof.rapport : 50f;
@@ -330,6 +335,7 @@ namespace RJWSexualHarassment
 
         private static void DrawStageCorners(Rect r, Color c)
         {
+            if (Event.current.type != EventType.Repaint) return;   // decoration only - no hit-testing here
             Color k = new Color(c.r, c.g, c.b, 0.65f); const float L = 14f, t = 2f;
             Widgets.DrawBoxSolid(new Rect(r.x, r.y, L, t), k); Widgets.DrawBoxSolid(new Rect(r.x, r.y, t, L), k);
             Widgets.DrawBoxSolid(new Rect(r.xMax - L, r.y, L, t), k); Widgets.DrawBoxSolid(new Rect(r.xMax - t, r.y, t, L), k);
@@ -337,19 +343,17 @@ namespace RJWSexualHarassment
             Widgets.DrawBoxSolid(new Rect(r.xMax - L, r.yMax - t, L, t), k); Widgets.DrawBoxSolid(new Rect(r.xMax - t, r.yMax - L, t, L), k);
         }
 
-        // Full-body pawn render (wider aspect, lower zoom than the headshot). Mobile override so downed pets stand upright.
-        private static void DrawStageDoll(Rect frame, Pawn p, float zoom = 0.82f, float offZ = 0.30f)
+        // Full-body pawn render (wider aspect, lower zoom than the headshot). Mobile override so downed pets
+        // stand upright. The frame size is derived from the RESIZEABLE window rect, so it MUST go through the
+        // sizer - an unquantised request here strands ~1.5 MB of VRAM per pixel of resize drag, permanently.
+        private Portraits.Sizer _dollSizer;
+        private void DrawStageDoll(Rect frame, Pawn p, float zoom = 0.82f, float offZ = 0.30f)
         {
             Widgets.DrawBoxSolid(frame, new Color(0.04f, 0.045f, 0.06f));
             Widgets.DrawBoxSolid(new Rect(frame.x + frame.width * 0.22f, frame.yMax - 9f, frame.width * 0.56f, 6f), new Color(0f, 0f, 0f, 0.35f));
             if (p == null) return;
-            try
-            {
-                var tex = PortraitsCache.Get(p, new Vector2(frame.width, frame.height), Rot4.South,
-                    new Vector3(0f, 0f, offZ), Mathf.Round(zoom * 50f) / 50f, healthStateOverride: PawnHealthState.Mobile);
-                if (tex != null) GUI.DrawTexture(frame, tex);
-            }
-            catch { Widgets.ThingIcon(frame, p); }
+            var request = _dollSizer.Request(new Vector2(frame.width, frame.height));
+            Portraits.Body(frame, p, request, Mathf.Round(zoom * 50f) / 50f, offZ);
         }
 
         // Inline third-column editor (Tailor / Stylist / Photos) with a Back header. Replaces the popup dialogs.
@@ -2727,21 +2731,19 @@ namespace RJWSexualHarassment
         // Routed through the shared per-tick pawn index (was a linear cross-map AllPawnsSpawned scan).
         private static Pawn FindPawnById(int id) => PawnLookup.AnyMap(id);
 
-        private static void DrawPortrait(Rect rect, Pawn p)
-        {
-            if (p == null) { GUI.DrawTexture(rect, BaseContent.GreyTex); return; }
-            try
-            {
-                var tex = PortraitsCache.Get(p, new Vector2(rect.width, rect.height), Rot4.South, default, 1.2f);
-                GUI.DrawTexture(rect, tex);
-            }
-            catch { Widgets.ThingIcon(rect, p); }
-        }
+        // Routed through the shared, ladder-bucketed, Repaint-gated helper. The eight distinct rect sizes used
+        // across this window (30/31/34/36/42/44/56/64) previously minted eight RenderTexture families - and
+        // eight full pawn renders - per pawn. See Portraits for the full explanation.
+        private static void DrawPortrait(Rect rect, Pawn p) => Portraits.Head(rect, p);
 
         // Border decoration: small alternating paw/collar icons in a footprint trail - each staggered slightly
         // in/out of the edge. No rotation (rotating GUI content leaks past the window's group clip rect).
         private static void DrawBorderIcons(Rect r)
         {
+            // Pure decoration: ~94 GUI.DrawTexture calls on a 1200x800 window. IMGUI runs OnGUI at least twice
+            // per frame (Layout + Repaint) plus once per input event, so leaving this ungated multiplied it by
+            // 2-6x for zero visible benefit. Nothing here hit-tests, so gating is free.
+            if (Event.current.type != EventType.Repaint) return;
             var paw = HarassmentTextures.Paw;
             var collar = HarassmentTextures.CollarIcon;
             if (paw == null) return;
