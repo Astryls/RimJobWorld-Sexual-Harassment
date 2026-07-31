@@ -194,8 +194,14 @@ namespace RJWSexualHarassment
                 var view = new Rect(0f, 0f, availW, shown.Count * (rowH + gap));
                 ModernStyle.PushScroll();
                 Widgets.BeginScrollView(listRect, ref _scroll, view);
-                for (int i = 0; i < shown.Count; i++)
-                    DrawCompactRow(new Rect(0f, i * (rowH + gap), availW, rowH), shown[i]);
+                // Draw only the rows the scroll view can actually show. Every row costs ~14 draw calls plus a
+                // portrait, and a portrait that is never drawn is also never entered into PortraitsCache - so
+                // culling saves VRAM as well as draw calls.
+                float step = rowH + gap;
+                int first = Mathf.Max(0, Mathf.FloorToInt(_scroll.y / step) - 1);
+                int last = Mathf.Min(shown.Count - 1, Mathf.CeilToInt((_scroll.y + listRect.height) / step));
+                for (int i = first; i <= last; i++)
+                    DrawCompactRow(new Rect(0f, i * step, availW, rowH), shown[i]);
                 Widgets.EndScrollView();
                 ModernStyle.PopScroll();
             }
@@ -1482,7 +1488,12 @@ namespace RJWSexualHarassment
             var view = new Rect(0f, 0f, listRect.width - 18f, shown.Count * rowH);
             ModernStyle.PushScroll();
             Widgets.BeginScrollView(listRect, ref _haremScroll, view);
-            for (int i = 0; i < shown.Count; i++)
+            // Rows here are 200px tall (40 base + 160 schedule) and each draws a portrait, three bars and a
+            // full 24-cell schedule grid. With ~4 rows visible and 20 pets, 16 of them were being drawn
+            // entirely offscreen on every pass.
+            int hFirst = Mathf.Max(0, Mathf.FloorToInt(_haremScroll.y / rowH) - 1);
+            int hLast = Mathf.Min(shown.Count - 1, Mathf.CeilToInt((_haremScroll.y + listRect.height) / rowH));
+            for (int i = hFirst; i <= hLast; i++)
             {
                 var pet = shown[i];
                 float ry = i * rowH;

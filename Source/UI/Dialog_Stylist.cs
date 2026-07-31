@@ -199,6 +199,7 @@ namespace RJWSexualHarassment
             return y + 34f;
         }
 
+        private Portraits.Sizer _dollSizer;
         private void DrawDoll(Rect rect)
         {
             ModernStyle.DrawCard(rect);
@@ -206,16 +207,11 @@ namespace RJWSexualHarassment
             float s = Mathf.Min(inner.width, inner.height - 24f);
             var portraitRect = new Rect(inner.center.x - s / 2f, inner.y, s, s);
             Widgets.DrawBoxSolid(portraitRect, new Color(0.04f, 0.045f, 0.06f));
-            if (Event.current.type == EventType.Repaint && pawn != null && !pawn.Destroyed)
-            {
-                try
-                {
-                    // Shoulders-up framing for face/hair editing.
-                    var tex = PortraitsCache.Get(pawn, new Vector2(s, s), Rot4.South, new Vector3(0f, 0f, 0.45f), 1.7f, healthStateOverride: PawnHealthState.Mobile);
-                    GUI.DrawTexture(portraitRect, tex);
-                }
-                catch { }
-            }
+            // `s` is derived from the host rect, so it moves whenever the window (or the Command deck this is
+            // drawn inline in) is resized - route it through the sizer or every pixel of drag mints a
+            // RenderTexture that is never freed. Shoulders-up framing for face/hair editing.
+            if (pawn != null && !pawn.Destroyed)
+                Portraits.Body(portraitRect, pawn, _dollSizer.Request(new Vector2(s, s)), 1.7f, 0.45f);
             Text.Anchor = TextAnchor.MiddleCenter; GUI.color = ModernStyle.TextDim;
             Widgets.Label(new Rect(inner.x, portraitRect.yMax + 2f, inner.width, 22f), "Preview");
             GUI.color = Color.white; Text.Anchor = TextAnchor.UpperLeft;

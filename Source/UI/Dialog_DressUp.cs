@@ -228,6 +228,7 @@ namespace RJWSexualHarassment
             PortraitsCache.SetDirty(slave);
         }
 
+        private Portraits.Sizer _dollSizer;
         private void DrawPaperdoll(Rect rect)
         {
             ModernStyle.DrawCard(rect);
@@ -235,15 +236,9 @@ namespace RJWSexualHarassment
             float s = Mathf.Min(inner.width, inner.height - 24f);
             var portraitRect = new Rect(inner.center.x - s / 2f, inner.y, s, s);
             Widgets.DrawBoxSolid(portraitRect, new Color(0.04f, 0.045f, 0.06f));
-            if (Event.current.type == EventType.Repaint && slave != null && !slave.Destroyed)
-            {
-                try
-                {
-                    var tex = PortraitsCache.Get(slave, new Vector2(s, s), Rot4.South, healthStateOverride: PawnHealthState.Mobile);
-                    GUI.DrawTexture(portraitRect, tex);
-                }
-                catch { }
-            }
+            // `s` tracks the host rect and therefore the window size - must go through the sizer. See Portraits.
+            if (slave != null && !slave.Destroyed)
+                Portraits.Body(portraitRect, slave, _dollSizer.Request(new Vector2(s, s)), 1f, 0f);
             Text.Anchor = TextAnchor.MiddleCenter;
             GUI.color = ModernStyle.TextDim;
             Widgets.Label(new Rect(inner.x, portraitRect.yMax + 2f, inner.width, 22f), "Preview");
