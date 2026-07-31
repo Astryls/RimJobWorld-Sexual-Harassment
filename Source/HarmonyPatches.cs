@@ -104,23 +104,10 @@ namespace RJWSexualHarassment
         public static readonly Texture2D Stylist = ContentFinder<Texture2D>.Get("UI/RJWSH_Stylist", true);
     }
 
-    // Draw a dark resize grip over the vanilla (light) one in the Harem window's bottom-right corner.
-    [HarmonyLib.HarmonyPatch(typeof(Verse.Window), nameof(Verse.Window.WindowOnGUI))]
-    public static class Patch_HaremResizeGrip
-    {
-        static void Postfix(Verse.Window __instance)
-        {
-            if (!(__instance is Window_Harem)) return;
-            if (Event.current == null || Event.current.type != EventType.Repaint) return;
-            var wr = __instance.windowRect;
-            var c = new Color(0f, 0f, 0f, 0.85f);
-            for (int i = 0; i < 3; i++)
-            {
-                float o = 6f + i * 5f;
-                Verse.Widgets.DrawLine(new Vector2(wr.xMax - o, wr.yMax - 4f), new Vector2(wr.xMax - 4f, wr.yMax - o), c, 2f);
-            }
-        }
-    }
+    // NOTE: the dark resize grip used to live here as a Postfix on Verse.Window.WindowOnGUI - a method the
+    // game invokes for EVERY window on the stack on EVERY IMGUI event, so every other mod's windows paid the
+    // Harmony stub just so this one window could draw three lines. WindowOnGUI is public virtual, so the grip
+    // is now drawn by Window_Harem's own override instead. Do not reintroduce a global Window patch for UI chrome.
 
     [StaticConstructorOnStartup]
     public static class RJWSH_HarmonyInit

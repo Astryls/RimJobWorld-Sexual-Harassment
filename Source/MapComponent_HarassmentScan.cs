@@ -46,7 +46,27 @@ namespace RJWSexualHarassment
                 .Add((a, b, kind, Find.TickManager.TicksGame + delayTicks));
         }
 
-        public MapComponent_HarassmentScan(Map map) : base(map) { }
+        // ── Cadence phasing ──────────────────────────────────────────────────
+        // Every periodic system used to key off `now % N == 0`, so four heavy passes (ConditioningUpkeep,
+        // RecomputeHeadGirls, the ControlUpkeep breakout block, and GameComponent's profile sweep) all landed on
+        // the SAME tick every 2500 ticks - a visible hitch roughly every 41s of game time. Each system now
+        // carries a distinct prime-ish phase, so the same work is spread across the interval instead of
+        // stacking. Cadences are unchanged; only the phase moved.
+        //
+        // `_mapPhase` additionally de-syncs maps from each other, so a colony + a caravan map do not fire their
+        // upkeep on the same ticks either.
+        private readonly int _mapPhase;
+
+        /// <summary>True on exactly one tick per `interval`, offset by this map's phase plus a per-system phase.
+        /// Returns false for a non-positive interval (a settings value of 0 disables that system).</summary>
+        private bool Due(int now, int interval, int phase)
+            => interval > 0 && ((now + _mapPhase + phase) % interval) == 0;
+
+        public MapComponent_HarassmentScan(Map map) : base(map)
+        {
+            // Stable per-map, derived from the map's own id so it survives save/load unchanged.
+            _mapPhase = map != null ? System.Math.Abs(map.uniqueID * 37) % 1000 : 0;
+        }
 
         public static MapComponent_HarassmentScan For(Map map) => map?.GetComponent<MapComponent_HarassmentScan>();
 
@@ -137,16 +157,17 @@ namespace RJWSexualHarassment
             int now = Find.TickManager.TicksGame;
 
             ControlUpkeep(now, s);
-            if (now % 2500 == 0) ConditioningUpkeep();
+            // Phases chosen so no two of these share a tick within their common period (see Due()).
+            if (Due(now, 2500, 811)) ConditioningUpkeep();
             if (scheduledLines.Count > 0) DrainScheduledLines(now);
             if (scheduledActs.Count > 0) DrainScheduledActs(now);
-            if (s.begInterval > 0 && now % s.begInterval == 0) BegUpkeep();
-            if (s.affectionInterval > 0 && now % s.affectionInterval == 0) AffectionUpkeep(now);
-            if (now % 500 == 0) HarassmentEngine.EvilKeyScavenge(map);
-            if (now % 550 == 0) HarassmentEngine.PhotoScavenge(map);
-            if (now % 2500 == 0) HarassmentEngine.RecomputeHeadGirls(map);
-            if (now % 1200 == 0) HarassmentEngine.HeadGirlTick(map);
-            if (now % 350 == 0) HarassmentEngine.MemoryReactionScan(map);
+            if (Due(now, s.begInterval, 67)) BegUpkeep();
+            if (Due(now, s.affectionInterval, 233)) AffectionUpkeep(now);
+            if (Due(now, 500, 0)) HarassmentEngine.EvilKeyScavenge(map);
+            if (Due(now, 550, 275)) HarassmentEngine.PhotoScavenge(map);   // never coincides with the key scan
+            if (Due(now, 2500, 1607)) HarassmentEngine.RecomputeHeadGirls(map);
+            if (Due(now, 1200, 431)) HarassmentEngine.HeadGirlTick(map);
+            if (Due(now, 350, 149)) HarassmentEngine.MemoryReactionScan(map);
 
             if (nextScanTick < 0)
             {
@@ -176,10 +197,10 @@ namespace RJWSexualHarassment
         // Forced-follow + auto-service upkeep for collared/key-locked pawns.
         private void ControlUpkeep(int now, HarassmentSettings s)
         {
-            bool followTick = now % 60 == 0;
-            bool autoTick = now % 250 == 0;
-            bool shockTick = now % 90 == 0;
-            bool breakoutTick = now % 2500 == 0;
+            bool followTick = Due(now, 60, 0);
+            bool autoTick = Due(now, 250, 0);
+            bool shockTick = Due(now, 90, 0);
+            bool breakoutTick = Due(now, 2500, 0);   // anchor phase; the other 2500-cadence systems offset off this
             if (!followTick && !autoTick && !shockTick && !breakoutTick) return;
 
             if (breakoutTick) HarassmentEngine.ReconcileOwnerRelations(this.map);
@@ -229,7 +250,10 @@ namespace RJWSexualHarassment
                 {
                     HarassmentEngine.ApplyOnaholeBoundHediff(p); // ensure the bound timer hediff (idempotent)
                     if (prof.onaholeReleaseTick <= 0) prof.onaholeReleaseTick = now + 6000; // ~2.4h default limit
-                    else if (now >= prof.onaholeReleaseTick && now % 600 == 0)
+                    // 600 is a multiple of followTick's 60, and both go through Due() with the same map phase,
+                    // so this still lands on a tick where the enclosing loop actually runs. Do NOT change this
+                    // back to a raw `now % 600` - the map phase would put it permanently out of alignment.
+                    else if (now >= prof.onaholeReleaseTick && Due(now, 600, 0))
                         HarassmentEngine.BegOwnerForRelease(p, FindPawnById(prof.ownerId));
                     continue;
                 }

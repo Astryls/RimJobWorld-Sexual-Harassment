@@ -822,14 +822,20 @@ namespace RJWSexualHarassment
 
         /// <summary>Auto head girl: for each owner, the best-performing pet (HeadGirlScore) becomes head girl and
         /// the rest are cleared. Dynamic - re-picks as performance shifts. Only runs when S.autoHeadGirl is on.</summary>
+        private static readonly System.Collections.Generic.Dictionary<int, float> _hgBestScore = new System.Collections.Generic.Dictionary<int, float>(16);
+        private static readonly System.Collections.Generic.Dictionary<int, Pawn> _hgBestPet = new System.Collections.Generic.Dictionary<int, Pawn>(16);
+        private static readonly System.Collections.Generic.List<Pawn> _hgTracked = new System.Collections.Generic.List<Pawn>(16);
+
         public static void RecomputeHeadGirls(Map map)
         {
             if (map == null || S == null || !S.enableHeadGirl || !S.autoHeadGirl) return;
             var gc = GameComponent_Harassment.Instance; if (gc == null) return;
             var pawns = map.mapPawns.AllPawnsSpawned;
-            var bestScore = new System.Collections.Generic.Dictionary<int, float>();
-            var bestPet = new System.Collections.Generic.Dictionary<int, Pawn>();
-            var tracked = new System.Collections.Generic.List<Pawn>();
+            // Reused scratch buffers - this runs per map on a 2500-tick cadence, and allocating two dictionaries
+            // plus a list every time was pure garbage. Cleared on entry AND on exit (see bottom of the method).
+            var bestScore = _hgBestScore; bestScore.Clear();
+            var bestPet = _hgBestPet; bestPet.Clear();
+            var tracked = _hgTracked; tracked.Clear();
             for (int i = 0; i < pawns.Count; i++)
             {
                 var p = pawns[i]; var prof = gc.GetProfileIfExists(p);
@@ -846,6 +852,9 @@ namespace RJWSexualHarassment
                 int oid = prof.ownerId >= 0 ? prof.ownerId : prof.relationshipOwnerId;
                 prof.isHeadGirl = bestPet.TryGetValue(oid, out var bp) && bp == p && bestScore[oid] > 0f;
             }
+            // Drop the Pawn references on the way out. Static scratch that holds Things would otherwise pin the
+            // previous Game object graph across a save/load - the same trap PawnFlagCache avoids by keying on ids.
+            bestPet.Clear(); tracked.Clear(); bestScore.Clear();
         }
 
         /// <summary>The head girl enforces the pecking order: periodically she disciplines the worst-behaving
@@ -4068,16 +4077,30 @@ namespace RJWSexualHarassment
             try { return p != null && p.is_wearing_locked_apparel(); } catch { return false; }
         }
 
+        // NOTE on the _tried sentinels below: `if (_type == null) _type = GetTypeInAnyAssembly(...)` treats
+        // "not found" as "not looked up yet", so when the optional mod is ABSENT every call re-walks every
+        // loaded assembly - and these two sit under IsInOnaholeBed, one of the hottest predicates in the mod.
+        // A one-shot bool makes the miss as cheap as the hit. Same pattern as _rmbBestTried / FABridge.
+        private static bool _onaholeBedTypeTried;
         private static System.Type OnaholeBedTypeCached()
         {
-            if (_onaholeBedType == null) _onaholeBedType = GenTypes.GetTypeInAnyAssembly("RJW_Onahole.Building_OnaholeBed");
+            if (!_onaholeBedTypeTried)
+            {
+                _onaholeBedTypeTried = true;
+                _onaholeBedType = GenTypes.GetTypeInAnyAssembly("RJW_Onahole.Building_OnaholeBed");
+            }
             return _onaholeBedType;
         }
 
         private static System.Type _beOnaholeType;
+        private static bool _beOnaholeTypeTried;
         private static System.Type BeOnaholeJobType()
         {
-            if (_beOnaholeType == null) _beOnaholeType = GenTypes.GetTypeInAnyAssembly("RJW_Onahole.Jobs.JobDriver_BeOnahole");
+            if (!_beOnaholeTypeTried)
+            {
+                _beOnaholeTypeTried = true;
+                _beOnaholeType = GenTypes.GetTypeInAnyAssembly("RJW_Onahole.Jobs.JobDriver_BeOnahole");
+            }
             return _beOnaholeType;
         }
 

@@ -130,7 +130,7 @@ namespace RJWSexualHarassment
                 HarassmentEngine.FireCuriousVisitors();
             }
             // Colony notoriety: once the colony's depravity is well known, an outside faction hears of it (~daily).
-            if (now % 60000 == 0 && notoriety > 0)
+            if ((now + 12007) % 60000 == 0 && notoriety > 0)
             {
                 if (notoriety >= 10) HarassmentEngine.NotorietyConsequence();
                 notoriety = System.Math.Max(0, notoriety - 2);
@@ -138,7 +138,7 @@ namespace RJWSexualHarassment
             // World-layer incidents fire on their own mean-time-between, gated by each worker's preconditions.
             // An infamous colony (Karma & Reputation regard) draws the world's attention faster: rival slavers
             // smell profit and moralists mount rescues. Neutral 1.0 without Karma installed.
-            if (now % 60000 == 0)
+            if ((now + 41011) % 60000 == 0)   // phased off the notoriety decay above so they never share a tick
             {
                 float mtbFactor = 1f;
                 if (ReputationBridge.TryGetColonyReputation(out float rep))
@@ -154,7 +154,7 @@ namespace RJWSexualHarassment
                 HarassmentEngine.NemesisTick();
             }
             // Active rescue raids: a raider reaching the flagged pet frees them.
-            if (now % 500 == 0)
+            if ((now + 137) % 500 == 0)   // phased off the per-map EvilKeyScavenge, which also runs at 500
                 foreach (var m in Find.Maps) HarassmentEngine.RescueRaidTick(m);
 
             // Pet market: weekly restock, and finalize any purchased pet once its drop pod has landed.
@@ -169,7 +169,10 @@ namespace RJWSexualHarassment
                 }
             }
 
-            if (now % 2500 != 0) return; // ~once per in-game hour: conditioning decay + history sampling
+            // ~once per in-game hour: conditioning decay + history sampling.
+            // Phased (2213) so this whole-store sweep never lands on the same tick as the map-side 2500-cadence
+            // passes (ControlUpkeep breakout, ConditioningUpkeep, RecomputeHeadGirls). See MapComponent.Due().
+            if ((now + 2213) % 2500 != 0) return;
             foreach (var p in profiles.Values)
             {
                 if (p.hypnosisLevel > 0f)

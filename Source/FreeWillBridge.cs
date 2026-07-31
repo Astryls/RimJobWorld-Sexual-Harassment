@@ -33,8 +33,7 @@ namespace RJWSexualHarassment
             _tried = true;
             try
             {
-                if (ModLister.GetActiveModWithIdentifier("freemapa.freewill", true) == null
-                    && ModLister.GetActiveModWithIdentifier("freemapa.freewill") == null) return;
+                if (!SoftDeps.ModActive("freemapa.freewill")) return;   // postfix-tolerant (Steam "_steam")
                 _mapCompType = AccessTools.TypeByName("FreeWill.FreeWill_MapComponent");
                 if (_mapCompType != null)
                 {

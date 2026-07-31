@@ -21,24 +21,41 @@ namespace RJWSexualHarassment
         public static bool SexperienceActive { get; private set; }   // rjw.sexperience (RJW Sexperience)
         public static bool RjwGenesActive { get; private set; }      // Vegapnk.rjw.genes (RJW Genes)
 
+        /// <summary>
+        /// Active-mod probe that tolerates Steam's packageId postfix. A Steam-subscribed mod is registered
+        /// under "&lt;packageId&gt;" + ModMetaData.SteamModPostfix ("_steam"), so the default exact-match lookup
+        /// (ModLister.modsByPackageId) MISSES it entirely - RimWorld even marks the non-postfix-aware ModsConfig
+        /// helpers [Obsolete] for this reason. Passing ignorePostfix:true routes through
+        /// modsByPackageIdIgnorePostfix, which matches both the local and the Steam copy. Always use this;
+        /// never call GetActiveModWithIdentifier directly for a soft dep.
+        /// </summary>
+        public static bool ModActive(string packageId)
+        {
+            try
+            {
+                return ModLister.GetActiveModWithIdentifier(packageId, true) != null
+                       || ModLister.GetActiveModWithIdentifier(packageId) != null;
+            }
+            catch { return false; }
+        }
+
         public static void Detect()
         {
-            OnaholeActive = ModLister.GetActiveModWithIdentifier("rim.job.world.onahole.ext") != null;
-            SimpleSlaveryCollarsActive = ModLister.GetActiveModWithIdentifier("TRIBeagle.simpleslaverycollars") != null;
-            BondageBedActive = ModLister.GetActiveModWithIdentifier("Mlie.BondageBedTorture") != null;
-            KarmaActive = ModLister.GetActiveModWithIdentifier("astryl.KarmaReputation", true) != null
-                          || ModLister.GetActiveModWithIdentifier("astryl.KarmaReputation") != null;
-            SpeakUpActive = ModLister.GetActiveModWithIdentifier("JPT.speakup") != null;
-            RimTalkActive = ModLister.GetActiveModWithIdentifier("cj.rimtalk") != null;
-            FacialAnimActive = ModLister.GetActiveModWithIdentifier("Nals.FacialAnimation") != null;
+            OnaholeActive = ModActive("rim.job.world.onahole.ext");
+            SimpleSlaveryCollarsActive = ModActive("TRIBeagle.simpleslaverycollars");
+            BondageBedActive = ModActive("Mlie.BondageBedTorture");
+            KarmaActive = ModActive("astryl.KarmaReputation");
+            SpeakUpActive = ModActive("JPT.speakup");
+            RimTalkActive = ModActive("cj.rimtalk");
+            FacialAnimActive = ModActive("Nals.FacialAnimation");
             SexualityFrameworkActive =
-                ModLister.GetActiveModWithIdentifier("Maux36.Rimpsyche.Sexuality") != null
-                || ModLister.GetActiveModWithIdentifier("Community.Psychology.UnofficialUpdate") != null
-                || ModLister.GetActiveModWithIdentifier("zora.individuality") != null
-                || ModLister.GetActiveModWithIdentifier("Syrchalis.Individuality") != null;
-            QuirksActive = ModLister.GetActiveModWithIdentifier("rjw.quirks") != null;
-            SexperienceActive = ModLister.GetActiveModWithIdentifier("rjw.sexperience") != null;
-            RjwGenesActive = ModLister.GetActiveModWithIdentifier("Vegapnk.rjw.genes") != null;
+                ModActive("Maux36.Rimpsyche.Sexuality")
+                || ModActive("Community.Psychology.UnofficialUpdate")
+                || ModActive("zora.individuality")
+                || ModActive("Syrchalis.Individuality");
+            QuirksActive = ModActive("rjw.quirks");
+            SexperienceActive = ModActive("rjw.sexperience");
+            RjwGenesActive = ModActive("Vegapnk.rjw.genes");
 
             KarmaBridge.Init();
             ReputationBridge.Init();

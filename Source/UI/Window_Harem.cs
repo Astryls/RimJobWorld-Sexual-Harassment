@@ -109,6 +109,26 @@ namespace RJWSexualHarassment
             drawShadow = true;
         }
 
+        /// <summary>
+        /// Draws our dark resize grip over the vanilla (light) one, in the bottom-right corner.
+        /// This runs AFTER base.WindowOnGUI() has closed the window's GUI group, so - exactly like the old
+        /// global Harmony postfix it replaces - the coordinates here are SCREEN space (windowRect), not
+        /// window-local. Overriding is what lets us delete that patch on Verse.Window.WindowOnGUI, which the
+        /// game calls for every window on the stack on every IMGUI event.
+        /// </summary>
+        public override void WindowOnGUI()
+        {
+            base.WindowOnGUI();
+            if (Event.current == null || Event.current.type != EventType.Repaint) return;
+            var wr = windowRect;
+            var c = new Color(0f, 0f, 0f, 0.85f);
+            for (int i = 0; i < 3; i++)
+            {
+                float o = 6f + i * 5f;
+                Widgets.DrawLine(new Vector2(wr.xMax - o, wr.yMax - 4f), new Vector2(wr.xMax - 4f, wr.yMax - o), c, 2f);
+            }
+        }
+
         // ── Concept 3 "Command deck": compact roster (left) + paperdoll stage (center) + ops column (right). ──
         public override void DoWindowContents(Rect inRect)
         {
