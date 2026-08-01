@@ -10,8 +10,24 @@
   ONE-SHOT (played from C# via FABridge.PlayTemporaryAnimation): brief spikes on grope/discipline/
   shock/reward, referenced by name (RJWSH_FA_Flinch / _Cry / _Bliss).
 
-  Shapes used are exactly the ones FA's own shipped Thought_Naked uses (headShapeDef=blush for the
-  flush, browShapeDef for the emotion) plus base mouth/lid shapes, so this is safe on stock FA.
+  CHANNEL RULE (learned the hard way - see below). A PERSISTENT thought-gated face may only claim
+  headShapeDef and browShapeDef. It must NEVER claim mouthShapeDef or lidShapeDef, because those two
+  channels are owned by FA's always-on Constant animation (blinking = 4 lid frames, breathing = 1 mouth
+  frame) and by its per-job animations. Every FaceAnimationDef FA itself ships obeys this: Thoughts.xml
+  claims head+brow only, while mouth/lid appear exclusively in Constant.xml and ForJobs/*.xml.
+
+  Why breaking it is so visible: AnimationFrameAccumulator resolves each channel with
+  `accumFrames.Where(x => x.mouthShapeDef != null).LastOrDefault()`, i.e. LAST WRITER WINS, recomputed
+  every single tick. A persistent face that pins mouth=open therefore fights Constant's mouth frame for
+  the channel, and the winner alternates as the accumulation order shifts - which renders as the pawn's
+  mouth flapping open and shut forever. Same trap applies to lidShapeDef vs the blink cycle.
+  (RJWSH_FA_Afraid shipped with mouth=open and RJWSH_FA_Hollow with lid=close; both are fixed below.)
+
+  Practical palette for a persistent face is therefore headShapeDef (normal|blush) x browShapeDef
+  (angled|flat|normal|s-shaped). The four faces below are differentiated purely on those two channels.
+  ONE-SHOTS are exempt: they go into forcedTemporaryAnimationList, which the accumulator drains with
+  RemoveAll(IsFinished) rather than looping, so they may claim mouth/lid for their short duration exactly
+  as a job animation does.
   raceName is left default ("") so it applies to humanlikes, like Thought_Naked.
 -->
 <Defs>
@@ -36,7 +52,9 @@
     </animationFrames>
   </FacialAnimation.FaceAnimationDef>
 
-  <!-- Kept naked / bound / humiliated: flush + worried brow + slightly agape mouth = exposed, afraid. -->
+  <!-- Kept naked / bound / humiliated: flush + sharply angled brow = exposed, alarmed. Reads as a harder,
+       more startled distress than Nervous's s-shaped worry, which is what separates the two now that the
+       mouth channel is off limits (it used to add mouth=open, which caused the flapping - see header). -->
   <FacialAnimation.FaceAnimationDef>
     <defName>RJWSH_FA_Afraid</defName>
     <priority>215</priority>
@@ -49,14 +67,15 @@
       <li>
         <duration>1</duration>
         <headShapeDef>blush</headShapeDef>
-        <browShapeDef>s-shaped</browShapeDef>
-        <mouthShapeDef>open</mouthShapeDef>
+        <browShapeDef>angled</browShapeDef>
       </li>
     </animationFrames>
   </FacialAnimation.FaceAnimationDef>
 
-  <!-- Disciplined/shocked AND low mood: hollow, downcast, half-lidded. Gated low-mood so a content
-       masochist does not get the broken look. No blush - pale and empty. -->
+  <!-- Disciplined/shocked AND low mood: hollow and deadened. Gated low-mood so a content masochist does
+       not get the broken look. No blush - pale and empty - and a FLAT brow, which reads as affectless far
+       better than the forced-shut eyes this used to use (lid=close fought FA's blink cycle for the lid
+       channel and made the eyes flicker - the same bug as the mouth flapping; see header). -->
   <FacialAnimation.FaceAnimationDef>
     <defName>RJWSH_FA_Hollow</defName>
     <priority>225</priority>
@@ -69,8 +88,8 @@
     <animationFrames>
       <li>
         <duration>1</duration>
-        <browShapeDef>s-shaped</browShapeDef>
-        <lidShapeDef>close</lidShapeDef>
+        <headShapeDef>normal</headShapeDef>
+        <browShapeDef>flat</browShapeDef>
       </li>
     </animationFrames>
   </FacialAnimation.FaceAnimationDef>

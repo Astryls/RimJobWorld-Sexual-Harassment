@@ -73,6 +73,28 @@ namespace RJWSexualHarassment
     /// </summary>
     public static class FABridge
     {
+        /// <summary>
+        /// Kill switch for the whole FA integration. Left ON: this bridge was briefly suspected of causing the
+        /// "pawns' mouths flap open and shut forever" regression and was disabled, but that was WRONG and the
+        /// investigation is recorded here so nobody re-treads it.
+        ///
+        /// What actually happened: the culprit was a def, not this code. RJWSH_FA_Afraid (a PERSISTENT,
+        /// thought-gated face) claimed mouthShapeDef, and AnimationFrameAccumulator resolves every channel as
+        /// "last non-null writer wins", recomputed each tick - so it fought FA's always-on Constant animation
+        /// for the mouth channel and the winner alternated. Fixed in FaceAnims_Harassment.xml; the channel rule
+        /// is documented in that file's header.
+        ///
+        /// This bridge was exonerated by reading FA's source: PlayTemporaryAnimation(Pawn, int startTick,
+        /// params string[]) takes a START TICK (so passing GenTicks.TicksGame is correct, not a duration bug),
+        /// and it pushes onto forcedTemporaryAnimationList, which the accumulator drains with
+        /// RemoveAll(IsFinished) rather than Reset-looping. Our one-shots declare finite 120/180/200-tick
+        /// durations, so they play once and retire. Every PlayFace call site is event-driven.
+        ///
+        /// Note this is `static readonly`, not `const`, deliberately: a const false makes everything after the
+        /// guard unreachable and trips CS0162 on an otherwise warning-clean build.
+        /// </summary>
+        public static readonly bool Enabled = true;
+
         private static bool _tried;
         private static MethodInfo _play;
 
@@ -80,6 +102,11 @@ namespace RJWSexualHarassment
         {
             if (_tried) return;
             _tried = true;
+            if (!Enabled)
+            {
+                Log.Message("[RJW Sexual Harassment] Facial Animation bridge disabled (FABridge.Enabled = false); face one-shots will no-op.");
+                return;
+            }
             if (!SoftDeps.FacialAnimActive) return;
             try
             {
