@@ -121,6 +121,56 @@ namespace RJWSexualHarassment
             GUI.color = Color.white;
         }
 
+        /// <summary>
+        /// Flat progress bar, drawn as tinted quads of the single shared white texture.
+        ///
+        /// Replaces Widgets.FillableBar(rect, pct, fillTex, bgTex, doBorder) plus a per-colour texture cache.
+        /// SolidColorMaterials.NewSolidColorTexture allocates a distinct 2x2 Texture2D per colour; the VRAM is
+        /// trivial, but Unity IMGUI only batches consecutive draws that share a texture, so every differently
+        /// coloured bar forced a texture switch - and FillableBar issues two of them (background + fill) per
+        /// bar, with the roster drawing two bars per row. Routing everything through BaseContent.WhiteTex +
+        /// GUI.color lets bars batch with every DrawBoxSolid in the window. Pixels are identical: these were
+        /// always flat solid rectangles.
+        ///
+        /// Geometry mirrors vanilla exactly - border first, then a 3px inset, background, then the fill scaled
+        /// on width - so existing layouts are unchanged.
+        /// </summary>
+        public static void FillBar(Rect rect, float pct, Color fill, Color bg, bool doBorder = false)
+        {
+            if (Event.current != null && Event.current.type != EventType.Repaint) return;
+            var old = GUI.color;
+            if (doBorder)
+            {
+                GUI.color = Color.black;
+                GUI.DrawTexture(rect, BaseContent.WhiteTex);
+                rect = rect.ContractedBy(3f);
+            }
+            GUI.color = bg;
+            GUI.DrawTexture(rect, BaseContent.WhiteTex);
+            rect.width *= Mathf.Clamp01(pct);
+            GUI.color = fill;
+            GUI.DrawTexture(rect, BaseContent.WhiteTex);
+            GUI.color = old;
+        }
+
+        /// <summary>
+        /// Flat gray button used across the Command deck and its inline editors. Promoted here from three
+        /// near-identical private copies (Window_Harem.GrayButton, Dialog_DressUp.GrayBtn,
+        /// Dialog_Stylist.GrayBtn) per the Frameworks Over Duplicated Code rule.
+        /// </summary>
+        public static bool GrayBtn(Rect r, string label, bool enabled = true, string tip = null)
+        {
+            Color fill = !enabled ? PanelBG : Mouse.IsOver(r) ? Color.Lerp(BGL, Accent, 0.14f) : BGL;
+            Widgets.DrawBoxSolid(r, fill);
+            GUI.color = new Color(0f, 0f, 0f, 0.28f); Widgets.DrawBox(r, 1); GUI.color = Color.white;
+            Text.Anchor = TextAnchor.MiddleCenter; Text.Font = GameFont.Tiny;
+            GUI.color = enabled ? new Color(0.9f, 0.9f, 0.9f) : TextDim;
+            Widgets.Label(r, (label ?? "").Truncate(r.width - 6f));
+            GUI.color = Color.white; Text.Font = GameFont.Small; Text.Anchor = TextAnchor.UpperLeft;
+            if (!string.IsNullOrEmpty(tip)) TooltipHandler.TipRegion(r, tip);
+            return enabled && Widgets.ButtonInvisible(r);
+        }
+
         // ── Flat gray Modern-Suite scrollbar ─────────────────────────────────
         private static bool _scrollInit;
         private static GUIStyle _flatBar, _flatThumb, _flatBtn;

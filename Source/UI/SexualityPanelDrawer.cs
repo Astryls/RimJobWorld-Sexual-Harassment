@@ -200,7 +200,7 @@ namespace RJWSexualHarassment
             Text.Anchor = TextAnchor.UpperLeft;
             float bh = Mathf.Min(9f, r.height);
             var bar = new Rect(r.x + 74f, r.y + (r.height - bh) * 0.5f, r.width - 108f, bh);
-            Widgets.FillableBar(bar, Mathf.Clamp01(v / 100f), Tex(fill), Tex(BarEmpty), false);
+            ModernStyle.FillBar(bar, Mathf.Clamp01(v / 100f), fill, BarEmpty, false);
             Text.Anchor = TextAnchor.MiddleRight;
             Widgets.Label(new Rect(bar.xMax + 2f, r.y, 30f, r.height), Mathf.RoundToInt(v) + "%");
             Text.Anchor = TextAnchor.UpperLeft;
@@ -224,7 +224,7 @@ namespace RJWSexualHarassment
             Widgets.Label(new Rect(row.x, row.y, 96f, row.height), label);
             Text.Anchor = TextAnchor.UpperLeft;
             var bar = new Rect(row.x + 100f, row.y + 3f, row.width - 100f, 16f);
-            Widgets.FillableBar(bar, Mathf.Clamp01(pct0to100 / 100f), Tex(fill), Tex(BarEmpty), false);
+            ModernStyle.FillBar(bar, Mathf.Clamp01(pct0to100 / 100f), fill, BarEmpty, false);
             Text.Anchor = TextAnchor.MiddleCenter;
             GUI.color = Color.white;
             Widgets.Label(bar, Mathf.RoundToInt(pct0to100) + "%");
@@ -274,11 +274,7 @@ namespace RJWSexualHarassment
         private static Color WearColor(float v) => v < 33f ? new Color(0.45f, 0.70f, 0.50f) : v < 66f ? new Color(0.80f, 0.70f, 0.30f) : new Color(0.80f, 0.40f, 0.35f);
         private static string WearTip(string which, float v) => "How worn and loosened this pawn's " + which + " is from use. Rises with each act on that part; recovers slowly over time.";
 
-        private static readonly System.Collections.Generic.Dictionary<Color, Texture2D> _texCache = new System.Collections.Generic.Dictionary<Color, Texture2D>();
-        private static Texture2D Tex(Color c)
-        {
-            if (!_texCache.TryGetValue(c, out var t)) { t = SolidColorMaterials.NewSolidColorTexture(c); _texCache[c] = t; }
-            return t;
-        }
+        // (Removed: this file's duplicate per-colour texture cache - a second copy of Window_Harem's _barCache.
+        // Bars now route through the shared ModernStyle.FillBar.)
     }
 }

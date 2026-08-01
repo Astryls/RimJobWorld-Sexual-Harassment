@@ -376,42 +376,62 @@ namespace RJWSexualHarassment
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.GetGizmos))]
     public static class Patch_Pawn_GetGizmos
     {
-        static IEnumerable<Gizmo> Postfix(IEnumerable<Gizmo> __result, Pawn __instance)
-        {
-            foreach (var g in __result) yield return g;
+        // GetGizmos is called EVERY FRAME for every selected pawn, and building our suite from scratch each
+        // time allocated a List plus a stream of Command_Action / Command_Toggle / Command_Target objects -
+        // each with its own label concatenation, closure, and (for Command_Target) a fresh TargetingParameters
+        // with a validator lambda. With several pawns selected that is dozens of allocations per frame.
+        // The built list is therefore memoised per (pawn, Unity frame): gizmos are consumed immediately after
+        // construction, so a one-frame cache is safe, and any state change is picked up on the next frame.
+        // Keyed on thingIDNumber (never a Pawn reference) so the static cache cannot root a dead Game graph.
+        private static readonly Dictionary<int, List<Gizmo>> _cache = new Dictionary<int, List<Gizmo>>(8);
+        private static int _cacheFrame = -1;
 
+        private static List<Gizmo> BuildFor(Pawn pawn)
+        {
+            int frame = UnityEngine.Time.frameCount;
+            if (frame != _cacheFrame) { _cacheFrame = frame; _cache.Clear(); }
+            if (_cache.TryGetValue(pawn.thingIDNumber, out var cached)) return cached;
+
+            var list = new List<Gizmo>();
             // When the player has chosen to hide the control gizmos, the whole key-holder suite (and the
             // conditioned readout) is driven from the Pet Dashboard + Control tab instead.
             bool hide = RimJobWorldSexualHarassmentMod.Settings != null && RimJobWorldSexualHarassmentMod.Settings.hideKeyHolderGizmos;
             if (!hide)
             {
-                List<Gizmo> extras = null;
-                try { extras = HarassmentEngine.BuildKeyHolderGizmos(__instance); }
+                try
+                {
+                    var extras = HarassmentEngine.BuildKeyHolderGizmos(pawn);
+                    if (extras != null) list.AddRange(extras);
+                }
                 catch (Exception e) { Log.WarningOnce("[RJW Sexual Harassment] gizmo build failed: " + e.Message, 0x5A1300); }
-                if (extras != null)
-                    for (int i = 0; i < extras.Count; i++)
-                        yield return extras[i];
 
-                Gizmo cond = null;
-                try { cond = HarassmentEngine.BuildConditionedGizmo(__instance); }
+                try { var cond = HarassmentEngine.BuildConditionedGizmo(pawn); if (cond != null) list.Add(cond); }
                 catch (Exception e) { Log.WarningOnce("[RJW Sexual Harassment] conditioned gizmo failed: " + e.Message, 0x5A1345); }
-                if (cond != null) yield return cond;
             }
 
-            Gizmo fb = null;
-            try { fb = HarassmentEngine.BuildFightBackGizmo(__instance); }
+            try { var fb = HarassmentEngine.BuildFightBackGizmo(pawn); if (fb != null) list.Add(fb); }
             catch (Exception e) { Log.WarningOnce("[RJW Sexual Harassment] fight-back gizmo failed: " + e.Message, 0x5A1346); }
-            if (fb != null) yield return fb;
 
-            Gizmo ar = null;
-            try { ar = HarassmentEngine.BuildAutoResistGizmo(__instance); }
+            try { var ar = HarassmentEngine.BuildAutoResistGizmo(pawn); if (ar != null) list.Add(ar); }
             catch (Exception e) { Log.WarningOnce("[RJW Sexual Harassment] auto-resist gizmo failed: " + e.Message, 0x5A1347); }
-            if (ar != null) yield return ar;
 
-            Gizmo ona = null;
-            try { ona = HarassmentEngine.BuildOnaholeTimerGizmo(__instance); }
+            try { var ona = HarassmentEngine.BuildOnaholeTimerGizmo(pawn); if (ona != null) list.Add(ona); }
             catch (Exception e) { Log.WarningOnce("[RJW Sexual Harassment] onahole gizmo failed: " + e.Message, 0x5A1348); }
-            if (ona != null) yield return ona;
+
+            _cache[pawn.thingIDNumber] = list;
+            return list;
+        }
+
+        static IEnumerable<Gizmo> Postfix(IEnumerable<Gizmo> __result, Pawn __instance)
+        {
+            foreach (var g in __result) yield return g;
+            if (__instance == null) yield break;
+
+            List<Gizmo> ours = null;
+            try { ours = BuildFor(__instance); }
+            catch (Exception e) { Log.WarningOnce("[RJW Sexual Harassment] gizmo assembly failed: " + e.Message, 0x5A1349); }
+            if (ours == null) yield break;
+            for (int i = 0; i < ours.Count; i++) yield return ours[i];
         }
     }
 

@@ -75,17 +75,8 @@ namespace RJWSexualHarassment
             }
         }
 
-        private static bool GrayBtn(Rect r, string label, bool enabled = true)
-        {
-            Color fill = !enabled ? ModernStyle.PanelBG : Mouse.IsOver(r) ? Color.Lerp(ModernStyle.BGL, ModernStyle.Accent, 0.14f) : ModernStyle.BGL;
-            Widgets.DrawBoxSolid(r, fill);
-            GUI.color = new Color(0f, 0f, 0f, 0.28f); Widgets.DrawBox(r, 1); GUI.color = Color.white;
-            Text.Anchor = TextAnchor.MiddleCenter;
-            GUI.color = enabled ? new Color(0.9f, 0.9f, 0.9f) : ModernStyle.TextDim;
-            Widgets.Label(r, label);
-            GUI.color = Color.white; Text.Anchor = TextAnchor.UpperLeft;
-            return enabled && Widgets.ButtonInvisible(r);
-        }
+        // GrayBtn now lives in ModernStyle (was duplicated verbatim here and in Dialog_Stylist/Window_Harem).
+        private static bool GrayBtn(Rect r, string label, bool enabled = true) => ModernStyle.GrayBtn(r, label, enabled);
 
         // Modern-Suite checkbox row: accent-left + faint fill when selected, a filled accent check box.
         private bool CheckRow(Rect row, string label, bool sel)

@@ -236,8 +236,8 @@ namespace RJWSexualHarassment
 
             float cond = prof != null ? Mathf.Clamp01(prof.hypnosisLevel / 100f) : 0f;
             float rap = prof != null ? Mathf.Clamp01(prof.rapport / 100f) : 0.5f;
-            Widgets.FillableBar(new Rect(tx, card.yMax - 10f, tw * 0.66f, 5f), cond, SolidBar(CondColor), SolidBar(EmptyColor), false);
-            Widgets.FillableBar(new Rect(tx, card.yMax - 5f, tw * 0.66f, 4f), rap, SolidBar(rap < 0.4f ? FearColor : TrustColor), SolidBar(EmptyColor), false);
+            ModernStyle.FillBar(new Rect(tx, card.yMax - 10f, tw * 0.66f, 5f), cond, CondColor, EmptyColor, false);
+            ModernStyle.FillBar(new Rect(tx, card.yMax - 5f, tw * 0.66f, 4f), rap, rap < 0.4f ? FearColor : TrustColor, EmptyColor, false);
 
             float risk = RiskScore(pet);
             var dot = new Rect(card.xMax - 12f, card.y + 6f, 7f, 7f);
@@ -718,6 +718,11 @@ namespace RJWSexualHarassment
         }
 
         // Flat gray Modern-Suite button: BGL fill, accent-tinted hover, near-white centered label.
+        // DELIBERATELY NOT folded into ModernStyle.GrayBtn. This variant differs by a hair - label grey is
+        // 0.89 rather than 0.90 and the truncate margin is 8px rather than 6px - and the Command deck's
+        // buttons are laid out against those exact metrics. Dialog_DressUp and Dialog_Stylist held two
+        // byte-identical copies of the OTHER variant; those were the real duplication and now forward to
+        // ModernStyle. Unifying this one too would shift pixels in the main window, so it stays.
         private static bool GrayButton(Rect r, string label, bool enabled = true, string tip = null)
         {
             Color fill = !enabled ? ModernStyle.PanelBG
@@ -1249,7 +1254,7 @@ namespace RJWSexualHarassment
                 GUI.color = Color.white;
             }
             var bar = new Rect(r.x + 18f, r.y, r.width - 18f, r.height);
-            Widgets.FillableBar(bar, Mathf.Clamp01(pct), SolidBar(fill), SolidBar(EmptyColor), false);
+            ModernStyle.FillBar(bar, Mathf.Clamp01(pct), fill, EmptyColor, false);
             Text.Font = GameFont.Tiny; Text.Anchor = TextAnchor.MiddleCenter; GUI.color = new Color(1f, 1f, 1f, 0.92f);
             Widgets.Label(bar, ((int)(pct * 100f)) + "%");
             GUI.color = Color.white; Text.Anchor = TextAnchor.UpperLeft; Text.Font = GameFont.Small;
@@ -1450,15 +1455,34 @@ namespace RJWSexualHarassment
             }
         }
 
-        // ── Harem: colony-wide table with bulk role/focus assignment + schedule ──
+        // ── Roster resolution, cached per frame ───────────────────────────────────────────────────────
+        // IMGUI calls OnGUI at least twice per rendered frame (Layout + Repaint) plus once per input event, so
+        // everything below used to run 2-6x per frame: AllPets() did a cross-map AllPawnsSpawned scan and built
+        // a dictionary + a list per owner group, then FilterSortPets() allocated five more lists and called
+        // ToLowerInvariant() on every pawn's name for the filter. Both are now resolved at most once per frame
+        // and reuse their buffers. Same frame-stamp idiom as EnsureFontH.
+        private int _rosterFrame = -1;
+        private readonly List<Pawn> _allPetsCache = new List<Pawn>(32);
+        private readonly HashSet<int> _allPetsSeen = new HashSet<int>();
+
         private List<Pawn> AllPets()
         {
-            var list = new List<Pawn>();
+            int f = Time.frameCount;
+            if (_rosterFrame == f) return _allPetsCache;
+            _rosterFrame = f;
+            _allPetsCache.Clear(); _allPetsSeen.Clear();
             var groups = BuildGroups();
             for (int i = 0; i < groups.Count; i++)
-                for (int j = 0; j < groups[i].pets.Count; j++)
-                    if (!list.Contains(groups[i].pets[j])) list.Add(groups[i].pets[j]);
-            return list;
+            {
+                var pets = groups[i].pets;
+                for (int j = 0; j < pets.Count; j++)
+                {
+                    // O(1) de-dupe by thing id; this was List.Contains, i.e. O(n^2) over the whole roster.
+                    var p = pets[j];
+                    if (p != null && _allPetsSeen.Add(p.thingIDNumber)) _allPetsCache.Add(p);
+                }
+            }
+            return _allPetsCache;
         }
 
         private void DrawHarem(Rect rect)
@@ -1539,28 +1563,67 @@ namespace RJWSexualHarassment
             Text.Anchor = TextAnchor.UpperLeft; GUI.color = Color.white;
         }
 
+        private int _shownFrame = -1;
+        private int _shownSig;
+        private readonly List<Pawn> _shownCache = new List<Pawn>(32);
+        private readonly List<Pawn> _shownScratch = new List<Pawn>(32);
+        // Comparators are cached so the sort does not allocate a delegate on every call.
+        private System.Comparison<Pawn> _cmpName, _cmpCond, _cmpRapport, _cmpOwner;
+
         private List<Pawn> FilterSortPets(List<Pawn> pets)
         {
-            var res = new List<Pawn>(pets);
-            var f = _haremFilter?.Trim().ToLowerInvariant();
-            if (!string.IsNullOrEmpty(f))
-                res = res.FindAll(p => p.LabelShortCap.ToLowerInvariant().Contains(f)
-                    || (HarassmentEngine.FindKeyHolderFor(p)?.LabelShortCap.ToLowerInvariant().Contains(f) ?? false));
-            System.Comparison<Pawn> cmp;
-            switch (_sortMode)
+            // Re-resolve at most once per frame, and only when the inputs actually changed.
+            int sig = pets.Count ^ (_sortMode << 8) ^ (_sortDesc ? 1 << 16 : 0) ^ (_haremFilter?.GetHashCode() ?? 0);
+            int f = Time.frameCount;
+            if (_shownFrame == f && _shownSig == sig) return _shownCache;
+            _shownFrame = f; _shownSig = sig;
+
+            _shownCache.Clear();
+            var filter = _haremFilter?.Trim();
+            bool hasFilter = !string.IsNullOrEmpty(filter);
+            for (int i = 0; i < pets.Count; i++)
             {
-                case 1: cmp = (a, b) => (Prof(a)?.hypnosisLevel ?? 0f).CompareTo(Prof(b)?.hypnosisLevel ?? 0f); break;
-                case 2: cmp = (a, b) => (Prof(a)?.rapport ?? 50f).CompareTo(Prof(b)?.rapport ?? 50f); break;
-                case 3: cmp = (a, b) => string.Compare(HarassmentEngine.FindKeyHolderFor(a)?.LabelShortCap ?? "", HarassmentEngine.FindKeyHolderFor(b)?.LabelShortCap ?? "", System.StringComparison.OrdinalIgnoreCase); break;
-                default: cmp = (a, b) => string.Compare(a.LabelShortCap, b.LabelShortCap, System.StringComparison.OrdinalIgnoreCase); break;
+                var p = pets[i];
+                if (p == null) continue;
+                // IndexOf with OrdinalIgnoreCase avoids the two ToLowerInvariant() string allocations per pawn
+                // that the old Contains() form required.
+                if (hasFilter)
+                {
+                    bool hit = p.LabelShortCap.IndexOf(filter, System.StringComparison.OrdinalIgnoreCase) >= 0;
+                    if (!hit)
+                    {
+                        var owner = HarassmentEngine.FindKeyHolderFor(p);
+                        hit = owner != null && owner.LabelShortCap.IndexOf(filter, System.StringComparison.OrdinalIgnoreCase) >= 0;
+                    }
+                    if (!hit) continue;
+                }
+                _shownCache.Add(p);
             }
-            res.Sort(cmp);
-            if (_sortDesc) res.Reverse();
+
+            if (_cmpName == null)
+            {
+                _cmpName = (a, b) => string.Compare(a.LabelShortCap, b.LabelShortCap, System.StringComparison.OrdinalIgnoreCase);
+                _cmpCond = (a, b) => (Prof(a)?.hypnosisLevel ?? 0f).CompareTo(Prof(b)?.hypnosisLevel ?? 0f);
+                _cmpRapport = (a, b) => (Prof(a)?.rapport ?? 50f).CompareTo(Prof(b)?.rapport ?? 50f);
+                _cmpOwner = (a, b) => string.Compare(HarassmentEngine.FindKeyHolderFor(a)?.LabelShortCap ?? "",
+                                                     HarassmentEngine.FindKeyHolderFor(b)?.LabelShortCap ?? "",
+                                                     System.StringComparison.OrdinalIgnoreCase);
+            }
+            _shownCache.Sort(_sortMode == 1 ? _cmpCond : _sortMode == 2 ? _cmpRapport : _sortMode == 3 ? _cmpOwner : _cmpName);
+            if (_sortDesc) _shownCache.Reverse();
+
             // Pinned pets float to the top (stable within each group), independent of sort + head girl.
-            var pinned = new List<Pawn>(); var rest = new List<Pawn>();
-            for (int i = 0; i < res.Count; i++) { if (Prof(res[i])?.dashboardPinned == true) pinned.Add(res[i]); else rest.Add(res[i]); }
-            pinned.AddRange(rest);
-            return pinned;
+            // Done as a stable in-place partition through one scratch list instead of two fresh lists.
+            _shownScratch.Clear();
+            for (int i = 0; i < _shownCache.Count; i++)
+                if (Prof(_shownCache[i])?.dashboardPinned != true) _shownScratch.Add(_shownCache[i]);
+            if (_shownScratch.Count != _shownCache.Count)   // at least one pin: rebuild pinned-first
+            {
+                for (int i = _shownCache.Count - 1; i >= 0; i--)
+                    if (Prof(_shownCache[i])?.dashboardPinned != true) _shownCache.RemoveAt(i);
+                _shownCache.AddRange(_shownScratch);
+            }
+            return _shownCache;
         }
 
         private void OpenPresetMenu(List<Pawn> pets)
@@ -1697,12 +1760,12 @@ namespace RJWSexualHarassment
 
             float cond = prof != null ? Mathf.Clamp01(prof.hypnosisLevel / 100f) : 0f;
             float rap = prof != null ? Mathf.Clamp01(prof.rapport / 100f) : 0.5f;
-            Widgets.FillableBar(new Rect(r.x + W * ColX[2], r.y + 13f, W * 0.10f, 12f), cond, SolidBar(CondColor), SolidBar(EmptyColor), true);
-            Widgets.FillableBar(new Rect(r.x + W * ColX[3], r.y + 13f, W * 0.10f, 12f), rap, SolidBar(rap < 0.4f ? FearColor : TrustColor), SolidBar(EmptyColor), true);
+            ModernStyle.FillBar(new Rect(r.x + W * ColX[2], r.y + 13f, W * 0.10f, 12f), cond, CondColor, EmptyColor, true);
+            ModernStyle.FillBar(new Rect(r.x + W * ColX[3], r.y + 13f, W * 0.10f, 12f), rap, rap < 0.4f ? FearColor : TrustColor, EmptyColor, true);
 
             var subBar = new Rect(r.x + W * ColX[4], r.y + 13f, W * 0.075f, 12f);
             var sub = Need_Submission.For(pet);
-            if (sub != null) Widgets.FillableBar(subBar, sub.CurLevel, SolidBar(new Color(0.55f, 0.45f, 0.75f)), SolidBar(EmptyColor), true);
+            if (sub != null) ModernStyle.FillBar(subBar, sub.CurLevel, new Color(0.55f, 0.45f, 0.75f), EmptyColor, true);
             else { GUI.color = ModernStyle.TextDim; Text.Anchor = TextAnchor.MiddleCenter; Widgets.Label(subBar, "-"); Text.Anchor = TextAnchor.UpperLeft; GUI.color = Color.white; }
 
             if (SmallButton(new Rect(r.x + W * ColX[5], r.y + 8f, W * 0.115f, 24f), HarassmentEngine.PetRoleLabel(prof?.petRole ?? 0)))
@@ -1989,8 +2052,8 @@ namespace RJWSexualHarassment
             {
                 var condBar = new Rect(barX, row.y + 8f, barW, 12f);
                 var rapBar = new Rect(barX, row.y + 24f, barW, 12f);
-                Widgets.FillableBar(condBar, cond, SolidBar(CondColor), SolidBar(EmptyColor), true);
-                Widgets.FillableBar(rapBar, rapport, SolidBar(rapport < 0.4f ? FearColor : TrustColor), SolidBar(EmptyColor), true);
+                ModernStyle.FillBar(condBar, cond, CondColor, EmptyColor, true);
+                ModernStyle.FillBar(rapBar, rapport, rapport < 0.4f ? FearColor : TrustColor, EmptyColor, true);
                 TooltipHandler.TipRegion(condBar, () => CondTooltip(prof), pet.thingIDNumber ^ 0x1);
                 TooltipHandler.TipRegion(rapBar, () => RapportTooltip(prof), pet.thingIDNumber ^ 0x2);
             }
@@ -2371,7 +2434,7 @@ namespace RJWSexualHarassment
             string vtxt = visLeft >= 0 ? "next in " + visLeft.ToStringTicksToPeriod() : "notoriety " + notoriety;
             float vtW = Mathf.Min(rect.width * 0.4f, Text.CalcSize(vtxt).x + 6f);
             var vbar = new Rect(rect.x + labelW + 4f, y + 3f, Mathf.Max(20f, rect.width - labelW - 8f - vtW), 12f);
-            Widgets.FillableBar(vbar, Mathf.Clamp01(notoriety / 100f), SolidBar(new Color(0.82f, 0.52f, 0.25f)), SolidBar(EmptyColor), false);
+            ModernStyle.FillBar(vbar, Mathf.Clamp01(notoriety / 100f), new Color(0.82f, 0.52f, 0.25f), EmptyColor, false);
             Text.Anchor = TextAnchor.MiddleRight;
             GUI.color = new Color(1f, 1f, 1f, 0.7f);
             Widgets.Label(new Rect(rect.xMax - vtW, y, vtW, iconSz), vtxt);
@@ -2408,7 +2471,7 @@ namespace RJWSexualHarassment
             Widgets.Label(new Rect(r.x, r.y, 92f, r.height), label);
             Text.Anchor = TextAnchor.UpperLeft;
             var bar = new Rect(r.x + 96f, r.y, r.width - 96f, r.height);
-            Widgets.FillableBar(bar, Mathf.Clamp01(pct), SolidBar(fill), SolidBar(EmptyColor), true);
+            ModernStyle.FillBar(bar, Mathf.Clamp01(pct), fill, EmptyColor, true);
             Text.Anchor = TextAnchor.MiddleCenter;
             Widgets.Label(bar, ((int)(pct * 100f)) + "%");
             Text.Anchor = TextAnchor.UpperLeft;
@@ -2758,20 +2821,39 @@ namespace RJWSexualHarassment
             var paw = HarassmentTextures.Paw;
             var collar = HarassmentTextures.CollarIcon;
             if (paw == null) return;
+            RebuildBorderIcons(r);
             GUI.color = PawTint;
+            for (int k = 0; k < _borderIcons.Count; k++)
+            {
+                var e = _borderIcons[k];
+                GUI.DrawTexture(e.rect, Ico(paw, collar, e.parity));
+            }
+            GUI.color = Color.white;
+        }
+
+        // The trail's geometry only depends on the window rect, so it is recomputed on resize rather than on
+        // every repaint (it was ~94 rect constructions + loop arithmetic per pass).
+        private struct BorderIcon { public Rect rect; public int parity; }
+        private static readonly List<BorderIcon> _borderIcons = new List<BorderIcon>(128);
+        private static Rect _borderIconsFor;
+
+        private static void RebuildBorderIcons(Rect r)
+        {
+            if (_borderIcons.Count > 0 && _borderIconsFor == r) return;
+            _borderIconsFor = r;
+            _borderIcons.Clear();
             const float s = 17f; const float step = 40f; const float off = 6f;
             // Each edge alternates paw/collar every other icon (offset phase on opposite edges), so the pattern
             // weaves along all four sides rather than one type per side. Stagger tied to the same parity.
             int i;
             i = 0; for (float x = r.x + 12f; x < r.xMax - s - 10f; x += step, i++)
-                GUI.DrawTexture(new Rect(x, r.y + 7f + (i & 1) * off, s, s), Ico(paw, collar, i));
+                _borderIcons.Add(new BorderIcon { rect = new Rect(x, r.y + 7f + (i & 1) * off, s, s), parity = i });
             i = 1; for (float x = r.x + 12f; x < r.xMax - s - 10f; x += step, i++)
-                GUI.DrawTexture(new Rect(x, r.yMax - s - 7f - (i & 1) * off, s, s), Ico(paw, collar, i));
+                _borderIcons.Add(new BorderIcon { rect = new Rect(x, r.yMax - s - 7f - (i & 1) * off, s, s), parity = i });
             i = 0; for (float y = r.y + 7f + step; y < r.yMax - s - 7f - step * 0.6f; y += step, i++)
-                GUI.DrawTexture(new Rect(r.x + 7f + (i & 1) * off, y, s, s), Ico(paw, collar, i));
+                _borderIcons.Add(new BorderIcon { rect = new Rect(r.x + 7f + (i & 1) * off, y, s, s), parity = i });
             i = 1; for (float y = r.y + 7f + step; y < r.yMax - s - 7f - step * 0.6f; y += step, i++)
-                GUI.DrawTexture(new Rect(r.xMax - s - 7f - (i & 1) * off, y, s, s), Ico(paw, collar, i));
-            GUI.color = Color.white;
+                _borderIcons.Add(new BorderIcon { rect = new Rect(r.xMax - s - 7f - (i & 1) * off, y, s, s), parity = i });
         }
 
         private static Texture2D Ico(Texture2D paw, Texture2D collar, int i)
@@ -2784,11 +2866,8 @@ namespace RJWSexualHarassment
             GUI.color = old;
         }
 
-        private static readonly Dictionary<Color, Texture2D> _barCache = new Dictionary<Color, Texture2D>();
-        private static Texture2D SolidBar(Color c)
-        {
-            if (!_barCache.TryGetValue(c, out var t)) { t = SolidColorMaterials.NewSolidColorTexture(c); _barCache[c] = t; }
-            return t;
-        }
+        // (Removed: the per-colour SolidColorMaterials texture cache that backed the old Widgets.FillableBar
+        // calls. Every bar now goes through ModernStyle.FillBar, which tints the one shared white texture, so
+        // bars batch with the rest of the window instead of forcing a texture switch each. See ModernStyle.)
     }
 }
