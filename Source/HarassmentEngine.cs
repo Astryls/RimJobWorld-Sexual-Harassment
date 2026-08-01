@@ -830,7 +830,9 @@ namespace RJWSexualHarassment
         {
             if (map == null || S == null || !S.enableHeadGirl || !S.autoHeadGirl) return;
             var gc = GameComponent_Harassment.Instance; if (gc == null) return;
-            var pawns = map.mapPawns.AllPawnsSpawned;
+            // Profiled snapshot: this loop's first act is GetProfileIfExists, so the index's _profiled list is
+            // exactly the right population and skips every animal on the map.
+            var pawns = MapComponent_HarassmentScan.ProfiledOn(map) ?? map.mapPawns.AllPawnsSpawned;
             // Reused scratch buffers - this runs per map on a 2500-tick cadence, and allocating two dictionaries
             // plus a list every time was pure garbage. Cleared on entry AND on exit (see bottom of the method).
             var bestScore = _hgBestScore; bestScore.Clear();
@@ -863,7 +865,8 @@ namespace RJWSexualHarassment
         {
             if (map == null || S == null || !S.enableHeadGirl) return;
             var gc = GameComponent_Harassment.Instance; if (gc == null) return;
-            var pawns = map.mapPawns.AllPawnsSpawned;
+            // Both passes below are profile-gated, so iterate the profiled snapshot rather than every pawn.
+            var pawns = MapComponent_HarassmentScan.ProfiledOn(map) ?? map.mapPawns.AllPawnsSpawned;
             Pawn hg = null; PawnProfile hgp = null;
             for (int i = 0; i < pawns.Count; i++)
             {
@@ -3022,23 +3025,43 @@ namespace RJWSexualHarassment
             catch { return null; }
         }
 
-        // Per-frame cache: BuildKeyHolderGizmos calls this per key every GUI frame; a full pawn scan per key per
-        // frame is wasteful. Cache the resolved victim per key comp, refreshed once per Unity frame.
-        private static readonly Dictionary<rjw.CompHoloCryptoStamped, int> _lockedVictimFrame = new Dictionary<rjw.CompHoloCryptoStamped, int>();
-        private static readonly Dictionary<rjw.CompHoloCryptoStamped, Pawn> _lockedVictimCache = new Dictionary<rjw.CompHoloCryptoStamped, Pawn>();
+        // Per-frame cache: BuildKeyHolderGizmos calls this per key every GUI frame, and a full pawn scan per key
+        // per frame is wasteful. Cache the resolved victim per key, refreshed once per Unity frame.
+        //
+        // BOTH the key and the value are ints (thingIDNumbers), never live object references. The earlier
+        // version keyed on the CompHoloCryptoStamped itself and stored a Pawn: a ThingComp reaches its parent
+        // Thing, which reaches Map, which reaches Game, so those two dictionaries pinned the entire previous
+        // game object graph across a save->load in the same session. The 512-entry cap bounded the entry count,
+        // not the retained graph. Same discipline as PawnFlagCache. Cleared on FinalizeInit for good measure.
+        private static readonly Dictionary<int, int> _lockedVictimFrame = new Dictionary<int, int>();
+        private static readonly Dictionary<int, int> _lockedVictimCache = new Dictionary<int, int>();
+
+        /// <summary>Drops the key->victim memo. Called on game load so nothing survives into a new Game.</summary>
+        public static void ClearKeyVictimCache()
+        {
+            _lockedVictimCache.Clear();
+            _lockedVictimFrame.Clear();
+        }
+
         private static Pawn FindLockedVictimForKey(rjw.CompHoloCryptoStamped keyComp, Map map)
         {
-            if (map == null || keyComp == null) return null;
+            if (map == null || keyComp?.parent == null) return null;
+            int keyId = keyComp.parent.thingIDNumber;
             int frame = UnityEngine.Time.frameCount;
-            if (_lockedVictimFrame.TryGetValue(keyComp, out int f) && f == frame
-                && _lockedVictimCache.TryGetValue(keyComp, out var cached))
+            if (_lockedVictimFrame.TryGetValue(keyId, out int f) && f == frame
+                && _lockedVictimCache.TryGetValue(keyId, out int cachedId))
             {
-                if (cached == null || (cached.Spawned && cached.Map == map)) return cached;
+                if (cachedId < 0) return null;                       // memoised "no victim"
+                var cached = PawnLookup.OnMap(map, cachedId);
+                if (cached != null) return cached;                   // still spawned here - reuse
+                // fall through and re-resolve if the pawn left the map since the memo was taken
             }
             Pawn found = null;
-            foreach (var p in map.mapPawns.AllPawnsSpawned)
+            var pawns = MapComponent_HarassmentScan.HumanlikesOn(map) ?? map.mapPawns.AllPawnsSpawned;
+            for (int j = 0; j < pawns.Count; j++)
             {
-                if (!p.RaceProps.Humanlike || p.apparel == null) continue;
+                var p = pawns[j];
+                if (p?.apparel == null) continue;
                 var worn = p.apparel.WornApparel;
                 for (int i = 0; i < worn.Count; i++)
                 {
@@ -3047,9 +3070,9 @@ namespace RJWSexualHarassment
                 }
                 if (found != null) break;
             }
-            if (_lockedVictimCache.Count > 512) { _lockedVictimCache.Clear(); _lockedVictimFrame.Clear(); }
-            _lockedVictimCache[keyComp] = found;
-            _lockedVictimFrame[keyComp] = frame;
+            if (_lockedVictimCache.Count > 512) ClearKeyVictimCache();
+            _lockedVictimCache[keyId] = found?.thingIDNumber ?? -1;
+            _lockedVictimFrame[keyId] = frame;
             return found;
         }
 
@@ -4195,7 +4218,9 @@ namespace RJWSexualHarassment
                 var kc = key.TryGetComp<rjw.CompHoloCryptoStamped>();
                 if (kc == null || FindLockedVictimForKey(kc, map) == null) continue; // only keys that lock someone
                 Pawn picker = null; float bestE = 0.7f;
-                var pawns = map.mapPawns.AllPawnsSpawned;
+                // Humanlike snapshot - this inner loop is nested inside the ground-key loop, so it was O(keys x
+                // every spawned thing) and it already rejected non-humanlikes on the first line.
+                var pawns = MapComponent_HarassmentScan.HumanlikesOn(map) ?? map.mapPawns.AllPawnsSpawned;
                 for (int j = 0; j < pawns.Count; j++)
                 {
                     var p = pawns[j];
@@ -4215,6 +4240,10 @@ namespace RJWSexualHarassment
             }
 
             // Phase B: an evil key-holder lords over the conditioned, collared pawn it can unlock.
+            // NOTE: deliberately still the raw spawned list. Phases B and C gate on `holder.inventory != null`
+            // rather than on Humanlike, and a player-owned animal can carry inventory (caravan packing), so
+            // narrowing this to the humanlike snapshot could silently drop a real case. The cheap null check
+            // rejects animals on the first line anyway, and unlike Phase A this is a single pass, not nested.
             var all = map.mapPawns.AllPawnsSpawned;
             for (int i = 0; i < all.Count; i++)
             {
@@ -4304,7 +4333,8 @@ namespace RJWSexualHarassment
 
                 // Pick the pawn who wants it most: baseline curiosity for anyone, scaled hard by cruelty/greed.
                 Pawn picker = null; float bestScore = 0f;
-                var pawns = map.mapPawns.AllPawnsSpawned;
+                // Humanlike snapshot - nested inside the ground-photo loop, and non-humanlikes were rejected anyway.
+                var pawns = MapComponent_HarassmentScan.HumanlikesOn(map) ?? map.mapPawns.AllPawnsSpawned;
                 for (int j = 0; j < pawns.Count; j++)
                 {
                     var p = pawns[j];
@@ -5991,7 +6021,9 @@ namespace RJWSexualHarassment
             var gc = GameComponent_Harassment.Instance;
             if (gc == null) return;
             int now = Find.TickManager.TicksGame;
-            var pawns = map.mapPawns.AllPawnsSpawned;
+            // Profile-gated, so use the profiled snapshot (this is the 350-tick cadence - the most frequent of
+            // the interval scans, and previously the one that walked every animal on the map).
+            var pawns = MapComponent_HarassmentScan.ProfiledOn(map) ?? map.mapPawns.AllPawnsSpawned;
             for (int i = 0; i < pawns.Count; i++)
             {
                 var v = pawns[i];
@@ -6003,12 +6035,17 @@ namespace RJWSexualHarassment
                 Pawn tormentor = null; int bestCount = 1;
                 foreach (var kv in vp.harasserMemory)
                 {
-                    if (kv.Value < 2) continue;
+                    // Cheap rejections first. GenSight.LineOfSight is a cell-by-cell raycast and was previously
+                    // run for EVERY in-range remembered harasser; testing "could this even win?" up front means
+                    // it now runs at most once per improvement to the best candidate. Same result either way:
+                    // we still end up with the highest-count harasser that has line of sight, because a
+                    // candidate that fails the sight check never updates bestCount.
+                    if (kv.Value < 2 || kv.Value <= bestCount) continue;
                     var h = FindPawnByIdAnyMap(kv.Key);
                     if (h == null || h == v || h.Dead || h.Map != map) continue;
                     if (v.Position.DistanceTo(h.Position) > 9f) continue;
                     if (!GenSight.LineOfSight(v.Position, h.Position, map)) continue;
-                    if (kv.Value > bestCount) { bestCount = kv.Value; tormentor = h; }
+                    bestCount = kv.Value; tormentor = h;
                 }
                 if (tormentor == null) continue;
                 vp.recoilCooldownTick = now + 7500;
@@ -6035,7 +6072,9 @@ namespace RJWSexualHarassment
         {
             var map = harasser?.Map;
             if (map == null || victim == null) return;
-            var pawns = map.mapPawns.AllPawnsSpawned;
+            // Event-driven rather than one of the interval scans, but humanlike-gated all the same - and it runs
+            // GenSight.LineOfSight per candidate, so skipping the map's animals up front is worth having.
+            var pawns = MapComponent_HarassmentScan.HumanlikesOn(map) ?? map.mapPawns.AllPawnsSpawned;
             int reacted = 0;
             for (int i = 0; i < pawns.Count && reacted < 2; i++)
             {

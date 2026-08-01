@@ -146,6 +146,25 @@ namespace RJWSexualHarassment
             return _byId.TryGetValue(id, out var p) && p.Spawned ? p : null;
         }
 
+        // ── Shared snapshots for the periodic scans ──────────────────────────────────────────────
+        // The index is already built (usually by ControlUpkeep) on most ticks, so these are free. Several
+        // interval scans used to re-walk map.mapPawns.AllPawnsSpawned and re-derive exactly these filters -
+        // on a map with 200 animals and 20 humanlikes that is a 10x waste, repeated at four cadences.
+        // Callers must treat both as READ-ONLY; they are the live snapshot buffers, not copies. Iterating them
+        // is safe across despawns mid-pass (that is the point of a snapshot), but do not hold one across ticks.
+
+        /// <summary>This tick's spawned humanlike pawns on this map.</summary>
+        public List<Pawn> Humanlikes() { EnsureIndex(); return _humanlikes; }
+
+        /// <summary>This tick's spawned pawns that already carry a profile.</summary>
+        public List<Pawn> Profiled() { EnsureIndex(); return _profiled; }
+
+        /// <summary>Null-safe accessor for engine code; callers fall back to the raw spawned list.</summary>
+        public static List<Pawn> HumanlikesOn(Map map) { try { return For(map)?.Humanlikes(); } catch { return null; } }
+
+        /// <summary>Null-safe accessor for engine code; callers fall back to the raw spawned list.</summary>
+        public static List<Pawn> ProfiledOn(Map map) { try { return For(map)?.Profiled(); } catch { return null; } }
+
         public override void MapComponentTick()
         {
             DrainPending();

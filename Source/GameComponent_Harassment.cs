@@ -77,6 +77,9 @@ namespace RJWSexualHarassment
         {
             Instance = this;
             _needReinject = true; // re-apply injected locks on the first tick, once everything is spawned
+            // Static memos are process-wide, not per-Game, so drop anything carried over from a previous
+            // save loaded in this same session before it can hand out ids belonging to the old world.
+            HarassmentEngine.ClearKeyVictimCache();
         }
 
         public void RecordLockedExtra(Apparel app, string name, string key)
